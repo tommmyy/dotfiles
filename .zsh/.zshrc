@@ -1,4 +1,6 @@
-cat art
+ls "$HOME/.dotfiles/arts"|sort -R |tail -1 |while read file; do
+  cat "$HOME/.dotfiles/arts/$file" 
+done
 
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
@@ -100,7 +102,7 @@ alias reloadZshconfig=". ~/.zshrc"
 
 alias vimconfig="vim ~/.vimrc"
 alias cls="clear"
-alias ls="ls -a"
+alias lsa="ls -a"
 alias v="vim"	
 
 # Projects
