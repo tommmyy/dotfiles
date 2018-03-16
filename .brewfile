@@ -1,0 +1,18 @@
+update
+upgrade
+install coreutils
+install wget --enable-iri
+tap homebrew/dupes
+install homebrew/dupes/grep
+install ack
+install git
+install tree
+
+install caskroom/cask/brew-cask
+
+cask install google-chrome
+cask install iterm2
+cask install slack
+cask install vlc
+
+cleanup
