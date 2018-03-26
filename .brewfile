@@ -14,5 +14,6 @@ cask install google-chrome
 cask install iterm2
 cask install slack
 cask install vlc
+cask install docker
 
 cleanup
