@@ -15,5 +15,8 @@ cask install iterm2
 cask install slack
 cask install vlc
 cask install docker
+cask install java
+
+install maven
 
 cleanup

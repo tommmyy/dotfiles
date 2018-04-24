@@ -65,7 +65,6 @@ ZSH_THEME=""
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
-  yarn
   dotenv
   vi-mode
   zsh-syntax-highlighting
@@ -97,7 +96,6 @@ source $ZSH/oh-my-zsh.sh
 # For a full list of active aliases, run `alias`.
 alias zshconfig="vim ~/.zshrc"
 alias ohmyzsh="vim ~/.oh-my-zsh"
-alias ohmyzsh="vim ~/.oh-my-zsh"
 alias reloadZshconfig=". ~/.zshrc"
 
 alias vimconfig="vim ~/.vimrc"
@@ -119,6 +117,7 @@ alias unionredux="~/Workspaces/react-union/boilerplates/react-union-boilerplate-
 	
 alias mptrasy="cd ~/Workspaces/mp-trasy/admin"
 
+alias diary="cd ~/Workspaces/diary"
 
 autoload -U promptinit; promptinit
 prompt pure
