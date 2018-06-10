@@ -7,13 +7,23 @@
 	call vundle#begin()
 
 	Plugin 'VundleVim/Vundle.vim'
+
 	Plugin 'tpope/vim-fugitive'
+	Plugin 'tpope/vim-surround'
+	Plugin 'tpope/vim-repeat'
+	Plugin 'tpope/vim-speeddating'
+	Plugin 'scrooloose/nerdtree'
+	Plugin 'Xuyuanp/nerdtree-git-plugin'
+	Plugin 'ctrlpvim/ctrlp.vim'
+	Plugin 'bling/vim-airline'	
+	Plugin 'editorconfig/editorconfig-vim'
+	Plugin 'w0rp/ale'
 	Plugin 'pangloss/vim-javascript'
 	Plugin 'mxw/vim-jsx'
-	Plugin 'editorconfig/editorconfig-vim'
-	Plugin 'scrooloose/nerdtree'
-	Plugin 'tpope/vim-surround'
-	Plugin 'w0rp/ale'
+	Plugin 'vim-scripts/VimClojure'
+	Plugin 'bhurlow/vim-parinfer'
+	Plugin 'kien/rainbow_parentheses.vim'
+	Plugin 'tpope/vim-fireplace'
 
 	" All of your Plugins must be added before the following line
 	call vundle#end()            " required
@@ -22,11 +32,12 @@
 " }}}
 
 "General {{{"
-	" Type :so % to refresh .vimrc after making changes
+"	" Type :so % to refresh .vimrc after making changes
 
 	" Use Vim settings, rather then Vi settings. This setting must be as early as
 	" possible, as it has side effects.
 	syntax on
+	set hlsearch
 	set ruler
 	set showcmd
 	set ruler
@@ -105,5 +116,40 @@
 	\}
 
 	let g:ale_fix_on_save = 1
+" }}}
 
+" CtrlP {{{
+	let g:ctrlp_map = '<c-p>'
+	let g:ctrlp_cmd = 'CtrlP'
+	let g:ctrlp_custom_ignore = {
+	    \ 'dir':  '\v[\/]\.(git|svn)$',
+	\ }
+" }}}
+
+" RainbowParentheses {{{
+	let g:rbpt_max = 16
+	let g:rbpt_loadcmd_toggle = 0
+	let g:rbpt_colorpairs = [
+    \ ['brown',       'RoyalBlue3'],
+    \ ['darkgray',    'DarkOrchid3'],
+    \ ['darkgreen',   'firebrick3'],
+    \ ['darkcyan',    'RoyalBlue3'],
+    \ ['darkred',     'SeaGreen3'],
+    \ ['Darkblue',    'SeaGreen3'],
+    \ ['darkmagenta', 'DarkOrchid3'],
+    \ ['brown',       'firebrick3'],
+    \ ['gray',        'RoyalBlue3'],
+    \ ['black',       'SeaGreen3'],
+    \ ['darkmagenta', 'DarkOrchid3'],
+    \ ['darkgreen',   'RoyalBlue3'],
+    \ ['darkcyan',    'SeaGreen3'],
+    \ ['darkred',     'DarkOrchid3'],
+    \ ['red',         'firebrick3'],
+    \ ['gray',    'RoyalBlue3'],
+    \ ] 
+
+	au VimEnter * RainbowParenthesesToggle
+	au Syntax * RainbowParenthesesLoadRound
+	au Syntax * RainbowParenthesesLoadSquare
+	au Syntax * RainbowParenthesesLoadBraces
 " }}}

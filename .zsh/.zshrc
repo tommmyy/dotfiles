@@ -115,10 +115,16 @@ alias sanalytics="cd ~/Workspaces/sdp/s-analytics"
 alias union="~/Workspaces/react-union/"
 alias unionbasic="~/Workspaces/react-union/boilerplates/react-union-boilerplate-basic/"
 alias unionredux="~/Workspaces/react-union/boilerplates/react-union-boilerplate-redux/"
-	
+
+alias nwp="~/Workspaces/nwp/modules/javascript"
+
 alias mptrasy="cd ~/Workspaces/mp-trasy/admin"
 
 alias diary="cd ~/Workspaces/diary"
+alias diaryapp="cd ~/Workspaces/diary/packages/diary-app"
+alias diaryeditor="cd ~/Workspaces/diary/packages/diary-editor"
+
+alias sdp="cd ~/Workspaces/sdp/s-analytics"
 
 autoload -U promptinit; promptinit
 prompt pure
