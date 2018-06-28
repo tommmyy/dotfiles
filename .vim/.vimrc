@@ -67,7 +67,9 @@
 	"Allow usage of mouse in iTerm
 	set ttyfast
 	set mouse=a
-	" set ttymouse=xterm2
+        "Set the root directories for :find command	
+	set path+=~/Workspaces/**;~/Downloads/**;~/.dotfiles/**
+	set wildignore+=**/node_modules/**
 " }}}
 
 " Scrolling {{{
@@ -121,8 +123,12 @@
 " CtrlP {{{
 	let g:ctrlp_map = '<c-p>'
 	let g:ctrlp_cmd = 'CtrlP'
-	let g:ctrlp_custom_ignore = {
-	    \ 'dir':  '\v[\/]\.(git|svn)$',
+        " set root directory to dir with .git
+	let g:ctrlp_working_path_mode = 'ra'
+        let g:ctrlp_custom_ignore = {
+	\ 'dir':  '\v[\/]\.(git|hg|svn)$',
+	\ 'file': '\v\.(exe|so|dll)$',
+	\ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
 	\ }
 " }}}
 

@@ -4,7 +4,7 @@ done
 
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
-
+export PATH="$PATH:$HOME/Library/PackageManager/bin"
 
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
@@ -103,8 +103,10 @@ alias vimconfig="vim ~/.vimrc"
 alias cls="clear"
 alias lsa="ls -a"
 alias v="vim"	
+alias fig="lein figwheel"
 
 # Projects
+alias work="~/Workspaces"
 alias nel="~/Workspaces/NeL/frontend/react-union/"
 alias eliska="~/Workspaces/NeL/frontend/react-union/src/modules/EliskaPrototypeEntry"
 alias setupeliska="cp -R ~/Workspaces/reactPermissions ~/Workspaces/NeL/frontend/react-union/src/modules && rm -r ~/Workspaces/NeL/frontend/react-union/node_modules/.cache"
@@ -115,6 +117,7 @@ alias sanalytics="cd ~/Workspaces/sdp/s-analytics"
 alias union="~/Workspaces/react-union/"
 alias unionbasic="~/Workspaces/react-union/boilerplates/react-union-boilerplate-basic/"
 alias unionredux="~/Workspaces/react-union/boilerplates/react-union-boilerplate-redux/"
+alias unionliferay="~/Workspaces/react-union/boilerplates/react-union-boilerplate-liferay-basic/"
 
 alias nwp="~/Workspaces/nwp/modules/javascript"
 
@@ -125,6 +128,8 @@ alias diaryapp="cd ~/Workspaces/diary/packages/diary-app"
 alias diaryeditor="cd ~/Workspaces/diary/packages/diary-editor"
 
 alias sdp="cd ~/Workspaces/sdp/s-analytics"
+
+alias cardif="cd ~/Workspaces/cardif-ssc-portal/union-widgets"
 
 autoload -U promptinit; promptinit
 prompt pure
