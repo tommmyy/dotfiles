@@ -7,7 +7,8 @@ install homebrew/dupes/grep
 install ack
 install git
 install tree
-
+install tig
+install fzy
 install caskroom/cask/brew-cask
 
 cask install google-chrome
@@ -16,7 +17,9 @@ cask install slack
 cask install vlc
 cask install docker
 cask install java
+cask install xquartz
 
+install vim --with-client-server
 install maven
 
 cleanup

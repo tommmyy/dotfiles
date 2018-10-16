@@ -24,6 +24,8 @@
 	Plugin 'bhurlow/vim-parinfer'
 	Plugin 'kien/rainbow_parentheses.vim'
 	Plugin 'tpope/vim-fireplace'
+	Plugin 'srstevenson/vim-picker'
+	Plugin 'lervag/vimtex'
 
 	" All of your Plugins must be added before the following line
 	call vundle#end()            " required
@@ -36,6 +38,7 @@
 
 	" Use Vim settings, rather then Vi settings. This setting must be as early as
 	" possible, as it has side effects.
+
 	syntax on
 	set hlsearch
 	set ruler
@@ -67,9 +70,19 @@
 	"Allow usage of mouse in iTerm
 	set ttyfast
 	set mouse=a
+
         "Set the root directories for :find command	
-	set path+=~/Workspaces/**;~/Downloads/**;~/.dotfiles/**
+	set path=~/Workspaces/**;~/Downloads/**;~/.dotfiles/**
 	set wildignore+=**/node_modules/**
+
+	"Switch tabs by f8
+	set switchbuf=usetab
+	nnoremap <F8> :sbnext<CR>
+	nnoremap <S-F8> :sbprevious<CR>
+" }}}
+
+" VimTex {{{
+        let g:tex_flavor = 'latex'
 " }}}
 
 " Scrolling {{{
@@ -130,6 +143,18 @@
 	\ 'file': '\v\.(exe|so|dll)$',
 	\ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
 	\ }
+" }}}
+
+" Vim-picker {{{
+        nmap <unique> <leader>pe <Plug>PickerEdit
+        nmap <unique> <leader>ps <Plug>PickerSplit
+        nmap <unique> <leader>pt <Plug>PickerTabedit
+        nmap <unique> <leader>pv <Plug>PickerVsplit
+        nmap <unique> <leader>pb <Plug>PickerBuffer
+        nmap <unique> <leader>p] <Plug>PickerTag
+        nmap <unique> <leader>pw <Plug>PickerStag
+        nmap <unique> <leader>po <Plug>PickerBufferTag
+        nmap <unique> <leader>ph <Plug>PickerHelp
 " }}}
 
 " RainbowParentheses {{{

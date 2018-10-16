@@ -5,7 +5,7 @@ done
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export PATH="$PATH:$HOME/Library/PackageManager/bin"
-
+export PATH="$(yarn global bin):$PATH"		
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
@@ -102,8 +102,10 @@ alias reloadZshconfig=". ~/.zshrc"
 alias vimconfig="vim ~/.vimrc"
 alias cls="clear"
 alias lsa="ls -a"
-alias v="vim"	
+alias vim="vim --servername VIM"
+alias v="vim --servername VIM"	
 alias fig="lein figwheel"
+alias gmu="git fetch upstream && git merge upstream/master"
 
 # Projects
 alias work="~/Workspaces"
@@ -125,12 +127,14 @@ alias mptrasy="cd ~/Workspaces/mp-trasy/admin"
 
 alias diary="cd ~/Workspaces/diary"
 alias diaryapp="cd ~/Workspaces/diary/packages/diary-app"
-alias diaryeditor="cd ~/Workspaces/diary/packages/diary-editor"
+alias diarycomponents="cd ~/Workspaces/diary/packages/diary-components"
 
 alias sdp="cd ~/Workspaces/sdp/s-analytics"
 
-alias cardif="cd ~/Workspaces/cardif-ssc-portal/union-widgets"
-
+alias cardifunion="cd ~/Workspaces/cardif-ssc-portal/liferay-workspace/modules/ssc.liferay.union.widgets"
+alias cardiftheme="cd ~/Workspaces/cardif-ssc-portal/liferay-workspace/themes/cardif-ssc-portal-theme"
+alias cardif="cd ~/Workspaces/cardif-ssc-portal"
+alias phproot="cd ~/.bitnami/stackman/machines/xampp/volumes/root/htdocs"
 autoload -U promptinit; promptinit
 prompt pure
 
