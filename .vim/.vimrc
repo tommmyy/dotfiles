@@ -48,7 +48,7 @@
 	" Reload files changed outside vim
 	set autoread     
 	" Use the OS clipboard by default (on versions compiled with `+clipboard`)
-	set clipboard=unnamed
+	" set clipboard=unnamed
 	" Trigger autoread when changing buffers or coming back to vim in terminal.
 	au FocusGained,BufEnter * :silent! !
 	"Set default font in mac vim and gvim
@@ -83,6 +83,12 @@
 
 " VimTex {{{
         let g:tex_flavor = 'latex'
+" }}}
+
+" NERDTree {{{
+        map <silent> <C-n> :NERDTreeFocus<CR>
+
+	let NERDTreeShowHidden=1
 " }}}
 
 " Scrolling {{{
@@ -131,6 +137,8 @@
 	\}
 
 	let g:ale_fix_on_save = 1
+	let g:ale_completion_enabled = 1
+        nmap <F8> <Plug>(ale_fix)
 " }}}
 
 " CtrlP {{{

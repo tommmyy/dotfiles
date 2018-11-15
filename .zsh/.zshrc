@@ -69,6 +69,7 @@ plugins=(
   dotenv
   vi-mode
   zsh-syntax-highlighting
+  zsh-autosuggestions
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -102,10 +103,12 @@ alias reloadZshconfig=". ~/.zshrc"
 alias vimconfig="vim ~/.vimrc"
 alias cls="clear"
 alias lsa="ls -a"
+alias rmrf="rm -rf"
 alias vim="vim --servername VIM"
 alias v="vim --servername VIM"	
 alias fig="lein figwheel"
 alias gmu="git fetch upstream && git merge upstream/master"
+alias back="cd $OLDPWD"
 
 # Projects
 alias work="~/Workspaces"
@@ -135,6 +138,7 @@ alias cardifunion="cd ~/Workspaces/cardif-ssc-portal/liferay-workspace/modules/s
 alias cardiftheme="cd ~/Workspaces/cardif-ssc-portal/liferay-workspace/themes/cardif-ssc-portal-theme"
 alias cardif="cd ~/Workspaces/cardif-ssc-portal"
 alias phproot="cd ~/.bitnami/stackman/machines/xampp/volumes/root/htdocs"
+eval $(thefuck --alias)
 autoload -U promptinit; promptinit
 prompt pure
 
