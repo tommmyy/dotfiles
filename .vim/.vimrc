@@ -7,7 +7,6 @@
 	call vundle#begin()
 
 	Plugin 'VundleVim/Vundle.vim'
-
 	Plugin 'tpope/vim-fugitive'
 	Plugin 'tpope/vim-surround'
 	Plugin 'tpope/vim-repeat'
@@ -26,6 +25,8 @@
 	Plugin 'tpope/vim-fireplace'
 	Plugin 'srstevenson/vim-picker'
 	Plugin 'lervag/vimtex'
+	Plugin 'christoomey/vim-tmux-navigator'
+	Plugin 'Valloric/YouCompleteMe'
 
 	" All of your Plugins must be added before the following line
 	call vundle#end()            " required
@@ -67,6 +68,12 @@
 	inoremap <left>  <nop>
 	inoremap <right> <nop>
 	
+	" Set easier split navigation
+	nnoremap <C-J> <C-W><C-J>
+        nnoremap <C-K> <C-W><C-K>
+        nnoremap <C-L> <C-W><C-L>
+        nnoremap <C-H> <C-W><C-H>
+
 	"Allow usage of mouse in iTerm
 	set ttyfast
 	set mouse=a
@@ -87,6 +94,7 @@
 
 " NERDTree {{{
         map <silent> <C-n> :NERDTreeFocus<CR>
+        map <silent> <C-n>t :NERDTreeToggle<CR>
 
 	let NERDTreeShowHidden=1
 " }}}
@@ -154,15 +162,16 @@
 " }}}
 
 " Vim-picker {{{
-        nmap <unique> <leader>pe <Plug>PickerEdit
-        nmap <unique> <leader>ps <Plug>PickerSplit
-        nmap <unique> <leader>pt <Plug>PickerTabedit
-        nmap <unique> <leader>pv <Plug>PickerVsplit
-        nmap <unique> <leader>pb <Plug>PickerBuffer
-        nmap <unique> <leader>p] <Plug>PickerTag
-        nmap <unique> <leader>pw <Plug>PickerStag
-        nmap <unique> <leader>po <Plug>PickerBufferTag
-        nmap <unique> <leader>ph <Plug>PickerHelp
+"        let g:picker_selector_executable = 'fzy-tmux'
+        nmap <leader>pe <Plug>PickerEdit
+"        nmap <unique> <leader>ps <Plug>PickerSplit
+"        nmap <unique> <leader>pt <Plug>PickerTabedit
+"        nmap <unique> <leader>pv <Plug>PickerVsplit
+        nmap <leader>pb <Plug>PickerBuffer
+"        nmap <unique> <leader>p] <Plug>PickerTag
+"        nmap <unique> <leader>pw <Plug>PickerStag
+"        nmap <unique> <leader>po <Plug>PickerBufferTag
+"        nmap <unique> <leader>ph <Plug>PickerHelp
 " }}}
 
 " RainbowParentheses {{{
@@ -191,4 +200,14 @@
 	au Syntax * RainbowParenthesesLoadRound
 	au Syntax * RainbowParenthesesLoadSquare
 	au Syntax * RainbowParenthesesLoadBraces
+" }}}
+
+" YCM {{{
+     " Start autocompletion after 4 chars
+     let g:ycm_min_num_of_chars_for_completion = 4
+     let g:ycm_min_num_identifier_candidate_chars = 4
+     let g:ycm_enable_diagnostic_highlighting = 0
+     " Don't show YCM's preview window [ I find it really annoying ]
+     set completeopt-=preview
+     let g:ycm_add_preview_to_completeopt = 0
 " }}}

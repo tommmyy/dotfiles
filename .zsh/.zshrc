@@ -68,10 +68,12 @@ plugins=(
   git
   dotenv
   vi-mode
+  tmux
   zsh-syntax-highlighting
   zsh-autosuggestions
 )
 
+ ZSH_TMUX_ITERM2=true
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
