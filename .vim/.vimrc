@@ -13,7 +13,7 @@
 	Plugin 'tpope/vim-speeddating'
 	Plugin 'scrooloose/nerdtree'
 	Plugin 'Xuyuanp/nerdtree-git-plugin'
-	Plugin 'ctrlpvim/ctrlp.vim'
+	" Plugin 'ctrlpvim/ctrlp.vim'
 	Plugin 'bling/vim-airline'	
 	Plugin 'editorconfig/editorconfig-vim'
 	Plugin 'w0rp/ale'
@@ -150,20 +150,21 @@
 " }}}
 
 " CtrlP {{{
-	let g:ctrlp_map = '<c-p>'
-	let g:ctrlp_cmd = 'CtrlP'
-        " set root directory to dir with .git
-	let g:ctrlp_working_path_mode = 'ra'
-        let g:ctrlp_custom_ignore = {
-	\ 'dir':  '\v[\/]\.(git|hg|svn)$',
-	\ 'file': '\v\.(exe|so|dll)$',
-	\ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
-	\ }
+"	let g:ctrlp_map = '<c-p>'
+"	let g:ctrlp_cmd = 'CtrlP'
+"        " set root directory to dir with .git
+"	let g:ctrlp_working_path_mode = 'ra'
+"        let g:ctrlp_custom_ignore = {
+"	\ 'dir':  '\v[\/]\.(git|hg|svn)$',
+"	\ 'file': '\v\.(exe|so|dll)$',
+"	\ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
+"	\ }
 " }}}
 
 " Vim-picker {{{
 "        let g:picker_selector_executable = 'fzy-tmux'
-        nmap <leader>pe <Plug>PickerEdit
+"        nmap <leader>pe <Plug>PickerEdit
+        nmap <c-p> <Plug>PickerEdit
 "        nmap <unique> <leader>ps <Plug>PickerSplit
 "        nmap <unique> <leader>pt <Plug>PickerTabedit
 "        nmap <unique> <leader>pv <Plug>PickerVsplit
