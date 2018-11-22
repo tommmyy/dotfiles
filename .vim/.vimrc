@@ -47,10 +47,13 @@
 	set showcmd
 	set ruler
 	set conceallevel=1
+	set hidden
+
 	" Reload files changed outside vim
 	set autoread     
 	" Use the OS clipboard by default (on versions compiled with `+clipboard`)
 	" set clipboard=unnamed
+	
 	" Trigger autoread when changing buffers or coming back to vim in terminal.
 	au FocusGained,BufEnter * :silent! !
 	"Set default font in mac vim and gvim
@@ -87,6 +90,10 @@
 	set switchbuf=usetab
 	nnoremap <F8> :sbnext<CR>
 	nnoremap <S-F8> :sbprevious<CR>
+
+	"Better alternate buffer switching
+	nnoremap ž <C-^> 
+	nnoremap <Leader>b :ls<CR>:b<Space>
 " }}}
 
 " VimTex {{{
@@ -204,8 +211,7 @@
 " }}}
 
 " YCM {{{
-     " Start autocompletion after 4 chars
-     let g:ycm_min_num_of_chars_for_completion = 4
+     let g:ycm_min_num_of_chars_for_completion = 3 
      let g:ycm_min_num_identifier_candidate_chars = 4
      let g:ycm_enable_diagnostic_highlighting = 0
      " Don't show YCM's preview window [ I find it really annoying ]
