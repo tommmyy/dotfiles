@@ -69,6 +69,8 @@ plugins=(
   dotenv
   vi-mode
   tmux
+  jsontools
+  yarn
   zsh-syntax-highlighting
   zsh-autosuggestions
 )

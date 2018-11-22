@@ -11,7 +11,9 @@
 	Plugin 'tpope/vim-surround'
 	Plugin 'tpope/vim-repeat'
 	Plugin 'tpope/vim-speeddating'
+	Plugin 'tpope/vim-fireplace'
 	Plugin 'scrooloose/nerdtree'
+	Plugin 'tpope/vim-commentary'
 	Plugin 'Xuyuanp/nerdtree-git-plugin'
 	" Plugin 'ctrlpvim/ctrlp.vim'
 	Plugin 'bling/vim-airline'	
@@ -22,7 +24,6 @@
 	Plugin 'vim-scripts/VimClojure'
 	Plugin 'bhurlow/vim-parinfer'
 	Plugin 'kien/rainbow_parentheses.vim'
-	Plugin 'tpope/vim-fireplace'
 	Plugin 'srstevenson/vim-picker'
 	Plugin 'lervag/vimtex'
 	Plugin 'christoomey/vim-tmux-navigator'
@@ -93,7 +94,7 @@
 " }}}
 
 " NERDTree {{{
-        map <silent> <C-n> :NERDTreeFocus<CR>
+        map <silent> <C-n> :NERDTreeFind<CR>
         map <silent> <C-n>t :NERDTreeToggle<CR>
 
 	let NERDTreeShowHidden=1
@@ -162,17 +163,16 @@
 " }}}
 
 " Vim-picker {{{
-"        let g:picker_selector_executable = 'fzy-tmux'
-"        nmap <leader>pe <Plug>PickerEdit
+       " let g:picker_selector_executable = 'fzy-tmux'
         nmap <c-p> <Plug>PickerEdit
-"        nmap <unique> <leader>ps <Plug>PickerSplit
-"        nmap <unique> <leader>pt <Plug>PickerTabedit
-"        nmap <unique> <leader>pv <Plug>PickerVsplit
-        nmap <leader>pb <Plug>PickerBuffer
-"        nmap <unique> <leader>p] <Plug>PickerTag
-"        nmap <unique> <leader>pw <Plug>PickerStag
-"        nmap <unique> <leader>po <Plug>PickerBufferTag
-"        nmap <unique> <leader>ph <Plug>PickerHelp
+        nmap <c-p>b <Plug>PickerBuffer
+       " nmap <unique> <leader>ps <Plug>PickerSplit
+       " nmap <unique> <leader>pt <Plug>PickerTabedit
+       " nmap <unique> <leader>pv <Plug>PickerVsplit
+       " nmap <unique> <leader>p] <Plug>PickerTag
+       " nmap <unique> <leader>pw <Plug>PickerStag
+       " nmap <unique> <leader>po <Plug>PickerBufferTag
+       " nmap <unique> <leader>ph <Plug>PickerHelp
 " }}}
 
 " RainbowParentheses {{{
