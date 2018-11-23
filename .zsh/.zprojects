@@ -1,0 +1,28 @@
+# Projects
+alias work="~/Workspaces"
+alias nel="~/Workspaces/NeL/frontend/react-union/"
+alias eliska="~/Workspaces/NeL/frontend/react-union/src/modules/EliskaPrototypeEntry"
+alias setupeliska="cp -R ~/Workspaces/reactPermissions ~/Workspaces/NeL/frontend/react-union/src/modules && rm -r ~/Workspaces/NeL/frontend/react-union/node_modules/.cache"
+alias reseteliska="git checkout HEAD -- ~/Workspaces/NeL/frontend/react-union/src/modules/reactPermissions/Permissions.js ~/Workspaces/NeL/frontend/react-union/src/modules/reactPermissions/withPermissions.js ~/Workspaces/NeL/frontend/react-union/src/public/eliskaPrototypeEntry/index.ejs"
+
+alias sanalytics="cd ~/Workspaces/sdp/s-analytics"
+
+alias union="~/Workspaces/react-union/"
+alias unionbasic="~/Workspaces/react-union/boilerplates/react-union-boilerplate-basic/"
+alias unionredux="~/Workspaces/react-union/boilerplates/react-union-boilerplate-redux/"
+alias unionliferay="~/Workspaces/react-union/boilerplates/react-union-boilerplate-liferay-basic/"
+
+alias nwp="~/Workspaces/nwp/modules/javascript"
+
+alias mptrasy="cd ~/Workspaces/mp-trasy/admin"
+
+alias diary="cd ~/Workspaces/diary"
+alias diaryapp="cd ~/Workspaces/diary/packages/diary-app"
+alias diarycomponents="cd ~/Workspaces/diary/packages/diary-components"
+
+alias sdp="cd ~/Workspaces/sdp/s-analytics"
+
+alias cardifunion="cd ~/Workspaces/cardif-ssc-portal/liferay-workspace/modules/ssc.liferay.union.widgets"
+alias cardiftheme="cd ~/Workspaces/cardif-ssc-portal/liferay-workspace/themes/cardif-ssc-portal-theme"
+alias cardif="cd ~/Workspaces/cardif-ssc-portal"
+alias phproot="cd ~/.bitnami/stackman/machines/xampp/volumes/root/htdocs"
