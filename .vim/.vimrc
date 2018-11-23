@@ -12,8 +12,8 @@
 	Plugin 'tpope/vim-repeat'
 	Plugin 'tpope/vim-speeddating'
 	Plugin 'tpope/vim-fireplace'
-	Plugin 'scrooloose/nerdtree'
 	Plugin 'tpope/vim-commentary'
+	Plugin 'scrooloose/nerdtree'
 	Plugin 'Xuyuanp/nerdtree-git-plugin'
 	" Plugin 'ctrlpvim/ctrlp.vim'
 	Plugin 'bling/vim-airline'	
@@ -94,6 +94,10 @@
 	"Better alternate buffer switching
 	nnoremap ž <C-^> 
 	nnoremap <Leader>b :ls<CR>:b<Space>
+
+	"Find occurence of visually selected text
+	vnoremap // y/\V<C-r>=escape(@",'/\')<CR><CR>
+
 " }}}
 
 " VimTex {{{
