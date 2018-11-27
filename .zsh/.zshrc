@@ -72,6 +72,8 @@ alias fig="lein figwheel"
 alias gmu="git fetch upstream && git merge upstream/master"
 alias back="cd $OLDPWD"
 
+alias removeJunk="find . -type f -name '*.sw[klmnop]' -delete"
+
 eval $(thefuck --alias)
 autoload -U promptinit; promptinit
 prompt pure

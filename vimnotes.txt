@@ -1,14 +1,28 @@
+# CLI
+<C-z> or :sus - Suspending Vim
+fg - return to Vim (stays for foreground)
+
 # Command line ve Vim
 : - perform Ex command
-:print nebo :p	
+@: - repeat last Ex command
+:print nebo :p	- prints a range
 	:3p
-	:3   :p
-	:$	:p
-	:$p
+	:3 got to line 3
+	:$ go to last line
+	:$p go to last line and print it
 :substitute :s
 :delete
-:join
-:normal
+:join - join lines
+:[range]normal {normalmodecommand} - Executes normal mode command on the range of lines	
+	:'<,'>normal .
+	:% A; - přidá středník na konce všech řádků
+:move :m
+:copy :t
+	:[range]t {address}
+		- range defaults to .
+	:6t. 	copy 6th line to bellow current
+	:t6	copy current line bellow 6th
+	:t.	duplicates current line - unlike yyp it does not use register
 
 ## ranges
 :1,3 - řádek 1 až 3
@@ -55,9 +69,10 @@ g#
 # Skoky po souboru
 <C-g> - zobrazení čísla řádku
 G - skok na konec souboru
+1G or gg - skak na začátek souboru
 {řádek} G - skok na začátek řádku
 <C-u> - up half a page
-<C-r> - down half a page
+<C-d> - down half a page
 zz - sets the scroll of the viewport, cursor to be placed in the middle
 
 # Basic commands
