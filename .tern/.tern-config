@@ -1,9 +1,9 @@
-bs": [
+{
+  "libs": [
     "browser",
     "react"
   ],
   "plugins": {
-      "angular": {},
       "doc_comment": null,
       "es_modules": {},
       "node": {}

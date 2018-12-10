@@ -15,7 +15,7 @@ fg - return to Vim (stays for foreground)
 :join - join lines
 :[range]normal {normalmodecommand} - Executes normal mode command on the range of lines	
 	:'<,'>normal .
-	:% A; - přidá středník na konce všech řádků
+:% A; - přidá středník na konce všech řádků
 :move :m
 :copy :t
 	:[range]t {address}
@@ -69,11 +69,14 @@ g#
 # Skoky po souboru
 <C-g> - zobrazení čísla řádku
 G - skok na konec souboru
-1G or gg - skak na začátek souboru
+1G or gg - skok na začátek souboru
 {řádek} G - skok na začátek řádku
 <C-u> - up half a page
 <C-d> - down half a page
 zz - sets the scroll of the viewport, cursor to be placed in the middle
+H - cursor to top (high)
+M - cursor to middle (middle)
+L - cursor to bottom (low)
 
 # Basic commands
 . 			repeat last command
@@ -173,8 +176,9 @@ ctrl+w ctrl+o - Make current window the only one on the screen. all other window
 :bufdo! bd   - deletes all buffers except those with unwritten changes
 :bufdo! bd!  - deletes all buffers, no error on any unwritten changes
 
-:bw          - completely deletes the current buffer, error if there are unwritten changes
+:bw          - completely deletes the current buffer, error if there are unwritten changes (buffer wipeout)
 :bw!         - completely deletes the current buffer, no error if unwritten changes
+:bd	     - deletes buffer but it is left in storage
 :bufdo bw    - completely deletes all buffers, stops at first error (unwritten changes)
 :bufdo! bw   - completely deletes all buffers except those with unwritten changes
 :bufdo! bw!  - completely deletes all buffers, no error on any unwritten changes

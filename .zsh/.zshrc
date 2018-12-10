@@ -25,6 +25,7 @@ ZSH_THEME=""
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
+  git-extras
   dotenv
   vi-mode
   tmux
@@ -62,6 +63,7 @@ alias zshconfig="vim ~/.zshrc"
 alias ohmyzsh="vim ~/.oh-my-zsh"
 alias reloadZshconfig=". ~/.zshrc"
 
+alias ctags="`brew --prefix`/bin/ctags"
 alias vimconfig="vim ~/.vimrc"
 alias cls="clear"
 alias lsa="ls -a"
@@ -70,9 +72,10 @@ alias vim="vim --servername VIM"
 alias v="vim --servername VIM"	
 alias fig="lein figwheel"
 alias gmu="git fetch upstream && git merge upstream/master"
+alias initGitignore="git ignore-io -r node vim sublimetext intellij visualstudiocode webstorm"
 alias back="cd $OLDPWD"
 
-alias removeJunk="find . -type f -name '*.sw[klmnop]' -delete"
+alias removeVimJunk="find . -type f -name '*.sw[klmnop]' -delete"
 
 eval $(thefuck --alias)
 autoload -U promptinit; promptinit

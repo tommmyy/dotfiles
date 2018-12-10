@@ -28,7 +28,8 @@
 	Plugin 'lervag/vimtex'
 	Plugin 'christoomey/vim-tmux-navigator'
 	Plugin 'Valloric/YouCompleteMe'
-
+	Plugin 'jxnblk/vim-mdx-js'
+	Plugin 'ElmCast/elm-vim'
 	" All of your Plugins must be added before the following line
 	call vundle#end()            " required
 
@@ -48,6 +49,9 @@
 	set ruler
 	set conceallevel=1
 	set hidden
+	set paste
+	set autoindent
+	set smartindent
 
 	" Reload files changed outside vim
 	set autoread     
@@ -100,15 +104,22 @@
 
 " }}}
 
+" ctags {{{
+	" creates command for generationg tags file
+	command! MakeTags !ctags -R .
+" }}}
+
 " VimTex {{{
         let g:tex_flavor = 'latex'
 " }}}
 
 " NERDTree {{{
-        map <silent> <C-n> :NERDTreeFind<CR>
-        map <silent> <C-n>t :NERDTreeToggle<CR>
+        map <silent> <leader>n :NERDTreeFind<CR>
+        map <silent> <leader>nt :NERDTreeToggle<CR>
 
 	let NERDTreeShowHidden=1
+	let NERDTreeMinimalUI = 1
+	let NERDTreeDirArrows = 1
 " }}}
 
 " Scrolling {{{
@@ -175,8 +186,8 @@
 
 " Vim-picker {{{
        " let g:picker_selector_executable = 'fzy-tmux'
-        nmap <c-p> <Plug>PickerEdit
-        nmap <c-p>b <Plug>PickerBuffer
+        nnoremap <c-p> <Plug>PickerEdit
+        nnoremap <c-p>b <Plug>PickerBuffer
        " nmap <unique> <leader>ps <Plug>PickerSplit
        " nmap <unique> <leader>pt <Plug>PickerTabedit
        " nmap <unique> <leader>pv <Plug>PickerVsplit
@@ -214,11 +225,18 @@
 	au Syntax * RainbowParenthesesLoadBraces
 " }}}
 
+" Elm-Vim {{{
+	let g:elm_setup_keybindings = 0
+" }}}
+
 " YCM {{{
-     let g:ycm_min_num_of_chars_for_completion = 3 
-     let g:ycm_min_num_identifier_candidate_chars = 4
-     let g:ycm_enable_diagnostic_highlighting = 0
-     " Don't show YCM's preview window [ I find it really annoying ]
-     set completeopt-=preview
-     let g:ycm_add_preview_to_completeopt = 0
+	let g:ycm_min_num_of_chars_for_completion = 3 
+	let g:ycm_min_num_identifier_candidate_chars = 4
+	let g:ycm_enable_diagnostic_highlighting = 0
+	" Don't show YCM's preview window [ I find it really annoying ]
+	set completeopt-=preview
+	let g:ycm_add_preview_to_completeopt = 0
+	let g:ycm_semantic_triggers = {
+	\ 'elm' : ['.'],
+	\}
 " }}}
