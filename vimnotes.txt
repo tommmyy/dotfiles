@@ -66,7 +66,7 @@ g#
 :r nazevsouboru - vložení obsahu ze souboru
 :!příkaz do bashe - přesun do bashe
 
-# Skoky po souboru
+# Skoky po obrazovce
 <C-g> - zobrazení čísla řádku
 G - skok na konec souboru
 1G or gg - skok na začátek souboru
@@ -77,6 +77,7 @@ zz - sets the scroll of the viewport, cursor to be placed in the middle
 H - cursor to top (high)
 M - cursor to middle (middle)
 L - cursor to bottom (low)
+<C-o> - Jump back to previous location
 
 # Basic commands
 . 			repeat last command
@@ -134,6 +135,8 @@ p - vloží naposledy smazaný objekt:
 gU - uppercase
 	- gUiw - uppercase inner word
 	- gUit - uppercase inner tag
+gu - lowercase
+g~ - toggle case
 
 # Insert mod
 <C-k> digraph - vložení speciálního znaku skrze digraphs - :h digraphs-default
@@ -142,6 +145,8 @@ gU - uppercase
 o - toggle free end of selection
 gv - in normal mode reselects last visual selection
 U - uppercase the selection
+u - lowercase
+~ - toggle case
 
 ## Examples
 ----------------------------------------------

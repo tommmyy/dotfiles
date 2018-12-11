@@ -30,6 +30,10 @@
 	Plugin 'Valloric/YouCompleteMe'
 	Plugin 'jxnblk/vim-mdx-js'
 	Plugin 'ElmCast/elm-vim'
+	" Plugin 'epilande/vim-es2015-snippets'
+	" Plugin 'epilande/vim-react-snippets'
+	Plugin 'SirVer/ultisnips'
+	
 	" All of your Plugins must be added before the following line
 	call vundle#end()            " required
 
@@ -49,7 +53,8 @@
 	set ruler
 	set conceallevel=1
 	set hidden
-	set paste
+	" If set the UltiSnips plugin will stop working
+	" set paste
 	set autoindent
 	set smartindent
 
@@ -186,8 +191,8 @@
 
 " Vim-picker {{{
        " let g:picker_selector_executable = 'fzy-tmux'
-        nnoremap <c-p> <Plug>PickerEdit
-        nnoremap <c-p>b <Plug>PickerBuffer
+        nmap <leader>p <Plug>PickerEdit
+        nmap <leader>pp <Plug>PickerBuffer
        " nmap <unique> <leader>ps <Plug>PickerSplit
        " nmap <unique> <leader>pt <Plug>PickerTabedit
        " nmap <unique> <leader>pv <Plug>PickerVsplit
@@ -239,4 +244,8 @@
 	let g:ycm_semantic_triggers = {
 	\ 'elm' : ['.'],
 	\}
+" }}}
+
+" UltiSnips {{{
+	let g:UltiSnipsExpandTrigger="<C-l>"
 " }}}
