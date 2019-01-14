@@ -83,3 +83,6 @@ prompt pure
 
 source ~/.zprofile
 source ~/.zprojects
+
+# added by travis gem
+[ -f /Users/tomas.konrady/.travis/travis.sh ] && source /Users/tomas.konrady/.travis/travis.sh

@@ -33,6 +33,7 @@
 	" Plugin 'epilande/vim-es2015-snippets'
 	" Plugin 'epilande/vim-react-snippets'
 	Plugin 'SirVer/ultisnips'
+	Plugin 'zivyangll/git-blame.vim'
 	
 	" All of your Plugins must be added before the following line
 	call vundle#end()            " required
@@ -249,3 +250,8 @@
 " UltiSnips {{{
 	let g:UltiSnipsExpandTrigger="<C-l>"
 " }}}
+
+"cardif
+
+let @a='^f''ldwdwdwr/i@cardif'
+

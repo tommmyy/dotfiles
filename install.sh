@@ -1,4 +1,4 @@
-stow .bash .zsh .vim .tmux .tern
+stow .bash .zsh .vim .tmux .tern .editorconfig
 # mkdir $HOME/.zfunctions/prompt_pure_setup
 # mkdir $HOME/.zfunctions/async
 

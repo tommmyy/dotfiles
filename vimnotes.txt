@@ -190,7 +190,6 @@ ctrl+w ctrl+o - Make current window the only one on the screen. all other window
 
 :set confirm - confirm changes (Yes, No, Cancel) instead of error
 
-
 # Tabs
 gt - next tab
 gT - prev tab
@@ -203,6 +202,15 @@ current session (buffers, tabs), you can enter command mode and:
 and load it with `vim -S mysession.vim` or in command mode:
 
   :source mysession.vim
+
+# Macros
+- to save macro in vimrc: 
+	`let @a='^f'`
+	saves macro into register 'a'
+- to insert esc to macro string: CTRL+V followed by pressing ESC
+	`let @a='Ahello`
+	^[ - are just one char
+
 
 # NERDTree
 ctrl+ww - pohyb po oknech
