@@ -16,7 +16,7 @@
 	Plugin 'scrooloose/nerdtree'
 	Plugin 'Xuyuanp/nerdtree-git-plugin'
 	" Plugin 'ctrlpvim/ctrlp.vim'
-	Plugin 'bling/vim-airline'	
+	Plugin 'bling/vim-airline'
 	Plugin 'editorconfig/editorconfig-vim'
 	Plugin 'w0rp/ale'
 	Plugin 'pangloss/vim-javascript'
@@ -34,7 +34,8 @@
 	" Plugin 'epilande/vim-react-snippets'
 	Plugin 'SirVer/ultisnips'
 	Plugin 'zivyangll/git-blame.vim'
-	
+	Plugin 'lilydjwg/colorizer'
+
 	" All of your Plugins must be added before the following line
 	call vundle#end()            " required
 
@@ -60,10 +61,10 @@
 	set smartindent
 
 	" Reload files changed outside vim
-	set autoread     
+	set autoread
 	" Use the OS clipboard by default (on versions compiled with `+clipboard`)
 	" set clipboard=unnamed
-	
+
 	" Trigger autoread when changing buffers or coming back to vim in terminal.
 	au FocusGained,BufEnter * :silent! !
 	"Set default font in mac vim and gvim
@@ -81,7 +82,7 @@
 	inoremap <down>  <nop>
 	inoremap <left>  <nop>
 	inoremap <right> <nop>
-	
+
 	" Set easier split navigation
 	nnoremap <C-J> <C-W><C-J>
         nnoremap <C-K> <C-W><C-K>
@@ -92,7 +93,7 @@
 	set ttyfast
 	set mouse=a
 
-        "Set the root directories for :find command	
+        "Set the root directories for :find command
 	set path=~/Workspaces/**;~/Downloads/**;~/.dotfiles/**
 	set wildignore+=**/node_modules/**
 
@@ -102,7 +103,7 @@
 	nnoremap <S-F8> :sbprevious<CR>
 
 	"Better alternate buffer switching
-	nnoremap ž <C-^> 
+	nnoremap ž <C-^>
 	nnoremap <Leader>b :ls<CR>:b<Space>
 
 	"Find occurence of visually selected text
@@ -167,8 +168,8 @@
 " ALE {{{
 	let g:ale_linters = {
 	\   'javascript': ['eslint'],
-	\}		
-	
+	\}
+
 	let g:ale_fixers = {
 	\   'javascript': ['prettier', 'eslint'],
 	\}
@@ -223,7 +224,7 @@
     \ ['darkred',     'DarkOrchid3'],
     \ ['red',         'firebrick3'],
     \ ['gray',    'RoyalBlue3'],
-    \ ] 
+    \ ]
 
 	au VimEnter * RainbowParenthesesToggle
 	au Syntax * RainbowParenthesesLoadRound
@@ -236,7 +237,7 @@
 " }}}
 
 " YCM {{{
-	let g:ycm_min_num_of_chars_for_completion = 3 
+	let g:ycm_min_num_of_chars_for_completion = 3
 	let g:ycm_min_num_identifier_candidate_chars = 4
 	let g:ycm_enable_diagnostic_highlighting = 0
 	" Don't show YCM's preview window [ I find it really annoying ]
