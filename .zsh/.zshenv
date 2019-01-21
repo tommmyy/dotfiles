@@ -5,7 +5,6 @@ alias zshconfig="vim ~/.zshrc"
 alias ohmyzsh="vim ~/.oh-my-zsh"
 alias reloadZshconfig=". ~/.zshrc"
 
-alias ctags="`brew --prefix`/bin/ctags"
 alias vimconfig="vim ~/.vimrc"
 alias cls="clear"
 alias lsa="ls -a"
