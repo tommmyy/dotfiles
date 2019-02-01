@@ -35,6 +35,7 @@
 	Plugin 'SirVer/ultisnips'
 	Plugin 'zivyangll/git-blame.vim'
 	Plugin 'lilydjwg/colorizer'
+	Plugin 'mileszs/ack.vim'
 
 	" All of your Plugins must be added before the following line
 	call vundle#end()            " required
@@ -108,6 +109,10 @@
 
 	"Find occurence of visually selected text
 	vnoremap // y/\V<C-r>=escape(@",'/\')<CR><CR>
+
+	let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
+	let &t_SR = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=2\x7\<Esc>\\"
+	let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
 
 " }}}
 
@@ -250,6 +255,10 @@
 
 " UltiSnips {{{
 	let g:UltiSnipsExpandTrigger="<C-l>"
+" }}}
+"
+" mileszs/ack.vim {{{
+	 let g:ackprg = 'ag --nogroup --nocolor --column'
 " }}}
 
 "cardif
