@@ -36,6 +36,7 @@
 	Plugin 'zivyangll/git-blame.vim'
 	Plugin 'lilydjwg/colorizer'
 	Plugin 'mileszs/ack.vim'
+	Plugin 'schickling/vim-bufonly'
 
 	" All of your Plugins must be added before the following line
 	call vundle#end()            " required
@@ -102,6 +103,10 @@
 	set switchbuf=usetab
 	nnoremap <F8> :sbnext<CR>
 	nnoremap <S-F8> :sbprevious<CR>
+
+	"Switch buffers
+	:nnoremap <C-n> :bnext<CR>
+	:nnoremap <C-p> :bprevious<CR>
 
 	"Better alternate buffer switching
 	nnoremap ž <C-^>
@@ -260,8 +265,4 @@
 " mileszs/ack.vim {{{
 	 let g:ackprg = 'ag --nogroup --nocolor --column'
 " }}}
-
-"cardif
-
-let @a='^f''ldwdwdwr/i@cardif'
 

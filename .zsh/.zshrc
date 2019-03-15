@@ -65,3 +65,5 @@ source ~/.zprofile
 
 # added by travis gem
 [ -f /Users/tomas.konrady/.travis/travis.sh ] && source /Users/tomas.konrady/.travis/travis.sh
+
+export PATH=/Users/tomas.konrady/.local/bin:$PATH
