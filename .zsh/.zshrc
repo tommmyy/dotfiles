@@ -26,7 +26,7 @@ ZSH_THEME=""
 plugins=(
   git
   git-extras
-  dotenv
+#  dotenv
   vi-mode
   tmux
   jsontools

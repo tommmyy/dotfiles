@@ -13,6 +13,7 @@
 	Plugin 'tpope/vim-speeddating'
 	Plugin 'tpope/vim-fireplace'
 	Plugin 'tpope/vim-commentary'
+	Plugin 'tpope/vim-eunuch'
 	Plugin 'scrooloose/nerdtree'
 	Plugin 'Xuyuanp/nerdtree-git-plugin'
 	" Plugin 'ctrlpvim/ctrlp.vim'
@@ -32,11 +33,12 @@
 	Plugin 'ElmCast/elm-vim'
 	" Plugin 'epilande/vim-es2015-snippets'
 	" Plugin 'epilande/vim-react-snippets'
-	Plugin 'SirVer/ultisnips'
+	" Plugin 'SirVer/ultisnips'
 	Plugin 'zivyangll/git-blame.vim'
 	Plugin 'lilydjwg/colorizer'
 	Plugin 'mileszs/ack.vim'
 	Plugin 'schickling/vim-bufonly'
+	Plugin 'nelstrom/vim-visual-star-search'
 
 	" All of your Plugins must be added before the following line
 	call vundle#end()            " required
@@ -112,8 +114,13 @@
 	nnoremap ž <C-^>
 	nnoremap <Leader>b :ls<CR>:b<Space>
 
+	vnoremap <Leader>c :'<,'>w !pbcopy<CR><CR>
+
 	"Find occurence of visually selected text
 	vnoremap // y/\V<C-r>=escape(@",'/\')<CR><CR>
+
+	"Find occurence of visually selected text
+	vnoremap <Leader>a y:Ack <C-r>=fnameescape(@")<CR><CR>
 
 	let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
 	let &t_SR = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=2\x7\<Esc>\\"
@@ -177,11 +184,13 @@
 
 " ALE {{{
 	let g:ale_linters = {
-	\   'javascript': ['eslint'],
+	\   'javascript': ['eslint', 'stylelint'],
+	\   'scss': ['stylelint'],
 	\}
 
 	let g:ale_fixers = {
 	\   'javascript': ['prettier', 'eslint'],
+	\   'scss': ['stylelint'],
 	\}
 
 	let g:ale_fix_on_save = 1
