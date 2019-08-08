@@ -138,8 +138,8 @@
 " }}}
 
 " NERDTree {{{
-        map <silent> <leader>n :NERDTreeFind<CR>
-        map <silent> <leader>nt :NERDTreeToggle<CR>
+	"map <silent> <leader>n :NERDTreeFind<CR>
+	"map <silent> <leader>nt :NERDTreeToggle<CR>
 
 	let NERDTreeShowHidden=1
 	let NERDTreeMinimalUI = 1
@@ -183,6 +183,9 @@
 " }}}
 
 " ALE {{{
+	nmap <silent> <leader>a :ALENext<CR>
+	nmap <F8> <Plug>(ale_fix)
+
 	let g:ale_linters = {
 	\   'javascript': ['eslint', 'stylelint'],
 	\   'scss': ['stylelint'],
@@ -195,7 +198,6 @@
 
 	let g:ale_fix_on_save = 1
 	let g:ale_completion_enabled = 1
-        nmap <F8> <Plug>(ale_fix)
 " }}}
 
 " CtrlP {{{
