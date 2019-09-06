@@ -33,7 +33,7 @@
 	Plugin 'ElmCast/elm-vim'
 	" Plugin 'epilande/vim-es2015-snippets'
 	" Plugin 'epilande/vim-react-snippets'
-	" Plugin 'SirVer/ultisnips'
+	Plugin 'SirVer/ultisnips'
 	Plugin 'zivyangll/git-blame.vim'
 	Plugin 'lilydjwg/colorizer'
 	Plugin 'mileszs/ack.vim'
@@ -183,7 +183,8 @@
 " }}}
 
 " ALE {{{
-	nmap <silent> <leader>a :ALENext<CR>
+	nmap <silent> <leader>a :ALEFirst<CR>
+	nmap <silent> <leader>an :ALENext<CR>
 	nmap <F8> <Plug>(ale_fix)
 
 	let g:ale_linters = {
@@ -270,9 +271,19 @@
 " }}}
 
 " UltiSnips {{{
-	let g:UltiSnipsExpandTrigger="<C-l>"
+	" Trigger configuration. Do not use <tab> if you use
+	" https://github.com/Valloric/YouCompleteMe.
+	let g:UltiSnipsExpandTrigger="<c-space>"
+	let g:UltiSnipsListSnippets="<c-h>"
+	let g:UltiSnipsJumpForwardTrigger="<c-b>"
+	let g:UltiSnipsJumpBackwardTrigger="<c-n>"
+	let g:UltiSnipsSnippetDirectories=["mysnippets"]
+	" let g:UltiSnipsSnippetDirectories=[\"UltiSnips\", \"mysnippets\"]
+
+	" If you want :UltiSnipsEdit to split your window.
+	let g:UltiSnipsEditSplit="vertical"
 " }}}
-"
+
 " mileszs/ack.vim {{{
 	 let g:ackprg = 'ag --nogroup --nocolor --column'
 " }}}
