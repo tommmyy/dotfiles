@@ -15,6 +15,7 @@ alias fig="lein figwheel"
 alias gmu="git fetch upstream && git merge upstream/master"
 alias initGitignore="git ignore-io -r node vim sublimetext intellij visualstudiocode webstorm"
 alias back="cd $OLDPWD"
+alias gcu="git checkout unstable"
 
 alias removeVimJunk="find . -type f -name '*.sw[klmnop]' -delete"
 

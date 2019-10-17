@@ -28,7 +28,7 @@
 	Plugin 'srstevenson/vim-picker'
 	Plugin 'lervag/vimtex'
 	Plugin 'christoomey/vim-tmux-navigator'
-	Plugin 'Valloric/YouCompleteMe'
+	" Plugin 'Valloric/YouCompleteMe'
 	Plugin 'jxnblk/vim-mdx-js'
 	Plugin 'ElmCast/elm-vim'
 	" Plugin 'epilande/vim-es2015-snippets'
@@ -39,6 +39,8 @@
 	Plugin 'mileszs/ack.vim'
 	Plugin 'schickling/vim-bufonly'
 	Plugin 'nelstrom/vim-visual-star-search'
+	Plugin 'neoclide/coc.nvim'
+	Plugin 'reasonml-editor/vim-reason-plus'
 
 	" All of your Plugins must be added before the following line
 	call vundle#end()            " required
@@ -286,5 +288,12 @@
 
 " mileszs/ack.vim {{{
 	 let g:ackprg = 'ag --nogroup --nocolor --column'
+" }}}
+"
+
+" Reason-plus {{{
+" let g:LanguageClient_serverCommands = {
+"     \ 'reason': ['~/Workspaces/reason/reason-language-server']
+"     \ }
 " }}}
 

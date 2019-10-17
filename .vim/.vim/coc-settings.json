@@ -1,0 +1,8 @@
+{
+	"languageserver": {
+    "reason": {
+      "command": "reason-language-server",
+      "filetypes": ["reason"]
+    }
+  }
+}
