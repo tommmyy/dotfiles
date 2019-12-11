@@ -1,4 +1,5 @@
 # Projects
+alias work="cd ~/Workspaces/"
 alias notes="cd ~/Workspaces/notes"
 
 alias union="~/Workspaces/react-union/"

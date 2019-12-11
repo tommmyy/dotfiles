@@ -4,5 +4,10 @@
       "command": "reason-language-server",
       "filetypes": ["reason"]
     }
-  }
+  },
+	"coc.preferences.previewAutoClose": false,
+	"suggest.echodocSupport": true,
+	"signature.target": "float",
+	"suggest.detailField": "preview",
+	"suggest.enablePreview": true
 }

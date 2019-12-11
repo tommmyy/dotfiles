@@ -14,6 +14,7 @@
 	Plugin 'tpope/vim-fireplace'
 	Plugin 'tpope/vim-commentary'
 	Plugin 'tpope/vim-eunuch'
+	Plugin 'tpope/vim-markdown'
 	Plugin 'scrooloose/nerdtree'
 	Plugin 'Xuyuanp/nerdtree-git-plugin'
 	" Plugin 'ctrlpvim/ctrlp.vim'
@@ -192,12 +193,18 @@
 	let g:ale_linters = {
 	\   'javascript': ['eslint', 'stylelint'],
 	\   'scss': ['stylelint'],
+	\   'css': ['stylelint'],
 	\}
+	   " 'reason': ['reason-language-server'],
 
 	let g:ale_fixers = {
 	\   'javascript': ['prettier', 'eslint'],
+	\   'html': ['prettier'],
 	\   'scss': ['stylelint'],
+	\   'css': ['stylelint'],
+	\   'reason': ['refmt'],
 	\}
+	let g:ale_reason_ls_executable = '~/Workspaces/reason/reason-language-server'
 
 	let g:ale_fix_on_save = 1
 	let g:ale_completion_enabled = 1
@@ -292,8 +299,12 @@
 "
 
 " Reason-plus {{{
-" let g:LanguageClient_serverCommands = {
-"     \ 'reason': ['~/Workspaces/reason/reason-language-server']
-"     \ }
+let g:LanguageClient_serverCommands = {
+    \ 'reason': ['~/Workspaces/reason/reason-language-server']
+    \ }
+" }}}
+
+" vim-markdown {{{
+	let g:markdown_fenced_languages = ['html', 'python', 'javascript=javascript.jsx', 'jsx=javascript.jsx', 'js=javascript.jsx', 'json', 'bash=sh']
 " }}}
 
