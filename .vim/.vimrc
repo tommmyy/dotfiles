@@ -23,6 +23,7 @@
 	Plugin 'w0rp/ale'
 	Plugin 'pangloss/vim-javascript'
 	Plugin 'mxw/vim-jsx'
+	Plugin 'neoclide/jsonc.vim'
 	Plugin 'vim-scripts/VimClojure'
 	Plugin 'bhurlow/vim-parinfer'
 	Plugin 'kien/rainbow_parentheses.vim'
@@ -200,6 +201,8 @@
 	let g:ale_fixers = {
 	\   'javascript': ['prettier', 'eslint'],
 	\   'html': ['prettier'],
+	\   'mdx': ['prettier'],
+	\   'json': ['prettier'],
 	\   'scss': ['stylelint'],
 	\   'css': ['stylelint'],
 	\   'reason': ['refmt'],
@@ -305,6 +308,6 @@ let g:LanguageClient_serverCommands = {
 " }}}
 
 " vim-markdown {{{
-	let g:markdown_fenced_languages = ['html', 'python', 'javascript=javascript.jsx', 'jsx=javascript.jsx', 'js=javascript.jsx', 'json', 'bash=sh']
+	let g:markdown_fenced_languages = ['html', 'python', 'javascript=javascript.jsx', 'jsx=javascript.jsx', 'js=javascript.jsx', 'json', 'jsonc', 'bash=sh']
 " }}}
 
