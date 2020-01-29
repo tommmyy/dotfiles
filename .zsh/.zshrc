@@ -2,6 +2,8 @@ ls "$HOME/.dotfiles/arts"|sort -R |tail -1 |while read file; do
   cat "$HOME/.dotfiles/arts/$file"
 done
 
+source "$HOME/.zsh_secrets"
+
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export PATH="$PATH:$HOME/Library/PackageManager/bin"
@@ -9,8 +11,6 @@ export PATH="$(yarn global bin):$PATH"
 
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
-
-source $ZSH/oh-my-zsh.sh
 
 export fpath=( "$HOME/.zfunctions" $fpath )
 
@@ -34,9 +34,15 @@ plugins=(
   zsh-syntax-highlighting
   zsh-autosuggestions
 )
-
 ZSH_TMUX_ITERM2=true
+
 source $ZSH/oh-my-zsh.sh
+
+
+# must be after oh-my-zsh
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 # HIST
 # set history size

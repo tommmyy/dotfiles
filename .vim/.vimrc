@@ -43,6 +43,9 @@
 	Plugin 'nelstrom/vim-visual-star-search'
 	Plugin 'neoclide/coc.nvim'
 	Plugin 'reasonml-editor/vim-reason-plus'
+	Plugin 'jph00/swift-apple'
+	Plugin 'prabirshrestha/async.vim'
+	Plugin 'prabirshrestha/vim-lsp'
 
 	" All of your Plugins must be added before the following line
 	call vundle#end()            " required
@@ -206,6 +209,7 @@
 	\   'scss': ['stylelint'],
 	\   'css': ['stylelint'],
 	\   'reason': ['refmt'],
+	\   'swift': ['swiftformat'],
 	\}
 	let g:ale_reason_ls_executable = '~/Workspaces/reason/reason-language-server'
 
@@ -311,3 +315,12 @@ let g:LanguageClient_serverCommands = {
 	let g:markdown_fenced_languages = ['html', 'python', 'javascript=javascript.jsx', 'jsx=javascript.jsx', 'js=javascript.jsx', 'json', 'jsonc', 'bash=sh']
 " }}}
 
+" swift {{{
+	if executable('sourcekit-lsp')
+			au User lsp_setup call lsp#register_server({
+					\ 'name': 'sourcekit-lsp',
+					\ 'cmd': {server_info->['sourcekit-lsp']},
+					\ 'whitelist': ['swift'],
+					\ })
+	endif
+" }}}
