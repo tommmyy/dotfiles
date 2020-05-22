@@ -63,7 +63,6 @@ setopt HIST_IGNORE_DUPS
 #add timestamp for each entry
 setopt EXTENDED_HISTORY
 
-eval $(thefuck --alias)
 autoload -U promptinit; promptinit
 prompt pure
 

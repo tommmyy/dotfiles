@@ -13,11 +13,8 @@
 	Plugin 'tpope/vim-speeddating'
 	Plugin 'tpope/vim-fireplace'
 	Plugin 'tpope/vim-commentary'
-	Plugin 'tpope/vim-eunuch'
-	Plugin 'tpope/vim-markdown'
 	Plugin 'scrooloose/nerdtree'
 	Plugin 'Xuyuanp/nerdtree-git-plugin'
-	" Plugin 'ctrlpvim/ctrlp.vim'
 	Plugin 'bling/vim-airline'
 	Plugin 'editorconfig/editorconfig-vim'
 	Plugin 'w0rp/ale'
@@ -28,14 +25,9 @@
 	Plugin 'bhurlow/vim-parinfer'
 	Plugin 'kien/rainbow_parentheses.vim'
 	Plugin 'srstevenson/vim-picker'
-	Plugin 'lervag/vimtex'
-	Plugin 'christoomey/vim-tmux-navigator'
-	" Plugin 'Valloric/YouCompleteMe'
+  Plugin 'christoomey/vim-tmux-navigator'
 	Plugin 'jxnblk/vim-mdx-js'
 	Plugin 'ElmCast/elm-vim'
-	" Plugin 'epilande/vim-es2015-snippets'
-	" Plugin 'epilande/vim-react-snippets'
-	Plugin 'SirVer/ultisnips'
 	Plugin 'zivyangll/git-blame.vim'
 	Plugin 'lilydjwg/colorizer'
 	Plugin 'mileszs/ack.vim'
@@ -46,6 +38,15 @@
 	Plugin 'jph00/swift-apple'
 	Plugin 'prabirshrestha/async.vim'
 	Plugin 'prabirshrestha/vim-lsp'
+	Plugin 'jparise/vim-graphql'
+	Plugin 'wlemuel/vim-tldr'
+	Plugin 'simnalamburt/vim-mundo'
+	" Plugin 'ctrlpvim/ctrlp.vim'
+	" Plugin 'lervag/vimtex'
+	" Plugin 'Valloric/YouCompleteMe'
+	" Plugin 'epilande/vim-es2015-snippets'
+	" Plugin 'epilande/vim-react-snippets'
+	" Plugin 'SirVer/ultisnips'
 
 	" All of your Plugins must be added before the following line
 	call vundle#end()            " required
@@ -70,6 +71,13 @@
 	" set paste
 	set autoindent
 	set smartindent
+	" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
+	" " delays and poor user experience.
+	set updatetime=300
+	" Don't pass messages to |ins-completion-menu|.
+	set shortmess+=c
+	" Give more space for displaying messages.
+	set cmdheight=2
 
 	" Reload files changed outside vim
 	set autoread
@@ -133,6 +141,18 @@
 	let &t_SR = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=2\x7\<Esc>\\"
 	let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
 
+	" https://vim.fandom.com/wiki/Switching_case_of_characters
+	function! TwiddleCase(str)
+		if a:str ==# toupper(a:str)
+			let result = tolower(a:str)
+		elseif a:str ==# tolower(a:str)
+			let result = substitute(a:str,'\(\<\w\+\>\)', '\u\1', 'g')
+		else
+			let result = toupper(a:str)
+		endif
+		return result
+	endfunction
+	vnoremap ~ y:call setreg('', TwiddleCase(@"), getregtype(''))<CR>gv""Pgv
 " }}}
 
 " ctags {{{
@@ -148,7 +168,8 @@
 	"map <silent> <leader>n :NERDTreeFind<CR>
 	"map <silent> <leader>nt :NERDTreeToggle<CR>
 
-	let NERDTreeShowHidden=1
+	"map <silent> <leader>n :NERDTreeFind<CR>
+	let NERDTreeShowHidden = 1
 	let NERDTreeMinimalUI = 1
 	let NERDTreeDirArrows = 1
 " }}}
@@ -174,7 +195,7 @@
 	autocmd InsertLeave * call ToggleRelativeOn()
 " }}}
 
-" vim-javascript {{{
+" vim-javascript
 	let g:javascript_plugin_jsdoc = 1
 	let g:javascript_plugin_flow = 1
 	let g:javascript_conceal_function = "ƒ"
@@ -204,7 +225,7 @@
 	let g:ale_fixers = {
 	\   'javascript': ['prettier', 'eslint'],
 	\   'html': ['prettier'],
-	\   'mdx': ['prettier'],
+	\   'mdx': ['prettier', 'eslint'],
 	\   'json': ['prettier'],
 	\   'scss': ['stylelint'],
 	\   'css': ['stylelint'],
@@ -229,18 +250,6 @@
 "	\ }
 " }}}
 
-" Vim-picker {{{
-       " let g:picker_selector_executable = 'fzy-tmux'
-        nmap <leader>p <Plug>PickerEdit
-        nmap <leader>pp <Plug>PickerBuffer
-       " nmap <unique> <leader>ps <Plug>PickerSplit
-       " nmap <unique> <leader>pt <Plug>PickerTabedit
-       " nmap <unique> <leader>pv <Plug>PickerVsplit
-       " nmap <unique> <leader>p] <Plug>PickerTag
-       " nmap <unique> <leader>pw <Plug>PickerStag
-       " nmap <unique> <leader>po <Plug>PickerBufferTag
-       " nmap <unique> <leader>ph <Plug>PickerHelp
-" }}}
 
 " RainbowParentheses {{{
 	let g:rbpt_max = 16
@@ -289,15 +298,15 @@
 " UltiSnips {{{
 	" Trigger configuration. Do not use <tab> if you use
 	" https://github.com/Valloric/YouCompleteMe.
-	let g:UltiSnipsExpandTrigger="<c-space>"
-	let g:UltiSnipsListSnippets="<c-h>"
-	let g:UltiSnipsJumpForwardTrigger="<c-b>"
-	let g:UltiSnipsJumpBackwardTrigger="<c-n>"
-	let g:UltiSnipsSnippetDirectories=["mysnippets"]
+	" let g:UltiSnipsExpandTrigger="<c-space>"
+	" let g:UltiSnipsListSnippets="<c-h>"
+	" let g:UltiSnipsJumpForwardTrigger="<c-b>"
+	" let g:UltiSnipsJumpBackwardTrigger="<c-n>"
+	" let g:UltiSnipsSnippetDirectories=["mysnippets"]
 	" let g:UltiSnipsSnippetDirectories=[\"UltiSnips\", \"mysnippets\"]
 
 	" If you want :UltiSnipsEdit to split your window.
-	let g:UltiSnipsEditSplit="vertical"
+	" let g:UltiSnipsEditSplit="vertical"
 " }}}
 
 " mileszs/ack.vim {{{
@@ -323,4 +332,112 @@ let g:LanguageClient_serverCommands = {
 					\ 'whitelist': ['swift'],
 					\ })
 	endif
+" }}}
+
+
+" schickling/vim-bufonly {{{
+	nnoremap <C-b> :Bufonly <CR>
+" }}}
+"
+" Vim-picker {{{
+	nmap <unique> <leader>p <Plug>(PickerEdit)
+	nmap <unique> <leader>pb <Plug>(PickerBuffer)
+	"
+	" nmap <unique> <leader>pe <Plug>(PickerEdit)
+	" nmap <unique> <leader>ps <Plug>(PickerSplit)
+	" nmap <unique> <leader>pt <Plug>(PickerTabedit)
+	" nmap <unique> <leader>pv <Plug>(PickerVsplit)
+	" nmap <unique> <leader>pb <Plug>(PickerBuffer)
+	" nmap <unique> <leader>p] <Plug>(PickerTag)
+	" nmap <unique> <leader>pw <Plug>(PickerStag)
+	" nmap <unique> <leader>po <Plug>(PickerBufferTag)
+		" nmap <unique> <leader>ph <Plug>(PickerHelp)
+" }}}
+
+" Coc {{{
+	let g:coc_global_extensions = [
+							\   'coc-sourcekit',
+							\   'coc-tsserver',
+							\   'coc-json',
+							\   'coc-syntax',
+							\   'coc-highlight',
+							\   'coc-explorer',
+							\   'coc-emoji',
+							\   'coc-webpack',
+							\   'coc-marketplace',
+							\   'coc-sh',
+							\   'coc-sourcekit',
+							\   'coc-word',
+							\   'coc-tag',
+							\   'coc-yaml',
+							\]
+
+	" Use tab for trigger completion with characters ahead and navigate.
+	" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+	" other plugin before putting this into your config.
+	inoremap <silent><expr> <TAB>
+				\ pumvisible() ? "\<C-n>" :
+				\ <SID>check_back_space() ? "\<TAB>" :
+				\ coc#refresh()
+	inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+	function! s:check_back_space() abort
+		let col = col('.') - 1
+		return !col || getline('.')[col - 1]  =~# '\s'
+	endfunction
+
+	" Use <c-space> to trigger completion.
+	inoremap <silent><expr> <c-space> coc#refresh()
+
+	" GoTo code navigation.
+	nmap <silent> gd <Plug>(coc-definition)
+	nmap <silent> gy <Plug>(coc-type-definition)
+	nmap <silent> gi <Plug>(coc-implementation)
+	nmap <silent> gr <Plug>(coc-references)
+
+	" Use K to show documentation in preview window.
+	nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+	function! s:show_documentation()
+		if (index(['vim','help'], &filetype) >= 0)
+			execute 'h '.expand('<cword>')
+		else
+			call CocAction('doHover')
+		endif
+	endfunction
+
+	set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+
+	" lightline
+	let g:lightline = {
+		\ 'active': {
+		\   'left': [
+		\     [ 'mode', 'paste' ],
+		\     [ 'ctrlpmark', 'git', 'diagnostic', 'cocstatus', 'filename', 'method' ]
+		\   ],
+		\   'right':[
+		\     [ 'filetype', 'fileencoding', 'lineinfo', 'percent' ],
+		\     [ 'blame' ]
+		\   ],
+		\ },
+		\ 'component_function': {
+		\   'blame': 'LightlineGitBlame',
+		\ }
+	\ }
+
+	function! LightlineGitBlame() abort
+		let blame = get(b:, 'coc_git_blame', '')
+		" return blame
+		return winwidth(0) > 120 ? blame : ''
+	endfunction
+" }}}
+
+
+" Coc {{{
+	:nmap <leader>e :CocCommand explorer<CR>
+" }}}
+"
+" vim-mundo {{{
+	let g:mundo_preview_bottom = 1
+	nnoremap <F5> :MundoToggle<CR>
 " }}}

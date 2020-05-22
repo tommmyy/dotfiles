@@ -5,8 +5,8 @@ alias notes="cd ~/Workspaces/notes"
 alias union="~/Workspaces/react-union/"
 alias diary="cd ~/Workspaces/diary"
 
-alias sdp="cd ~/Workspaces/sdp/repo"
 alias sanalytics="cd ~/Workspaces/sdp/repo/s-analytics"
+alias zoe="cd ~/Workspaces/sdp/zoe"
 
 alias cardifunion="cd ~/Workspaces/cardif-ssc-portal/liferay-workspace/modules/ssc.liferay.union.widgets"
 alias cardiftheme="cd ~/Workspaces/cardif-ssc-portal/liferay-workspace/themes/cardif-ssc-portal-theme"

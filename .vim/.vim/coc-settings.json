@@ -9,5 +9,16 @@
 	"suggest.echodocSupport": true,
 	"signature.target": "float",
 	"suggest.detailField": "preview",
-	"suggest.enablePreview": true
+	"suggest.enablePreview": true,
+	  // File extensions to be parsed by the Javascript parser
+	"importCost.javascriptExtensions": [
+	"\\.jsx?$"
+	],
+
+	// Which bundle size to display
+	"importCost.bundleSizeDecoration": "both",
+
+	// Display the 'calculating' decoration
+	"importCost.showCalculatingDecoration": true
 }
+
