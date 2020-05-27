@@ -41,6 +41,9 @@
 	Plugin 'jparise/vim-graphql'
 	Plugin 'wlemuel/vim-tldr'
 	Plugin 'simnalamburt/vim-mundo'
+	Plugin 'airblade/vim-gitgutter'
+	Plugin 'machakann/vim-highlightedyank'
+	Plugin 'haya14busa/incsearch.vim'
 	" Plugin 'ctrlpvim/ctrlp.vim'
 	" Plugin 'lervag/vimtex'
 	" Plugin 'Valloric/YouCompleteMe'
@@ -153,6 +156,12 @@
 		return result
 	endfunction
 	vnoremap ~ y:call setreg('', TwiddleCase(@"), getregtype(''))<CR>gv""Pgv
+
+
+	"MD
+	" js codeblock
+	nnoremap <Leader>1 i```js<CR><CR>```ki
+
 " }}}
 
 " ctags {{{
@@ -169,6 +178,9 @@
 	"map <silent> <leader>nt :NERDTreeToggle<CR>
 
 	"map <silent> <leader>n :NERDTreeFind<CR>
+
+	:nmap <leader>e :NERDTreeFind<CR>
+
 	let NERDTreeShowHidden = 1
 	let NERDTreeMinimalUI = 1
 	let NERDTreeDirArrows = 1
@@ -361,7 +373,6 @@ let g:LanguageClient_serverCommands = {
 							\   'coc-json',
 							\   'coc-syntax',
 							\   'coc-highlight',
-							\   'coc-explorer',
 							\   'coc-emoji',
 							\   'coc-webpack',
 							\   'coc-marketplace',
@@ -394,6 +405,7 @@ let g:LanguageClient_serverCommands = {
 	nmap <silent> gy <Plug>(coc-type-definition)
 	nmap <silent> gi <Plug>(coc-implementation)
 	nmap <silent> gr <Plug>(coc-references)
+	nmap <leader>rr <Plug>(coc-rename)
 
 	" Use K to show documentation in preview window.
 	nnoremap <silent> K :call <SID>show_documentation()<CR>
@@ -432,12 +444,21 @@ let g:LanguageClient_serverCommands = {
 	endfunction
 " }}}
 
-
-" Coc {{{
-	:nmap <leader>e :CocCommand explorer<CR>
-" }}}
-"
 " vim-mundo {{{
 	let g:mundo_preview_bottom = 1
 	nnoremap <F5> :MundoToggle<CR>
+" }}}
+
+" incsearch {{{
+	map /  <Plug>(incsearch-forward)
+	map ?  <Plug>(incsearch-backward)
+	map g/ <Plug>(incsearch-stay)
+	set hlsearch
+	let g:incsearch#auto_nohlsearch = 1
+	map n  <Plug>(incsearch-nohl-n)
+	map N  <Plug>(incsearch-nohl-N)
+	map *  <Plug>(incsearch-nohl-*)
+	map #  <Plug>(incsearch-nohl-#)
+	map g* <Plug>(incsearch-nohl-g*)
+	map g# <Plug>(incsearch-nohl-g#)
 " }}}
