@@ -39,7 +39,6 @@
 	Plugin 'pangloss/vim-javascript'
 	Plugin 'jparise/vim-graphql'
 
-
 	"
 	" Navigation
 	"
@@ -63,12 +62,16 @@
 	" Colors
 	"
 
+	Plugin 'flazz/vim-colorschemes'
+	Plugin 'gruvbox-community/gruvbox'
+	Plugin 'phanviet/vim-monokai-pro'
+	Plugin 'sainnhe/gruvbox-material'
 	Plugin 'bling/vim-airline'
+	Plugin 'kien/rainbow_parentheses.vim'
 	" colorize all text in the form #rgb, #rgba, #rrggbb, #rrgbbaa, rgb(...), rgba(...)
 	Plugin 'lilydjwg/colorizer'
 	" Make the yanked region apparent
 	Plugin 'machakann/vim-highlightedyank'
-	Plugin 'kien/rainbow_parentheses.vim'
 
 	"
 	" Tried, did not liked it
@@ -194,6 +197,25 @@
 	nnoremap <Leader>1 i```js<CR><CR>```ki
 
 " }}}
+
+" Colors {{{
+	" This is only necessary if you use "set termguicolors" for tmux
+	let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+	let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+
+	set termguicolors
+
+	" Must go before `colorscheme`
+	let g:gruvbox_contrast_dark='hard'
+	let g:airline_powerline_fonts = 1
+
+	colorscheme gruvbox
+
+	" important to for tmux to work properly
+	set background=dark
+	set t_Co=256
+" }}}
+
 
 " ctags {{{
 	" creates command for generationg tags file
