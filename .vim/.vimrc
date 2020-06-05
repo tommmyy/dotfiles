@@ -7,43 +7,73 @@
 	call vundle#begin()
 
 	Plugin 'VundleVim/Vundle.vim'
-	Plugin 'tpope/vim-fugitive'
 	Plugin 'tpope/vim-surround'
 	Plugin 'tpope/vim-repeat'
 	Plugin 'tpope/vim-speeddating'
 	Plugin 'tpope/vim-fireplace'
 	Plugin 'tpope/vim-commentary'
-	Plugin 'scrooloose/nerdtree'
-	Plugin 'Xuyuanp/nerdtree-git-plugin'
-	Plugin 'bling/vim-airline'
-	Plugin 'editorconfig/editorconfig-vim'
-	Plugin 'w0rp/ale'
-	Plugin 'pangloss/vim-javascript'
-	Plugin 'mxw/vim-jsx'
-	Plugin 'neoclide/jsonc.vim'
-	Plugin 'vim-scripts/VimClojure'
 	Plugin 'bhurlow/vim-parinfer'
-	Plugin 'kien/rainbow_parentheses.vim'
-	Plugin 'srstevenson/vim-picker'
-  Plugin 'christoomey/vim-tmux-navigator'
-	Plugin 'jxnblk/vim-mdx-js'
-	Plugin 'ElmCast/elm-vim'
-	Plugin 'zivyangll/git-blame.vim'
-	Plugin 'lilydjwg/colorizer'
-	Plugin 'mileszs/ack.vim'
-	Plugin 'schickling/vim-bufonly'
-	Plugin 'nelstrom/vim-visual-star-search'
-	Plugin 'neoclide/coc.nvim'
-	Plugin 'reasonml-editor/vim-reason-plus'
-	Plugin 'jph00/swift-apple'
 	Plugin 'prabirshrestha/async.vim'
 	Plugin 'prabirshrestha/vim-lsp'
-	Plugin 'jparise/vim-graphql'
 	Plugin 'wlemuel/vim-tldr'
+	" visualizes the Vim undo tree.
 	Plugin 'simnalamburt/vim-mundo'
+
+	"
+	" IDE
+	"
+	Plugin 'neoclide/coc.nvim'
+	Plugin 'editorconfig/editorconfig-vim'
+	Plugin 'w0rp/ale'
+
+	"
+	" Languages
+	"
+	Plugin 'ElmCast/elm-vim'
+	Plugin 'reasonml-editor/vim-reason-plus'
+	Plugin 'jph00/swift-apple'
+	Plugin 'jxnblk/vim-mdx-js'
+	Plugin 'vim-scripts/VimClojure'
+	Plugin 'neoclide/jsonc.vim'
+	Plugin 'mxw/vim-jsx'
+	Plugin 'pangloss/vim-javascript'
+	Plugin 'jparise/vim-graphql'
+
+
+	"
+	" Navigation
+	"
+	Plugin 'scrooloose/nerdtree'
+	Plugin 'Xuyuanp/nerdtree-git-plugin'
+	Plugin 'mileszs/ack.vim'
+	Plugin 'srstevenson/vim-picker'
+  Plugin 'christoomey/vim-tmux-navigator'
+	Plugin 'schickling/vim-bufonly'
+	Plugin 'nelstrom/vim-visual-star-search'
+
+	"
+	" Git
+	"
+	Plugin 'tpope/vim-fugitive'
+	Plugin 'zivyangll/git-blame.vim'
+	" adds git column
 	Plugin 'airblade/vim-gitgutter'
+
+	"
+	" Colors
+	"
+
+	Plugin 'bling/vim-airline'
+	" colorize all text in the form #rgb, #rgba, #rrggbb, #rrgbbaa, rgb(...), rgba(...)
+	Plugin 'lilydjwg/colorizer'
+	" Make the yanked region apparent
 	Plugin 'machakann/vim-highlightedyank'
-	Plugin 'haya14busa/incsearch.vim'
+	Plugin 'kien/rainbow_parentheses.vim'
+
+	"
+	" Tried, did not liked it
+	"
+	" Plugin 'haya14busa/incsearch.vim'
 	" Plugin 'ctrlpvim/ctrlp.vim'
 	" Plugin 'lervag/vimtex'
 	" Plugin 'Valloric/YouCompleteMe'
@@ -140,9 +170,10 @@
 	"Find occurence of visually selected text
 	vnoremap <Leader>a y:Ack <C-r>=fnameescape(@")<CR><CR>
 
-	let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
-	let &t_SR = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=2\x7\<Esc>\\"
-	let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
+	" tmux fix for cursor shape
+	" let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
+	" let &t_SR = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=2\x7\<Esc>\\"
+	" let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
 
 	" https://vim.fandom.com/wiki/Switching_case_of_characters
 	function! TwiddleCase(str)
@@ -450,15 +481,15 @@ let g:LanguageClient_serverCommands = {
 " }}}
 
 " incsearch {{{
-	map /  <Plug>(incsearch-forward)
-	map ?  <Plug>(incsearch-backward)
-	map g/ <Plug>(incsearch-stay)
-	set hlsearch
-	let g:incsearch#auto_nohlsearch = 1
-	map n  <Plug>(incsearch-nohl-n)
-	map N  <Plug>(incsearch-nohl-N)
-	map *  <Plug>(incsearch-nohl-*)
-	map #  <Plug>(incsearch-nohl-#)
-	map g* <Plug>(incsearch-nohl-g*)
-	map g# <Plug>(incsearch-nohl-g#)
+	" map /  <Plug>(incsearch-forward)
+	" map ?  <Plug>(incsearch-backward)
+	" map g/ <Plug>(incsearch-stay)
+	" set hlsearch
+	" " let g:incsearch#auto_nohlsearch = 1
+	" map n  <Plug>(incsearch-nohl-n)
+	" map N  <Plug>(incsearch-nohl-N)
+	" map *  <Plug>(incsearch-nohl-*)
+	" map #  <Plug>(incsearch-nohl-#)
+	" map g* <Plug>(incsearch-nohl-g*)
+	" map g# <Plug>(incsearch-nohl-g#)
 " }}}
