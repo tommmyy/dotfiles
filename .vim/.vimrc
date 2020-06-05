@@ -29,15 +29,16 @@
 	"
 	" Languages
 	"
-	Plugin 'ElmCast/elm-vim'
-	Plugin 'reasonml-editor/vim-reason-plus'
-	Plugin 'jph00/swift-apple'
-	Plugin 'jxnblk/vim-mdx-js'
-	Plugin 'vim-scripts/VimClojure'
-	Plugin 'neoclide/jsonc.vim'
-	Plugin 'mxw/vim-jsx'
-	Plugin 'pangloss/vim-javascript'
-	Plugin 'jparise/vim-graphql'
+	" Plugin 'ElmCast/elm-vim'
+	" Plugin 'reasonml-editor/vim-reason-plus'
+	" Plugin 'pangloss/vim-javascript'
+	" Plugin 'mxw/vim-jsx'
+	" Plugin 'jxnblk/vim-mdx-js'
+	" Plugin 'jparise/vim-graphql'
+	" Plugin 'jph00/swift-apple'
+	" Plugin 'vim-scripts/VimClojure'
+	" Plugin 'neoclide/jsonc.vim'
+	Plugin 'sheerun/vim-polyglot'
 
 	"
 	" Navigation
@@ -190,16 +191,17 @@
 		return result
 	endfunction
 	vnoremap ~ y:call setreg('', TwiddleCase(@"), getregtype(''))<CR>gv""Pgv
+" }}}
 
-
+" Colors {{{
 	"MD
 	" js codeblock
 	nnoremap <Leader>1 i```js<CR><CR>```ki
-
 " }}}
 
 " Colors {{{
 	" This is only necessary if you use "set termguicolors" for tmux
+	" https://github.com/vim/vim/issues/3608
 	let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
 	let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 
@@ -208,6 +210,12 @@
 	" Must go before `colorscheme`
 	let g:gruvbox_contrast_dark='hard'
 	let g:airline_powerline_fonts = 1
+	let g:gruvbox_improved_strings = 1
+	let g:gruvbox_improved_warnings = 1
+
+	" Necessary to make it work with ALE errors
+	" https://github.com/morhetz/gruvbox/issues/266
+	let g:gruvbox_guisp_fallback = 'bg'
 
 	colorscheme gruvbox
 
@@ -386,7 +394,7 @@ let g:LanguageClient_serverCommands = {
 " }}}
 
 " vim-markdown {{{
-	let g:markdown_fenced_languages = ['html', 'python', 'javascript=javascript.jsx', 'jsx=javascript.jsx', 'js=javascript.jsx', 'json', 'jsonc', 'bash=sh']
+	let g:markdown_fenced_languages = ['html', 'python', 'javascript=javascript.jsx', 'jsx=javascript.jsx', 'js=javascript.jsx', 'json', 'json5', 'bash=sh']
 " }}}
 
 " swift {{{
