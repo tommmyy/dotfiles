@@ -68,6 +68,8 @@
 	Plugin 'phanviet/vim-monokai-pro'
 	Plugin 'sainnhe/gruvbox-material'
 	Plugin 'bling/vim-airline'
+	Plugin 'edkolev/tmuxline.vim'
+	Plugin 'vim-airline/vim-airline-themes'
 	Plugin 'kien/rainbow_parentheses.vim'
 	" colorize all text in the form #rgb, #rgba, #rrggbb, #rrgbbaa, rgb(...), rgba(...)
 	Plugin 'lilydjwg/colorizer'
@@ -210,6 +212,7 @@
 	" Must go before `colorscheme`
 	let g:gruvbox_contrast_dark='hard'
 	let g:airline_powerline_fonts = 1
+	let g:airline_theme='gruvbox'
 	let g:gruvbox_improved_strings = 1
 	let g:gruvbox_improved_warnings = 1
 
