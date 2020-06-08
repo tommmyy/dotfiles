@@ -18,6 +18,7 @@
 	Plugin 'wlemuel/vim-tldr'
 	" visualizes the Vim undo tree.
 	Plugin 'simnalamburt/vim-mundo'
+	Plugin 'mhinz/vim-startify'
 
 	"
 	" IDE
@@ -33,12 +34,13 @@
 	" Plugin 'reasonml-editor/vim-reason-plus'
 	" Plugin 'pangloss/vim-javascript'
 	" Plugin 'mxw/vim-jsx'
-	" Plugin 'jxnblk/vim-mdx-js'
 	" Plugin 'jparise/vim-graphql'
 	" Plugin 'jph00/swift-apple'
 	" Plugin 'vim-scripts/VimClojure'
 	" Plugin 'neoclide/jsonc.vim'
 	Plugin 'sheerun/vim-polyglot'
+	" Plugin 'jxnblk/vim-mdx-js'
+	Plugin 'mzlogin/vim-markdown-toc'
 
 	"
 	" Navigation
@@ -122,6 +124,7 @@
 	set autoread
 	" Use the OS clipboard by default (on versions compiled with `+clipboard`)
 	" set clipboard=unnamed
+	set clipboard=unnamed,unnamedplus
 
 	" Trigger autoread when changing buffers or coming back to vim in terminal.
 	au FocusGained,BufEnter * :silent! !
@@ -142,10 +145,12 @@
 	inoremap <right> <nop>
 
 	" Set easier split navigation
-	nnoremap <C-J> <C-W><C-J>
-	nnoremap <C-K> <C-W><C-K>
-	nnoremap <C-L> <C-W><C-L>
-	nnoremap <C-H> <C-W><C-H>
+	nnoremap <C-j> <C-w><C-j>
+	nnoremap <C-k> <C-w><C-k>
+	nnoremap <C-l> <C-w><C-l>
+	nnoremap <C-h> <C-w><C-h>
+
+	nnoremap <Space>r *Ncgn
 
 	"Allow usage of mouse in iTerm
 	set ttyfast
@@ -168,18 +173,11 @@
 	nnoremap ž <C-^>
 	nnoremap <Leader>b :ls<CR>:b<Space>
 
-	vnoremap <Leader>c :'<,'>w !pbcopy<CR><CR>
-
 	"Find occurence of visually selected text
 	vnoremap // y/\V<C-r>=escape(@",'/\')<CR><CR>
 
 	"Find occurence of visually selected text
 	vnoremap <Leader>a y:Ack <C-r>=fnameescape(@")<CR><CR>
-
-	" tmux fix for cursor shape
-	" let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
-	" let &t_SR = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=2\x7\<Esc>\\"
-	" let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
 
 	" https://vim.fandom.com/wiki/Switching_case_of_characters
 	function! TwiddleCase(str)
@@ -226,7 +224,20 @@
 	set background=dark
 	set t_Co=256
 " }}}
+"
+"
+let g:startify_list_order = [
+   \ [' Recent'],
+   \ 'files',
+   \ [' Last modified'],
+   \ 'dir',
+   \ [' Sessions:'],
+   \ 'sessions',
+   \ ]
 
+" let g:startify_custom_indices = ['a', 'd', 'f', 'g', 'h']
+let g:startify_session_persistence = 1
+let g:startify_change_to_vcs_root = 1
 
 " ctags {{{
 	" creates command for generationg tags file
@@ -301,13 +312,14 @@
 	let g:ale_fixers = {
 	\   'javascript': ['prettier', 'eslint'],
 	\   'html': ['prettier'],
-	\   'mdx': ['prettier', 'eslint'],
 	\   'json': ['prettier'],
 	\   'scss': ['stylelint'],
 	\   'css': ['stylelint'],
 	\   'reason': ['refmt'],
 	\   'swift': ['swiftformat'],
+	\   'mdx': ['prettier', 'eslint'],
 	\}
+
 	let g:ale_reason_ls_executable = '~/Workspaces/reason/reason-language-server'
 
 	let g:ale_fix_on_save = 1
@@ -397,7 +409,18 @@ let g:LanguageClient_serverCommands = {
 " }}}
 
 " vim-markdown {{{
-	let g:markdown_fenced_languages = ['html', 'python', 'javascript=javascript.jsx', 'jsx=javascript.jsx', 'js=javascript.jsx', 'json', 'json5', 'bash=sh']
+	let g:markdown_fenced_languages = [
+				\'html',
+				\'python',
+				\'javascript=javascript.jsx',
+				\'jsx=javascript.jsx',
+				\'js=javascript.jsx',
+				\'json',
+				\'json5',
+				\'bash=sh']
+
+	" Do not indent shift+O in list context
+	let g:vim_markdown_new_list_item_indent = 0
 " }}}
 
 " swift {{{
@@ -525,4 +548,9 @@ let g:LanguageClient_serverCommands = {
 	" map #  <Plug>(incsearch-nohl-#)
 	" map g* <Plug>(incsearch-nohl-g*)
 	" map g# <Plug>(incsearch-nohl-g#)
+" }}}
+
+" vim-markdown-toc {{{
+	let g:vmt_fence_text='TOC'
+	let g:vmt_list_item_char='-'
 " }}}
