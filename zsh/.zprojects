@@ -1,0 +1,13 @@
+# Projects
+#
+# Prefix all project aliases with `pp` to avoid conflicts with another commands.
+#
+alias ppdot="cd ~/.dotfiles/"
+alias ppdotfiles="cd ~/.dotfiles/"
+alias ppwork="cd ~/Workspaces/"
+alias ppnotes="cd ~/Workspaces/notes"
+alias ppunion="~/Workspaces/react-union/"
+alias ppsa="cd ~/Workspaces/sdp/repo/s-analytics"
+alias ppzoe="cd ~/Workspaces/sdp/zoe"
+alias ppdeti="~/Workspaces/de-ti/"
+

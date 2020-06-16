@@ -23,9 +23,9 @@
 	"
 	" IDE
 	"
-	Plugin 'neoclide/coc.nvim'
 	Plugin 'editorconfig/editorconfig-vim'
 	Plugin 'w0rp/ale'
+	Plugin 'neoclide/coc.nvim'
 
 	"
 	" Languages
@@ -78,6 +78,8 @@
 	" Make the yanked region apparent
 	Plugin 'machakann/vim-highlightedyank'
 
+	" until the https://github.com/vim/vim/issues/4738 is fixed
+	Plugin 'tyru/open-browser.vim'
 	"
 	" Tried, did not liked it
 	"
@@ -176,8 +178,8 @@
 	"Find occurence of visually selected text
 	vnoremap // y/\V<C-r>=escape(@",'/\')<CR><CR>
 
-	"Find occurence of visually selected text
-	vnoremap <Leader>a y:Ack <C-r>=fnameescape(@")<CR><CR>
+	" Change CWD
+	nnoremap <leader>cd :cd %:p:h<CR>:pwd<CR>
 
 	" https://vim.fandom.com/wiki/Switching_case_of_characters
 	function! TwiddleCase(str)
@@ -191,9 +193,20 @@
 		return result
 	endfunction
 	vnoremap ~ y:call setreg('', TwiddleCase(@"), getregtype(''))<CR>gv""Pgv
+
+	let g:netrw_nogx = 1 " disable netrw's gx mapping.
+	" let g:netrw_browsex_viewer='open'
+	nmap gx <Plug>(openbrowser-smart-search)
+	vmap gx <Plug>(openbrowser-smart-search)
+
+	" spelling for md, mdx
+	autocmd BufRead,BufNewFile *.mdx,*.md setlocal spell
+	" turn on the autocompletion
+	set complete+=kspell
+
 " }}}
 
-" Colors {{{
+" Macros {{{
 	"MD
 	" js codeblock
 	nnoremap <Leader>1 i```js<CR><CR>```ki
@@ -224,20 +237,25 @@
 	set background=dark
 	set t_Co=256
 " }}}
-"
-"
-let g:startify_list_order = [
-   \ [' Recent'],
-   \ 'files',
-   \ [' Last modified'],
-   \ 'dir',
-   \ [' Sessions:'],
-   \ 'sessions',
-   \ ]
 
-" let g:startify_custom_indices = ['a', 'd', 'f', 'g', 'h']
-let g:startify_session_persistence = 1
-let g:startify_change_to_vcs_root = 1
+" Markdown {{{
+	let g:vim_markdown_fenced_languages = ['c++=cpp', 'viml=vim', 'bash=sh', 'ini=dosini', 'js=javascript', 'css=stylesheet']
+	let g:markdown_minlines = 100
+" }}}
+
+" Startify {{{
+	let g:startify_list_order = [
+		 \ [' Recent'],
+		 \ 'files',
+		 \ [' Last modified'],
+		 \ 'dir',
+		 \ [' Sessions:'],
+		 \ 'sessions',
+		 \ ]
+
+	let g:startify_session_persistence = 1
+	let g:startify_change_to_vcs_root = 1
+" }}}
 
 " ctags {{{
 	" creates command for generationg tags file
@@ -455,21 +473,20 @@ let g:LanguageClient_serverCommands = {
 
 " Coc {{{
 	let g:coc_global_extensions = [
-							\   'coc-sourcekit',
 							\   'coc-tsserver',
 							\   'coc-json',
 							\   'coc-syntax',
 							\   'coc-highlight',
 							\   'coc-emoji',
-							\   'coc-webpack',
 							\   'coc-marketplace',
 							\   'coc-sh',
-							\   'coc-sourcekit',
 							\   'coc-word',
-							\   'coc-tag',
 							\   'coc-yaml',
 							\]
 
+							" \   'coc-tag',
+							" \   'coc-webpack',
+							" \   'coc-sourcekit',
 	" Use tab for trigger completion with characters ahead and navigate.
 	" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 	" other plugin before putting this into your config.
@@ -505,30 +522,7 @@ let g:LanguageClient_serverCommands = {
 		endif
 	endfunction
 
-	set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
-
-	" lightline
-	let g:lightline = {
-		\ 'active': {
-		\   'left': [
-		\     [ 'mode', 'paste' ],
-		\     [ 'ctrlpmark', 'git', 'diagnostic', 'cocstatus', 'filename', 'method' ]
-		\   ],
-		\   'right':[
-		\     [ 'filetype', 'fileencoding', 'lineinfo', 'percent' ],
-		\     [ 'blame' ]
-		\   ],
-		\ },
-		\ 'component_function': {
-		\   'blame': 'LightlineGitBlame',
-		\ }
-	\ }
-
-	function! LightlineGitBlame() abort
-		let blame = get(b:, 'coc_git_blame', '')
-		" return blame
-		return winwidth(0) > 120 ? blame : ''
-	endfunction
+	" set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 " }}}
 
 " vim-mundo {{{
@@ -554,3 +548,4 @@ let g:LanguageClient_serverCommands = {
 	let g:vmt_fence_text='TOC'
 	let g:vmt_list_item_char='-'
 " }}}
+
