@@ -1,19 +1,18 @@
 {
 	"languageserver": {
-    "reason": {
-      "command": "reason-language-server",
-      "filetypes": ["reason"]
-    }
-  },
+		"reason": {
+			"command": "reason-language-server",
+			"filetypes": ["reason"]
+		}
+	},
 	"coc.preferences.previewAutoClose": false,
-	"suggest.echodocSupport": true,
+	"diagnostic.displayByAle": true,
 	"signature.target": "float",
 	"suggest.detailField": "preview",
 	"suggest.enablePreview": true,
-	  // File extensions to be parsed by the Javascript parser
-	"importCost.javascriptExtensions": [
-	"\\.jsx?$"
-	],
+	"suggest.echodocSupport": true,
+	// File extensions to be parsed by the Javascript parser
+	"importCost.javascriptExtensions": ["\\.jsx?$"],
 
 	// Which bundle size to display
 	"importCost.bundleSizeDecoration": "both",
@@ -21,4 +20,3 @@
 	// Display the 'calculating' decoration
 	"importCost.showCalculatingDecoration": true
 }
-

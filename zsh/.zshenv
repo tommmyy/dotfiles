@@ -21,3 +21,5 @@ alias gcu="git checkout unstable"
 
 alias removeVimJunk="find . -type f -name '*.sw[klmnop]' -delete"
 
+alias lynx="lynx -vikeys --display_charset=utf-8"
+

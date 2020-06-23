@@ -37,7 +37,6 @@
 	" Plugin 'jparise/vim-graphql'
 	" Plugin 'jph00/swift-apple'
 	" Plugin 'vim-scripts/VimClojure'
-	" Plugin 'neoclide/jsonc.vim'
 	Plugin 'sheerun/vim-polyglot'
 	" Plugin 'jxnblk/vim-mdx-js'
 	Plugin 'mzlogin/vim-markdown-toc'
@@ -108,6 +107,7 @@
 	set ruler
 	set showcmd
 	set ruler
+	set colorcolumn=80
 	set conceallevel=1
 	set hidden
 	" If set the UltiSnips plugin will stop working
@@ -158,7 +158,7 @@
 	set ttyfast
 	set mouse=a
 
-        "Set the root directories for :find command
+	"Set the root directories for :find command
 	set path=~/Workspaces/**;~/Downloads/**;~/.dotfiles/**
 	set wildignore+=**/node_modules/**
 
@@ -200,16 +200,21 @@
 	vmap gx <Plug>(openbrowser-smart-search)
 
 	" spelling for md, mdx
-	autocmd BufRead,BufNewFile *.mdx,*.md setlocal spell
+	" autocmd BufRead,BufNewFile *.mdx,*.md setlocal spell
 	" turn on the autocompletion
 	set complete+=kspell
+
 
 " }}}
 
 " Macros {{{
+	"js
+	"extract Ramda
+	nnoremap <Leader>1 ggqaq:%s/R\.\([a-zA-Z]*\)/\=setreg('A', submatch(1), 'V')/gn:put! Agg$$A,gv:sort ugvoo} from 'ramda';ggiimport {vi{=:%s/R\.//g
+
 	"MD
 	" js codeblock
-	nnoremap <Leader>1 i```js<CR><CR>```ki
+	nnoremap <Leader>2 i```js<CR><CR>```ki
 " }}}
 
 " Colors {{{
@@ -273,6 +278,7 @@
 	"map <silent> <leader>n :NERDTreeFind<CR>
 
 	:nmap <leader>e :NERDTreeFind<CR>
+	autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
 	let NERDTreeShowHidden = 1
 	let NERDTreeMinimalUI = 1
@@ -280,7 +286,7 @@
 " }}}
 
 " Scrolling {{{
-	set scrolloff=8         "Start scrolling when we're 8 lines away from margins
+	set scrolloff=4         "Start scrolling when we're 8 lines away from margins
 	set sidescrolloff=15
 	set sidescroll=1
 
