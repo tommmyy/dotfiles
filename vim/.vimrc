@@ -12,6 +12,7 @@
 	Plugin 'tpope/vim-speeddating'
 	Plugin 'tpope/vim-fireplace'
 	Plugin 'tpope/vim-commentary'
+	Plugin 'tpope/vim-eunuch'
 	Plugin 'bhurlow/vim-parinfer'
 	Plugin 'prabirshrestha/async.vim'
 	Plugin 'prabirshrestha/vim-lsp'
