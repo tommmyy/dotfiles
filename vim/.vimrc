@@ -41,6 +41,7 @@
 	Plugin 'sheerun/vim-polyglot'
 	" Plugin 'jxnblk/vim-mdx-js'
 	Plugin 'mzlogin/vim-markdown-toc'
+	" :GenTocGFM
 
 	"
 	" Navigation
