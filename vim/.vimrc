@@ -338,6 +338,7 @@
 	let g:ale_fixers = {
 	\   'javascript': ['prettier', 'eslint'],
 	\   'html': ['prettier'],
+	\   'xml': ['prettier'],
 	\   'json': ['prettier'],
 	\   'scss': ['stylelint'],
 	\   'css': ['stylelint'],
@@ -483,13 +484,14 @@ let g:LanguageClient_serverCommands = {
 	let g:coc_global_extensions = [
 							\   'coc-tsserver',
 							\   'coc-json',
+							\   'coc-xml',
+							\   'coc-yaml',
 							\   'coc-syntax',
 							\   'coc-highlight',
 							\   'coc-emoji',
 							\   'coc-marketplace',
 							\   'coc-sh',
 							\   'coc-word',
-							\   'coc-yaml',
 							\]
 
 							" \   'coc-tag',
@@ -518,6 +520,7 @@ let g:LanguageClient_serverCommands = {
 	nmap <silent> gi <Plug>(coc-implementation)
 	nmap <silent> gr <Plug>(coc-references)
 	nmap <leader>rr <Plug>(coc-rename)
+	nmap <leader>rw :CocSearch <C-R>=expand("<cword>")<CR><CR>
 
 	" Use K to show documentation in preview window.
 	nnoremap <silent> K :call <SID>show_documentation()<CR>

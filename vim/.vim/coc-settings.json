@@ -7,6 +7,7 @@
 	},
 	"coc.preferences.previewAutoClose": false,
 	"diagnostic.displayByAle": true,
+	"tsserver.npm": "/usr/local/bin/npm",
 	"signature.target": "float",
 	"suggest.detailField": "preview",
 	"suggest.enablePreview": true,
