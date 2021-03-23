@@ -71,5 +71,6 @@ source ~/.zprofile
 # added by travis gem
 [ -f /Users/tomas.konrady/.travis/travis.sh ] && source /Users/tomas.konrady/.travis/travis.sh
 
+
 export PATH=/Users/tomas.konrady/.local/bin:$PATH
 test -e /Users/tomas.konrady/.iterm2_shell_integration.zsh && source /Users/tomas.konrady/.iterm2_shell_integration.zsh || true

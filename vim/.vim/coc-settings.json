@@ -3,6 +3,23 @@
 		"reason": {
 			"command": "reason-language-server",
 			"filetypes": ["reason"]
+		},
+		"ccls": {
+			"command": "ccls",
+			"filetypes": ["c", "cpp", "objc", "objcpp"],
+			"rootPatterns": [
+				".ccls",
+				"compile_commands.json",
+				".vim/",
+				".git/",
+				".hg/"
+			],
+			"initializationOptions": {
+				"highlight": { "lsRanges": true },
+				"cache": {
+					"directory": "/tmp/ccls"
+				}
+			}
 		}
 	},
 	"coc.preferences.previewAutoClose": false,

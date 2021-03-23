@@ -26,7 +26,7 @@
 	"
 	Plugin 'editorconfig/editorconfig-vim'
 	Plugin 'w0rp/ale'
-	Plugin 'neoclide/coc.nvim'
+	Plugin 'neoclide/coc.nvim', {'branch': 'release'}
 
 	"
 	" Languages
@@ -40,9 +40,10 @@
 	" Plugin 'vim-scripts/VimClojure'
 	Plugin 'sheerun/vim-polyglot'
 	" Plugin 'jxnblk/vim-mdx-js'
-	Plugin 'mzlogin/vim-markdown-toc'
 	" :GenTocGFM
-
+	Plugin 'mzlogin/vim-markdown-toc'
+	"C++
+	Plugin 'jackguo380/vim-lsp-cxx-highlight'
 	"
 	" Navigation
 	"
@@ -217,6 +218,8 @@
 	"MD
 	" js codeblock
 	nnoremap <Leader>2 i```js<CR><CR>```ki
+
+	nnoremap <Leader>3 i<C-r>=expand('%:p:h:t')<CR>.displayName = '<C-R>=expand('%:p:h:t')<CR>';
 " }}}
 
 " Colors {{{
@@ -332,6 +335,7 @@
 	\   'javascript': ['eslint', 'stylelint'],
 	\   'scss': ['stylelint'],
 	\   'css': ['stylelint'],
+	\   'cpp': ['cc'],
 	\}
 	   " 'reason': ['reason-language-server'],
 
@@ -345,6 +349,7 @@
 	\   'reason': ['refmt'],
 	\   'swift': ['swiftformat'],
 	\   'mdx': ['prettier', 'eslint'],
+	\   'cpp': ['clang-format'],
 	\}
 
 	let g:ale_reason_ls_executable = '~/Workspaces/reason/reason-language-server'
@@ -560,3 +565,7 @@ let g:LanguageClient_serverCommands = {
 	let g:vmt_list_item_char='-'
 " }}}
 
+
+" lsp_cxx_hl_use_text_props {{{
+	let g:lsp_cxx_hl_use_text_props = 1
+" }}}
