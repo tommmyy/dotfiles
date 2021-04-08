@@ -17,9 +17,9 @@ alias ppnotes="cd ~/Workspaces/notes"
 
 # Fast-ai
 alias ppsdp="cd ~/Workspaces/sdp/repo"
-alias ppzoe="cd ~/Workspaces/sdp/zoe"
-alias ppdrunky="cd ~/Workspaces/sdp/drunkyai/drunky-fe/sources"
 alias ppsa="cd ~/Workspaces/sdp/repo/s-analytics/sources"
-alias ppdocs="cd ~/Workspaces/sdp/repo/gatsby-doc/sources"
-alias ppdash="cd ~/Workspaces/sdp/repo/dashboard-fe/sources"
+alias ppsafe="cd ~/Workspaces/sdp/repo/frontend-pom/source"
+alias ppzoe="cd ~/Workspaces/sdp/zoe"
+alias pptheme="cd ~/Workspaces/sdp/gatsby-theme-fast-ai"
+alias ppdrunky="cd ~/Workspaces/sdp/drunkyai/drunky-fe/sources"
 

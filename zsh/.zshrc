@@ -74,3 +74,5 @@ source ~/.zprofile
 
 export PATH=/Users/tomas.konrady/.local/bin:$PATH
 test -e /Users/tomas.konrady/.iterm2_shell_integration.zsh && source /Users/tomas.konrady/.iterm2_shell_integration.zsh || true
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

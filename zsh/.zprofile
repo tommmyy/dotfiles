@@ -7,8 +7,8 @@ zoom_join() {
     open "zoommtg://zoom.us/join?action=join&confno=$1&pwd=$2"
 }
 
-alias zoomstandup='zoom_join 377931564 123'
 alias zoom3='zoom_join 9599590003'
+alias zoomfastai='zoom_join 377931564 123'
 alias docker_clean_images='docker rmi $(docker images -a --filter=dangling=true -q)'
 alias docker_clean_ps='docker rm $(docker ps --filter=status=exited --filter=status=created -q)'
 alias whatsonport='sudo lsof -i tcp:'

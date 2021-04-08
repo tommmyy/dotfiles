@@ -2,99 +2,102 @@
 	set nocompatible              " be iMproved, required
 	filetype off                  " required
 
-	" set the runtime path to include Vundle and initialize
-	set rtp+=~/.vim/bundle/Vundle.vim
-	call vundle#begin()
+	call plug#begin('~/.vim/plugged')
 
-	Plugin 'VundleVim/Vundle.vim'
-	Plugin 'tpope/vim-surround'
-	Plugin 'tpope/vim-repeat'
-	Plugin 'tpope/vim-speeddating'
-	Plugin 'tpope/vim-fireplace'
-	Plugin 'tpope/vim-commentary'
-	Plugin 'tpope/vim-eunuch'
-	Plugin 'bhurlow/vim-parinfer'
-	Plugin 'prabirshrestha/async.vim'
-	Plugin 'prabirshrestha/vim-lsp'
-	Plugin 'wlemuel/vim-tldr'
+	Plug 'VundleVim/Vundle.vim'
+	Plug 'tpope/vim-surround'
+	Plug 'tpope/vim-repeat'
+	Plug 'tpope/vim-speeddating'
+	Plug 'tpope/vim-fireplace'
+	Plug 'tpope/vim-commentary'
+	Plug 'tpope/vim-eunuch'
+	Plug 'bhurlow/vim-parinfer'
+	Plug 'prabirshrestha/async.vim'
+	Plug 'prabirshrestha/vim-lsp'
+	Plug 'wlemuel/vim-tldr'
 	" visualizes the Vim undo tree.
-	Plugin 'simnalamburt/vim-mundo'
-	Plugin 'mhinz/vim-startify'
+	Plug 'simnalamburt/vim-mundo'
+	Plug 'mhinz/vim-startify'
 
 	"
 	" IDE
 	"
-	Plugin 'editorconfig/editorconfig-vim'
-	Plugin 'w0rp/ale'
-	Plugin 'neoclide/coc.nvim', {'branch': 'release'}
+	Plug 'editorconfig/editorconfig-vim'
+	Plug 'w0rp/ale'
+	Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 	"
 	" Languages
 	"
-	" Plugin 'ElmCast/elm-vim'
-	" Plugin 'reasonml-editor/vim-reason-plus'
-	" Plugin 'pangloss/vim-javascript'
-	" Plugin 'mxw/vim-jsx'
-	" Plugin 'jparise/vim-graphql'
-	" Plugin 'jph00/swift-apple'
-	" Plugin 'vim-scripts/VimClojure'
-	Plugin 'sheerun/vim-polyglot'
-	" Plugin 'jxnblk/vim-mdx-js'
+	" Plug 'ElmCast/elm-vim'
+	" Plug 'reasonml-editor/vim-reason-plus'
+	" Plug 'pangloss/vim-javascript'
+	" Plug 'mxw/vim-jsx'
+	" Plug 'jparise/vim-graphql'
+	" Plug 'jph00/swift-apple'
+	" Plug 'vim-scripts/VimClojure'
+	Plug 'sheerun/vim-polyglot'
+	" Plug 'jxnblk/vim-mdx-js'
 	" :GenTocGFM
-	Plugin 'mzlogin/vim-markdown-toc'
+	Plug 'mzlogin/vim-markdown-toc'
 	"C++
-	Plugin 'jackguo380/vim-lsp-cxx-highlight'
+	Plug 'jackguo380/vim-lsp-cxx-highlight'
+	"ReScript
+	Plug 'rescript-lang/vim-rescript'
 	"
 	" Navigation
 	"
-	Plugin 'scrooloose/nerdtree'
-	Plugin 'Xuyuanp/nerdtree-git-plugin'
-	Plugin 'mileszs/ack.vim'
-	Plugin 'srstevenson/vim-picker'
-  Plugin 'christoomey/vim-tmux-navigator'
-	Plugin 'schickling/vim-bufonly'
-	Plugin 'nelstrom/vim-visual-star-search'
+	Plug 'scrooloose/nerdtree'
+	Plug 'Xuyuanp/nerdtree-git-plugin'
+	" Plug 'mileszs/ack.vim'
+	Plug 'srstevenson/vim-picker'
+  Plug 'christoomey/vim-tmux-navigator'
+	Plug 'schickling/vim-bufonly'
+	Plug 'nelstrom/vim-visual-star-search'
+	Plug 'junegunn/fzf', { 'do': './install --all' }
+	Plug 'junegunn/fzf.vim'
 
 	"
 	" Git
 	"
-	Plugin 'tpope/vim-fugitive'
-	Plugin 'zivyangll/git-blame.vim'
+	Plug 'tpope/vim-fugitive'
+	Plug 'zivyangll/git-blame.vim'
 	" adds git column
-	Plugin 'airblade/vim-gitgutter'
+	Plug 'airblade/vim-gitgutter'
 
 	"
 	" Colors
 	"
 
-	Plugin 'flazz/vim-colorschemes'
-	Plugin 'gruvbox-community/gruvbox'
-	Plugin 'phanviet/vim-monokai-pro'
-	Plugin 'sainnhe/gruvbox-material'
-	Plugin 'bling/vim-airline'
-	Plugin 'edkolev/tmuxline.vim'
-	Plugin 'vim-airline/vim-airline-themes'
-	Plugin 'kien/rainbow_parentheses.vim'
+	Plug 'flazz/vim-colorschemes'
+	Plug 'gruvbox-community/gruvbox'
+	Plug 'phanviet/vim-monokai-pro'
+	Plug 'sainnhe/gruvbox-material'
+	Plug 'bling/vim-airline'
+	Plug 'edkolev/tmuxline.vim'
+	Plug 'vim-airline/vim-airline-themes'
+	Plug 'kien/rainbow_parentheses.vim'
 	" colorize all text in the form #rgb, #rgba, #rrggbb, #rrgbbaa, rgb(...), rgba(...)
-	Plugin 'lilydjwg/colorizer'
+	Plug 'lilydjwg/colorizer'
 	" Make the yanked region apparent
-	Plugin 'machakann/vim-highlightedyank'
+	Plug 'machakann/vim-highlightedyank'
 
 	" until the https://github.com/vim/vim/issues/4738 is fixed
-	Plugin 'tyru/open-browser.vim'
+	Plug 'tyru/open-browser.vim'
 	"
 	" Tried, did not liked it
 	"
-	" Plugin 'haya14busa/incsearch.vim'
-	" Plugin 'ctrlpvim/ctrlp.vim'
-	" Plugin 'lervag/vimtex'
-	" Plugin 'Valloric/YouCompleteMe'
-	" Plugin 'epilande/vim-es2015-snippets'
-	" Plugin 'epilande/vim-react-snippets'
-	" Plugin 'SirVer/ultisnips'
+	" Plug 'haya14busa/incsearch.vim'
+	" Plug 'ctrlpvim/ctrlp.vim'
+	" Plug 'lervag/vimtex'
+	" Plug 'Valloric/YouCompleteMe'
+	" Plug 'epilande/vim-es2015-snippets'
+	" Plug 'epilande/vim-react-snippets'
+	" Plug 'SirVer/ultisnips'
+
+	call plug#end()
 
 	" All of your Plugins must be added before the following line
-	call vundle#end()            " required
 
 	filetype plugin indent on    " required
 " }}}
@@ -176,7 +179,7 @@
 
 	"Better alternate buffer switching
 	nnoremap ž <C-^>
-	nnoremap <Leader>b :ls<CR>:b<Space>
+	" nnoremap <Leader>b :ls<CR>:b<Space>
 
 	"Find occurence of visually selected text
 	vnoremap // y/\V<C-r>=escape(@",'/\')<CR><CR>
@@ -211,15 +214,11 @@
 " }}}
 
 " Macros {{{
+
 	"js
 	"extract Ramda
-	nnoremap <Leader>1 ggqaq:%s/R\.\([a-zA-Z]*\)/\=setreg('A', submatch(1), 'V')/gn:put! Agg$$A,gv:sort ugvoo} from 'ramda';ggiimport {vi{=:%s/R\.//g
 
-	"MD
-	" js codeblock
-	nnoremap <Leader>2 i```js<CR><CR>```ki
 
-	nnoremap <Leader>3 i<C-r>=expand('%:p:h:t')<CR>.displayName = '<C-R>=expand('%:p:h:t')<CR>';
 " }}}
 
 " Colors {{{
@@ -314,7 +313,7 @@
 " vim-javascript
 	let g:javascript_plugin_jsdoc = 1
 	let g:javascript_plugin_flow = 1
-	let g:javascript_conceal_function = "ƒ"
+let g:javascript_conceal_function = "ƒ"
 	let g:javascript_conceal_null                 = "ø"
 	let g:javascript_conceal_this                 = "@"
 	let g:javascript_conceal_return               = "⇚"
@@ -346,13 +345,18 @@
 	\   'json': ['prettier'],
 	\   'scss': ['stylelint'],
 	\   'css': ['stylelint'],
-	\   'reason': ['refmt'],
 	\   'swift': ['swiftformat'],
 	\   'mdx': ['prettier', 'eslint'],
 	\   'cpp': ['clang-format'],
+	\   'rescript': [
+	\     {buffers -> {
+	\       'command': 'bsc -color never -format %t'
+	\     }},
+	\   ],
 	\}
+	" \   'reason': ['refmt'],
 
-	let g:ale_reason_ls_executable = '~/Workspaces/reason/reason-language-server'
+	" let g:ale_reason_ls_executable = '~/Workspaces/reason/reason-language-server'
 
 	let g:ale_fix_on_save = 1
 	let g:ale_completion_enabled = 1
@@ -434,11 +438,11 @@
 " }}}
 "
 
-" Reason-plus {{{
-let g:LanguageClient_serverCommands = {
-    \ 'reason': ['~/Workspaces/reason/reason-language-server']
-    \ }
-" }}}
+" " Reason-plus {{{
+" let g:LanguageClient_serverCommands = {
+"     \ 'reason': ['~/Workspaces/reason/reason-language-server']
+"     \ }
+" " }}}
 
 " vim-markdown {{{
 	let g:markdown_fenced_languages = [
@@ -469,10 +473,27 @@ let g:LanguageClient_serverCommands = {
 " schickling/vim-bufonly {{{
 	nnoremap <C-b> :Bufonly <CR>
 " }}}
-"
+
+" fzf {{{
+		" https://github.com/junegunn/fzf.vim/pull/1160
+		command! -bang -nargs=? GFilesCwd
+		\ call fzf#vim#gitfiles(
+		\	<q-args>,
+		\	fzf#vim#with_preview(
+		\		<q-args> == '?'
+		\		 ? { 'dir': getcwd(), 'placeholder': '' }
+		\		 : { 'dir': getcwd() }),
+		\		 <bang>0)
+
+	nmap <unique> <leader>f :GFilesCwd<CR>
+	nmap <unique> <leader>b :Buffers<CR>
+	nmap <unique> <leader>h :History<CR>
+" }}}
+
 " Vim-picker {{{
-	nmap <unique> <leader>p <Plug>(PickerEdit)
-	nmap <unique> <leader>pb <Plug>(PickerBuffer)
+	nmap <unique> <leader>p :PickerEdit<CR>
+	" nmap <unique> <leader>p <Plug>(PickerEdit)
+	" nmap <unique> <leader>pb <Plug>(PickerBuffer)
 	"
 	" nmap <unique> <leader>pe <Plug>(PickerEdit)
 	" nmap <unique> <leader>ps <Plug>(PickerSplit)
@@ -486,22 +507,31 @@ let g:LanguageClient_serverCommands = {
 " }}}
 
 " Coc {{{
-	let g:coc_global_extensions = [
-							\   'coc-tsserver',
-							\   'coc-json',
-							\   'coc-xml',
-							\   'coc-yaml',
-							\   'coc-syntax',
-							\   'coc-highlight',
-							\   'coc-emoji',
-							\   'coc-marketplace',
-							\   'coc-sh',
-							\   'coc-word',
-							\]
+ " Always show the signcolumn, otherwise it would shift the text each time
+ " diagnostics appear/become resolved.
+	if has("patch-8.1.1564")
+   " Recently vim can merge signcolumn and number column into one
+		set signcolumn=number
+	else
+		set signcolumn=yes
+	endif
 
-							" \   'coc-tag',
-							" \   'coc-webpack',
-							" \   'coc-sourcekit',
+	" Use K to show documentation in preview window.
+	nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+	function! s:show_documentation()
+		if (index(['vim','help'], &filetype) >= 0)
+			execute 'h '.expand('<cword>')
+		elseif (coc#rpc#ready())
+			call CocActionAsync('doHover')
+		else
+			execute '!' . &keywordprg . " " . expand('<cword>')
+		endif
+	endfunction
+
+	" Highlight the symbol and its references when holding the cursor.
+	autocmd CursorHold * silent call CocActionAsync('highlight')
+
 	" Use tab for trigger completion with characters ahead and navigate.
 	" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 	" other plugin before putting this into your config.
@@ -517,28 +547,50 @@ let g:LanguageClient_serverCommands = {
 	endfunction
 
 	" Use <c-space> to trigger completion.
-	inoremap <silent><expr> <c-space> coc#refresh()
+	if has('nvim')
+		inoremap <silent><expr> <c-space> coc#refresh()
+	else
+		inoremap <silent><expr> <c-@> coc#refresh()
+	endif
 
-	" GoTo code navigation.
-	nmap <silent> gd <Plug>(coc-definition)
-	nmap <silent> gy <Plug>(coc-type-definition)
-	nmap <silent> gi <Plug>(coc-implementation)
-	nmap <silent> gr <Plug>(coc-references)
-	nmap <leader>rr <Plug>(coc-rename)
-	nmap <leader>rw :CocSearch <C-R>=expand("<cword>")<CR><CR>
+	" Make <CR> auto-select the first completion item and notify coc.nvim to
+	" format on enter, <cr> could be remapped by other vim plugin
+	inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
+																\: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
-	" Use K to show documentation in preview window.
-	nnoremap <silent> K :call <SID>show_documentation()<CR>
 
-	function! s:show_documentation()
-		if (index(['vim','help'], &filetype) >= 0)
-			execute 'h '.expand('<cword>')
-		else
-			call CocAction('doHover')
-		endif
-	endfunction
+	let g:coc_global_extensions = [
+							\   'coc-tsserver',
+							\   'coc-json',
+							\   'coc-xml',
+							\   'coc-yaml',
+							\   'coc-syntax',
+							\   'coc-highlight',
+							\   'coc-emoji',
+							\   'coc-marketplace',
+							\   'coc-sh',
+							\   'coc-word',
+							\   'coc-react-refactor',
+							\]
+							" \   'coc-graphql',
+							" \   'coc-tag',
+							" \   'coc-webpack',
+							" \   'coc-sourcekit',
+			" GoTo code navigation.
+			nmap <silent> gd <Plug>(coc-definition)
+			nmap <silent> gy <Plug>(coc-type-definition)
+			nmap <silent> gi <Plug>(coc-implementation)
+			nmap <silent> gr <Plug>(coc-references)
+			nmap <leader>re  :CocRestart<CR>
+			nmap <leader>rr <Plug>(coc-rename)
+			xmap <leader>a  <Plug>(coc-codeaction-selected)
+			nmap <leader>a  <Plug>(coc-codeaction-selected)
+			nmap <leader>rw :CocSearch <C-R>=expand("<cword>")<CR><CR>
 
-	" set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+			" Add `:OR` command for organize imports of the current buffer.
+			command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+
+
 " }}}
 
 " vim-mundo {{{
