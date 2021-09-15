@@ -11,6 +11,7 @@
 	Plug 'tpope/vim-fireplace'
 	Plug 'tpope/vim-commentary'
 	Plug 'tpope/vim-eunuch'
+	Plug 'tpope/vim-obsession'
 	Plug 'bhurlow/vim-parinfer'
 	Plug 'prabirshrestha/async.vim'
 	Plug 'prabirshrestha/vim-lsp'
@@ -160,6 +161,8 @@
 
 	nnoremap <Space>r *Ncgn
 
+	nnoremap <silent> <C-f> :silent !tmux neww tmux-sessionizer<CR>
+
 	"Allow usage of mouse in iTerm
 	set ttyfast
 	set mouse=a
@@ -215,8 +218,21 @@
 
 " Macros {{{
 
-	"js
-	"extract Ramda
+	"extract Ramda functions
+	nnoremap <Leader>+ ggqaq:%s/R\.\([a-zA-Z]*\)/\=setreg('A', submatch(1), 'V')/gn:put! Agg$$A,gv:sort ugvoo} from 'ramda';ggiimport {vi{=:%s/R\.//g
+
+	"react arrow comp to arrow comp with return
+	"start at the line where definition starts
+	nnoremap <Leader>ě ^f(%f(i{return $%$a};hvi{o><<
+
+	"add displayName
+	nnoremap <Leader>š i<C-r>=expand('%:p:h')<CR>.displayName = '<C-R>=expand('%:p:h')<CR>';
+
+	"MD
+	" js codeblock
+	nnoremap <Leader>2 i```js<CR><CR>```ki
+
+
 
 
 " }}}
@@ -581,6 +597,7 @@ let g:javascript_conceal_function = "ƒ"
 			nmap <silent> gy <Plug>(coc-type-definition)
 			nmap <silent> gi <Plug>(coc-implementation)
 			nmap <silent> gr <Plug>(coc-references)
+			nmap <leader>gl :CocList outline -kind<CR>
 			nmap <leader>re  :CocRestart<CR>
 			nmap <leader>rr <Plug>(coc-rename)
 			xmap <leader>a  <Plug>(coc-codeaction-selected)

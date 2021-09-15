@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+if [[ $# -eq 1 ]]; then
+    selected=$1
+else
+    selected=$(find ~/ ~/Workspaces ~/Workspaces/sdp/repo ~/Workspaces/sdp/repo/frontend-pom ~/Workspaces/sdp/repo/s-analytics -mindepth 1 -maxdepth 1 -type d | fzf)
+fi
+
+if [[ -z $selected ]]; then
+    exit 0
+fi
+
+selected_name_base=$(basename "$selected")
+selected_name_parent=$(basename -- $(dirname "$selected"))
+selected_name=$(echo "${selected_name_parent}>${selected_name_base}" | tr . _)
+
+# selected_name=$(basename "$selected" | tr . _)
+tmux_running=$(pgrep tmux)
+if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+    tmux new-session -s $selected_name -c $selected
+    exit 0
+fi
+
+if ! tmux has-session -t $selected_name; then
+    tmux new-session -ds $selected_name -c $selected
+fi
+
+if [[ -z $TMUX ]]; then
+    tmux attach-session -t $selected_name
+else
+    tmux switch-client -t $selected_name
+fi
