@@ -109,8 +109,9 @@
 # ctrl + alt - z  : yabai -m display --focus prev
 cmd + alt - n  : yabai -m display --focus next
 cmd + alt - p  : yabai -m display --focus prev
-cmd + alt - z : yabai -m display --focus 1
-cmd + alt - u : yabai -m display --focus 2
+ctrl + shift + cmd + alt - z : yabai -m display --focus 1
+ctrl + shift + cmd + alt - u : yabai -m display --focus 2
+ctrl + shift + cmd + alt - s : yabai -m space --create
 
 ctrl + cmd - 0x12: yabai -m window --display 1 yabai -m display --focus 1
 ctrl + cmd - 0x13: yabai -m window --display 2 yabai -m display --focus 2

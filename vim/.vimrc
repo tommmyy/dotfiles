@@ -1,4 +1,4 @@
-" Vundle ... {{{
+" vundle ... {{{
 	set nocompatible              " be iMproved, required
 	filetype off                  " required
 
@@ -143,6 +143,24 @@
 	set visualbell    " stop that ANNOYING beeping
 	set wildmenu
 	set wildmode=list:longest,full
+
+	" Makes more sense?
+	nnoremap Y y$
+
+	" Centers jumps
+	nnoremap n nzzzv
+	nnoremap N Nzzzv
+	nnoremap J mzJ`z
+
+	"
+	vnoremap J :m '>+1<CR>gv=gv
+	vnoremap K :m '<-2<CR>gv=gv
+	inoremap <C-j> <esc>:m .+1<CR>==
+	inoremap <C-k> <esc>:m .-2 <CR>==
+	nnoremap <leader>j :m .+1<CR>==
+	nnoremap <leader>k :m .-2 <CR>==
+
+
 	" Disable arrow keys
 	nnoremap <up>    <nop>
 	nnoremap <down>  <nop>
@@ -263,10 +281,6 @@
 	set t_Co=256
 " }}}
 
-" Markdown {{{
-	let g:vim_markdown_fenced_languages = ['c++=cpp', 'viml=vim', 'bash=sh', 'ini=dosini', 'js=javascript', 'css=stylesheet']
-	let g:markdown_minlines = 100
-" }}}
 
 " Startify {{{
 	let g:startify_list_order = [
@@ -329,7 +343,7 @@
 " vim-javascript
 	let g:javascript_plugin_jsdoc = 1
 	let g:javascript_plugin_flow = 1
-let g:javascript_conceal_function = "ƒ"
+	let g:javascript_conceal_function = "ƒ"
 	let g:javascript_conceal_null                 = "ø"
 	let g:javascript_conceal_this                 = "@"
 	let g:javascript_conceal_return               = "⇚"
@@ -342,12 +356,18 @@ let g:javascript_conceal_function = "ƒ"
 " }}}
 
 " ALE {{{
-	nmap <silent> <leader>a :ALEFirst<CR>
+	" let g:ale_javascript_eslint_use_global = 1
+	let g:ale_javascript_eslint_executable = 'eslint_d --cache'
+
+	" nmap <silent> <leader>a :ALEFirst<CR>
 	nmap <silent> <leader>an :ALENext<CR>
-	nmap <F8> <Plug>(ale_fix)
+	" nmap <silent> <leader>xx :ALEFix prettier<CR>
+	" nmap <silent> <leader>x :ALEFix prettier eslint<CR>
+	" nmap <F8> <Plug>(ale_fix)
 
 	let g:ale_linters = {
 	\   'javascript': ['eslint', 'stylelint'],
+	\   'typescript': ['eslint', 'stylelint'],
 	\   'scss': ['stylelint'],
 	\   'css': ['stylelint'],
 	\   'cpp': ['cc'],
@@ -356,13 +376,13 @@ let g:javascript_conceal_function = "ƒ"
 
 	let g:ale_fixers = {
 	\   'javascript': ['prettier', 'eslint'],
+	\   'typescript': ['prettier', 'eslint'],
 	\   'html': ['prettier'],
 	\   'xml': ['prettier'],
 	\   'json': ['prettier'],
 	\   'scss': ['stylelint'],
 	\   'css': ['stylelint'],
 	\   'swift': ['swiftformat'],
-	\   'mdx': ['prettier', 'eslint'],
 	\   'cpp': ['clang-format'],
 	\   'rescript': [
 	\     {buffers -> {
@@ -370,12 +390,15 @@ let g:javascript_conceal_function = "ƒ"
 	\     }},
 	\   ],
 	\}
+	" \   'mdx': ['prettier', 'eslint'],
 	" \   'reason': ['refmt'],
+	" \   'javascript': ['prettier', 'eslint'],
 
 	" let g:ale_reason_ls_executable = '~/Workspaces/reason/reason-language-server'
 
 	let g:ale_fix_on_save = 1
 	let g:ale_completion_enabled = 1
+	let g:ale_disable_lsp = 1
 " }}}
 
 " CtrlP {{{
@@ -461,18 +484,25 @@ let g:javascript_conceal_function = "ƒ"
 " " }}}
 
 " vim-markdown {{{
-	let g:markdown_fenced_languages = [
+	let g:vim_markdown_fenced_languages = [
 				\'html',
 				\'python',
+				\'json=json5',
 				\'javascript=javascript.jsx',
 				\'jsx=javascript.jsx',
 				\'js=javascript.jsx',
-				\'json',
-				\'json5',
-				\'bash=sh']
+				\'bash=sh'
+				\'c++=cpp',
+				\'viml=vim',
+				\'bash=sh',
+				\'ini=dosini',
+				\'css=stylesheet']
+	" let g:markdown_minlines = 100
+" }}}
 
 	" Do not indent shift+O in list context
 	let g:vim_markdown_new_list_item_indent = 0
+	let g:vim_markdown_folding_disabled = 1
 " }}}
 
 " swift {{{

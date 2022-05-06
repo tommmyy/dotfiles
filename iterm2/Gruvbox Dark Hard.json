@@ -24,7 +24,7 @@
     "Alpha Component" : 1,
     "Green Component" : 0.85882353782653809
   },
-  "Right Option Key Sends" : 0,
+  "Right Option Key Sends" : 2,
   "Character Encoding" : 4,
   "Selection Color" : {
     "Red Component" : 0.92156863212585449,
@@ -33,7 +33,7 @@
     "Alpha Component" : 1,
     "Green Component" : 0.85882353782653809
   },
-  "Blend" : 0.16473401256443299,
+  "Blend" : 0.51441988031914887,
   "Mouse Reporting" : true,
   "Cursor Boost" : 0,
   "Ansi 4 Color" : {
@@ -83,7 +83,7 @@
     "Green Component" : 0.36470580101013184
   },
   "Shortcut" : "",
-  "Background Image Location" : "\/Users\/tomas.konrady\/Downloads\/wallpaper-erza-scarlet-eruza-sukaretto-elza-fairy-tail-mashima-hiro-ba.jpg",
+  "Background Image Location" : "\/Users\/tomas.konrady\/Downloads\/wall-groku-hami.png",
   "Bold Color" : {
     "Red Component" : 0.99999600648880005,
     "Color Space" : "sRGB",
@@ -355,7 +355,7 @@
   },
   "AWDS Pane Directory" : "",
   "Blur" : true,
-  "Normal Font" : "FantasqueSansMono-Regular 20",
+  "Normal Font" : "FantasqueSansMono-Regular 14",
   "Vertical Spacing" : 1.05,
   "Use Underline Color" : false,
   "Ansi 7 Color" : {
@@ -371,7 +371,7 @@
   "Terminal Type" : "xterm-256color",
   "Horizontal Spacing" : 1,
   "Option Key Sends" : 0,
-  "Only The Default BG Color Uses Transparency" : true,
+  "Only The Default BG Color Uses Transparency" : false,
   "Blink Allowed" : true,
   "Minimum Contrast" : 0.19755415482954544,
   "Ansi 15 Color" : {
@@ -389,7 +389,7 @@
     "Alpha Component" : 1,
     "Green Component" : 0.61568635702133179
   },
-  "Transparency" : 0.25057304885786802,
+  "Transparency" : 0,
   "Background Color" : {
     "Red Component" : 0.11372549086809158,
     "Color Space" : "sRGB",
