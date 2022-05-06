@@ -39,6 +39,9 @@
 	" Plug 'vim-scripts/VimClojure'
 	Plug 'sheerun/vim-polyglot'
 	" Plug 'jxnblk/vim-mdx-js'
+	" Plug 'godlygeek/tabular'
+	" Plug 'preservim/vim-markdown'
+	" Plug 'tpope/vim-markdown'
 	" :GenTocGFM
 	Plug 'mzlogin/vim-markdown-toc'
 	"C++
@@ -61,7 +64,7 @@
 	"
 	" Git
 	"
-	Plug 'tpope/vim-fugitive'
+	" Plug 'tpope/vim-fugitive'
 	Plug 'zivyangll/git-blame.vim'
 	" adds git column
 	Plug 'airblade/vim-gitgutter'
@@ -74,7 +77,7 @@
 	Plug 'gruvbox-community/gruvbox'
 	Plug 'phanviet/vim-monokai-pro'
 	Plug 'sainnhe/gruvbox-material'
-	Plug 'bling/vim-airline'
+	Plug 'vim-airline/vim-airline'
 	Plug 'edkolev/tmuxline.vim'
 	Plug 'vim-airline/vim-airline-themes'
 	Plug 'kien/rainbow_parentheses.vim'
@@ -488,21 +491,20 @@
 				\'html',
 				\'python',
 				\'json=json5',
-				\'javascript=javascript.jsx',
-				\'jsx=javascript.jsx',
-				\'js=javascript.jsx',
+				\'js=javascript',
+				\'jsx=javascript',
 				\'bash=sh'
 				\'c++=cpp',
 				\'viml=vim',
 				\'bash=sh',
 				\'ini=dosini',
-				\'css=stylesheet']
+				\'css=css']
 	" let g:markdown_minlines = 100
 " }}}
 
 	" Do not indent shift+O in list context
-	let g:vim_markdown_new_list_item_indent = 0
-	let g:vim_markdown_folding_disabled = 1
+	let g:markdown_new_list_item_indent = 0
+	let g:markdown_folding_disabled = 1
 " }}}
 
 " swift {{{
