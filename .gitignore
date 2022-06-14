@@ -1,2 +1,5 @@
 .zsh_secrets
+vim/.vim/plugged/
+tmux/.tmux/plugins/
+tmux/.tmux/resurrect/
 

@@ -1,4 +1,4 @@
-" vundle ... {{{
+" vim-plug ... {{{
 	set nocompatible              " be iMproved, required
 	filetype off                  " required
 

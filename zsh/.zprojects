@@ -2,24 +2,9 @@
 #
 # Prefix all project aliases with `pp` to avoid conflicts with another commands.
 
-
 # Configuration
-alias ppdot="cd ~/.dotfiles/"
-alias ppdotfiles="cd ~/.dotfiles/"
-alias ppwork="cd ~/Workspaces/"
+alias ppdot="cd ~/dotfiles/"
+alias ppdotfiles="cd ~/dotfiles/"
+alias ppwork="cd ~/workspaces/"
 
-# OS
-alias ppunion="~/Workspaces/react-union/"
-
-# Spare time
-alias ppdeti="~/Workspaces/de-ti/"
-alias ppnotes="cd ~/Workspaces/notes"
-
-# Fast-ai
-alias ppsdp="cd ~/Workspaces/sdp/repo"
-alias ppsa="cd ~/Workspaces/sdp/repo/s-analytics/sources"
-alias ppsafe="cd ~/Workspaces/sdp/repo/frontend-pom/source"
-alias ppzoe="cd ~/Workspaces/sdp/zoe"
-alias pptheme="cd ~/Workspaces/sdp/gatsby-theme-fast-ai"
-alias ppdrunky="cd ~/Workspaces/sdp/drunkyai/drunky-fe/sources"
 

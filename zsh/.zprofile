@@ -4,6 +4,9 @@ export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-15.0.2.jdk/Contents/Home
 
 # For compilers to find openjdk you may need to set:
 #  export CPPFLAGS="-I/usr/local/opt/openjdk/include"
+#
+ export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
+ export JVA_HOME="/opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home"
 
 zoom_join() {
     # param $1   - room number
@@ -27,3 +30,23 @@ alias whatsonport='f() { sudo lsof -ti tcp:$1};f'
 alias killonport='f() { sudo lsof -ti tcp:$1 | sudo xargs kill };f'
 
 bindkey -s ^f "tmux-sessionizer\n"
+
+eval "$(/opt/homebrew/bin/brew shellenv)"
+#https://unix.stackexchange.com/questions/222901/caret-square-bracket-square-bracket-a-a-what-does-it-mean
+# https://github.com/jinzhu/configure/blob/master/.shell/zsh/bindkey
+user-complete(){
+    case $BUFFER in
+        "" )
+        BUFFER="cd "
+        zle end-of-line
+        zle expand-or-complete
+        ;;
+        * )
+        zle expand-or-complete
+        ;;
+    esac
+}
+zle -N user-complete
+bindkey "\t" user-complete
+
+

@@ -1,5 +1,5 @@
-ls "$HOME/.dotfiles/arts"|sort -R |tail -1 |while read file; do
-  cat "$HOME/.dotfiles/arts/$file"
+ls "$HOME/dotfiles/arts"|sort -R |tail -1 |while read file; do
+  cat "$HOME/dotfiles/arts/$file"
 done
 
 source "$HOME/.zsh_secrets"
@@ -12,6 +12,7 @@ export PATH="$(yarn global bin):$PATH"
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
+# fpath+=$HOME/pure
 export fpath=( "$HOME/.zfunctions" $fpath )
 
 # Set name of the theme to load. Optionally, if you set this to "random"
@@ -69,10 +70,11 @@ prompt pure
 source ~/.zprofile
 
 # added by travis gem
-[ -f /Users/tomas.konrady/.travis/travis.sh ] && source /Users/tomas.konrady/.travis/travis.sh
+# [ -f /Users/tommmyy/.travis/travis.sh ] && source /Users/tommmyy/.travis/travis.sh
 
 
-export PATH=/Users/tomas.konrady/.local/bin:$PATH
-test -e /Users/tomas.konrady/.iterm2_shell_integration.zsh && source /Users/tomas.konrady/.iterm2_shell_integration.zsh || true
+export PATH=/Users/tommmyy/.local/bin:$PATH
+test -e /Users/tommmyy/.iterm2_shell_integration.zsh && source /Users/tommmyy/.iterm2_shell_integration.zsh || true
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
