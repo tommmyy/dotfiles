@@ -64,10 +64,10 @@
 	"
 	" Git
 	"
-	" Plug 'tpope/vim-fugitive'
+	Plug 'tpope/vim-fugitive'
 	Plug 'zivyangll/git-blame.vim'
 	" adds git column
-	Plug 'airblade/vim-gitgutter'
+	" Plug 'airblade/vim-gitgutter'
 
 	"
 	" Colors
@@ -180,7 +180,7 @@
 	nnoremap <C-l> <C-w><C-l>
 	nnoremap <C-h> <C-w><C-h>
 
-	nnoremap <Space>r *Ncgn
+	" nnoremap <Space>r *Ncgn
 
 	nnoremap <silent> <C-f> :silent !tmux neww tmux-sessionizer<CR>
 
@@ -194,8 +194,8 @@
 
 	"Switch tabs by f8
 	set switchbuf=usetab
-	nnoremap <F8> :sbnext<CR>
-	nnoremap <S-F8> :sbprevious<CR>
+	" nnoremap <F8> :sbnext<CR>
+	" nnoremap <S-F8> :sbprevious<CR>
 
 	"Switch buffers
 	:nnoremap <C-n> :bnext<CR>
@@ -206,7 +206,7 @@
 	" nnoremap <Leader>b :ls<CR>:b<Space>
 
 	"Find occurence of visually selected text
-	vnoremap // y/\V<C-r>=escape(@",'/\')<CR><CR>
+	" vnoremap // y/\V<C-r>=escape(@",'/\')<CR><CR>
 
 	" Change CWD
 	nnoremap <leader>cd :cd %:p:h<CR>:pwd<CR>
@@ -364,6 +364,7 @@
 
 	" nmap <silent> <leader>a :ALEFirst<CR>
 	nmap <silent> <leader>an :ALENext<CR>
+	nmap <silent> <leader>ap :ALEPrevious<CR>
 	" nmap <silent> <leader>xx :ALEFix prettier<CR>
 	" nmap <silent> <leader>x :ALEFix prettier eslint<CR>
 	" nmap <F8> <Plug>(ale_fix)
@@ -371,15 +372,20 @@
 	let g:ale_linters = {
 	\   'javascript': ['eslint', 'stylelint'],
 	\   'typescript': ['eslint', 'stylelint'],
+	\   'typescriptreact': ['eslint', 'stylelint'],
+	\   'svelte': ['eslint', 'stylelint'],
 	\   'scss': ['stylelint'],
 	\   'css': ['stylelint'],
 	\   'cpp': ['cc'],
+	\   'rust': ['analyzer']
 	\}
 	   " 'reason': ['reason-language-server'],
 
 	let g:ale_fixers = {
 	\   'javascript': ['prettier', 'eslint'],
 	\   'typescript': ['prettier', 'eslint'],
+	\   'typescriptreact': ['prettier', 'eslint'],
+	\   'svelte': ['prettier', 'eslint'],
 	\   'html': ['prettier'],
 	\   'xml': ['prettier'],
 	\   'json': ['prettier'],

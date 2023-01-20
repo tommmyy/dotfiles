@@ -305,3 +305,4 @@ httpHeaders () { /usr/bin/curl -I -L $@ ; }             # httpHeaders:      Grab
 #   then use: ~/Dev/Perl/randBytes 1048576 > 10MB.dat
 
 export PATH="$PATH:/Users/tomas.konrady/Library/PackageManager/bin"
+. "$HOME/.cargo/env"

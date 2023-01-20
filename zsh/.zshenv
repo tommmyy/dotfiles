@@ -22,6 +22,7 @@ alias gcu="git checkout unstable"
 alias removeVimJunk="find . -type f -name '*.sw[klmnop]' -delete"
 
 alias lynx="lynx -vikeys --display_charset=utf-8"
-alias vpnLunde='osascript -e "tell application \"/Applications/Tunnelblick.app\"" -e "connect \"Lundegaard\"" -e "end tell"'
+alias vpnLunde='osascript -e "tell application \"/Applications/Tunnelblick.app\"" -e "connect \"Lundegaard-UDP\"" -e "end tell"'
 alias vpnDisconnect='osascript -e "tell application \"/Applications/Tunnelblick.app\"" -e "disconnect all" -e "end tell"'
 
+. "$HOME/.cargo/env"

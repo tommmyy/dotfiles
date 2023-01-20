@@ -6,7 +6,7 @@ export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-15.0.2.jdk/Contents/Home
 #  export CPPFLAGS="-I/usr/local/opt/openjdk/include"
 #
  export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
- export JVA_HOME="/opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home"
+ export JAVA_HOME="/opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home"
 
 zoom_join() {
     # param $1   - room number

@@ -25,15 +25,18 @@
 			}
 		}
 	},
-	"coc.preferences.previewAutoClose": false,
+	"coc.preferences.formatOnSaveFiletypes": ["rust"],
+	"rust-analyzer.enable": true,
+	// "rust-analyzer.server.path": "~/.local/bin/rust-analyzer",
+	// "rust-analyzer.updates.channel": "stable",
 	"diagnostic.displayByAle": true,
 	"tsserver.npm": "/usr/local/bin/npm",
 	/* "tsserver.log":"verbose", */
 	"signature.target": "float",
 	"suggest.detailField": "preview",
 	"suggest.enablePreview": true,
-	"suggest.echodocSupport": true,
 	"javascript.suggest.autoImports":true,
 	"javascript.suggest.completeFunctionCalls":true,
-	"javascript.format.enabled": true
+	"javascript.format.enabled": true,
+	"javascript.updateImportsOnFileMove.enable": false
 }
