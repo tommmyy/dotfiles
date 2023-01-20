@@ -2,4 +2,6 @@
 vim/.vim/plugged/
 tmux/.tmux/plugins/
 tmux/.tmux/resurrect/
+bin/.local/bin/rust-analyzer
+
 
