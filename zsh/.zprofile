@@ -1,12 +1,17 @@
-export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-15.0.2.jdk/Contents/Home"
+# export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-15.0.2.jdk/Contents/Home"
 # export JAVA_HOME="/Library/Java/JavaVirtualMachines/openjdk-11.0.2.jdk/Contents/Home"
 # export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.8.0_161.jdk/Contents/Home"
 
 # For compilers to find openjdk you may need to set:
 #  export CPPFLAGS="-I/usr/local/opt/openjdk/include"
 #
- export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
- export JAVA_HOME="/opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home"
+ # export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
+ # export JAVA_HOME="/opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home"
+
+ # brew install --cask adoptopenjdk/openjdk/adoptopenjdk8
+ export PATH="/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/bin:$PATH"
+ export JAVA_HOME="/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home"
+
 
 zoom_join() {
     # param $1   - room number

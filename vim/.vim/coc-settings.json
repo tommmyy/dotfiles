@@ -37,6 +37,14 @@
 	"suggest.enablePreview": true,
 	"javascript.suggest.autoImports":true,
 	"javascript.suggest.completeFunctionCalls":true,
-	"javascript.format.enabled": true,
-	"javascript.updateImportsOnFileMove.enable": false
+	"javascript.format.enable": true,
+	"javascript.suggest.enabled": true,
+	"javascript.updateImportsOnFileMove.enabled": "never",
+	"javascript.format.insertSpaceAfterCommaDelimiter": true,
+
+	"typescript.suggest.autoImports":true,
+	"typescript.format.enable": true,
+	"typescript.suggest.enabled": true,
+	"typescript.format.insertSpaceAfterCommaDelimiter": true,
+	"typescript.updateImportsOnFileMove.enabled": "never",
 }
