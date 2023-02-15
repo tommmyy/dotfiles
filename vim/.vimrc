@@ -183,7 +183,7 @@
 	" nnoremap <Space>r *Ncgn
 	nnoremap <leader>l :redraw!<CR>
 
-	nnoremap <silent> <C-f> :silent !tmux neww tmux-sessionizer<CR>
+	nnoremap <silent> <C-f> :silent !tmux neww tmux-sessionizer<CR>:redraw!<CR>
 
 	"Allow usage of mouse in iTerm
 	set ttyfast

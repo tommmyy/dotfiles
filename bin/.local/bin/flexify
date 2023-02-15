@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+
+videos="*.webm,*.mkv,*.flv,*.flv,*.vob,*.ogv,*.ogg,*.drc,*.gif,*.gifv,*.mng,*.avi,*.mts,*.m2ts,*.ts,*.mov,*.qt,*.wmv,*.yuv,*.rm,*.rmvb,*.viv,*.asf,*.amv,*.mp4,*.m4p,*.m4v,*.mpg,*.mp2,*.mpeg,*.mpe,*.mpv,*.mpg,*.mpeg,*.m2v,*.m4v,*.svi,*.3gp,*.3g2,*.mxf,*.roq,*.nsv,*.flv,*.f4v,*.f4p,*.f4a,*.f4b"
+if [[ $# -eq 1 ]]; then
+    selected=$1
+else
+    selected=$(find ~/ ~/Downloads  -mindepth 1 -maxdepth 1 -name '*.webm' -or -name '*.mkv' -or -name '*.flv' -or -name '*.flv' -or -name '*.vob' -or -name '*.ogv' -or -name '*.ogg' -or -name '*.drc' -or -name '*.gif' -or -name '*.gifv' -or -name '*.mng' -or -name '*.avi' -or -name '*.mts' -or -name '*.m2ts' -or -name '*.ts' -or -name '*.mov' -or -name '*.qt' -or -name '*.wmv' -or -name '*.yuv' -or -name '*.rm' -or -name '*.rmvb' -or -name '*.viv' -or -name '*.asf' -or -name '*.amv' -or -name '*.mp4' -or -name '*.m4p' -or -name '*.m4v' -or -name '*.mpg' -or -name '*.mp2' -or -name '*.mpeg' -or -name '*.mpe' -or -name '*.mpv' -or -name '*.mpg' -or -name '*.mpeg' -or -name '*.m2v' -or -name '*.m4v' -or -name '*.svi' -or -name '*.3gp' -or -name '*.3g2' -or -name '*.mxf' -or -name '*.roq' -or -name '*.nsv' -or -name '*.flv' -or -name '*.f4v' -or -name '*.f4p' -or -name '*.f4a' -or -name '*.f4b' | fzf)
+fi
+
+if [[ -z $selected ]]; then
+    exit 0
+fi
+echo $selected
+
+# selected_name_base=$(basename "$selected")
+# selected_name_parent=$(basename -- $(dirname "$selected"))
+# selected_name=$(echo "${selected_name_parent}>${selected_name_base}" | tr . _)
+
+# # selected_name=$(basename "$selected" | tr . _)
+# tmux_running=$(pgrep tmux)
+# if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+#     tmux new-session -s $selected_name -c $selected
+#     exit 0
+# fi
+
+# if ! tmux has-session -t $selected_name; then
+#     tmux new-session -ds $selected_name -c $selected
+# fi
+
+# if [[ -z $TMUX ]]; then
+#     tmux attach-session -t $selected_name
+# else
+#     tmux switch-client -t $selected_name
+# fi

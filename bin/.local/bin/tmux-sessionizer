@@ -1,14 +1,21 @@
 #!/usr/bin/env bash
 
+history_path=~/.workhistory
+
+
 if [[ $# -eq 1 ]]; then
     selected=$1
 else
-    selected=$(find ~/ ~/workspaces  ~/workspaces/sdp/frontend-pom ~/workspaces/sdp/s-analytics -mindepth 1 -maxdepth 1 -type d | fzf)
+    last_workspace=$(tail -n 2 $history_path | head --lines 1)
+    all_workspaces=$(find ~/ ~/workspaces  ~/workspaces/sdp/frontend-pom ~/workspaces/sdp/s-analytics -mindepth 1 -maxdepth 1 -type d)
+    selected=$(printf "%s\n%s\n"  "$last_workspace" "$all_workspaces" | fzf)
 fi
 
 if [[ -z $selected ]]; then
     exit 0
 fi
+
+echo $selected >> $history_path
 
 selected_name_base=$(basename "$selected")
 selected_name_parent=$(basename -- $(dirname "$selected"))
