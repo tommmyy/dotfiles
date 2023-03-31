@@ -1,7 +1,9 @@
+pure
 .zsh_secrets
 vim/.vim/plugged/
 tmux/.tmux/plugins/
 tmux/.tmux/resurrect/
 bin/.local/bin/rust-analyzer
-
+bin/.local/state/
+bin/.local/share/
 

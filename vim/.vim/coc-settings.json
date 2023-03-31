@@ -46,5 +46,6 @@
 	"typescript.format.enable": true,
 	"typescript.suggest.enabled": true,
 	"typescript.format.insertSpaceAfterCommaDelimiter": true,
-	"typescript.updateImportsOnFileMove.enabled": "never",
+  "typescript.updateImportsOnFileMove.enabled": "never",
+  "java.import.gradle.java.home": "/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home",
 }

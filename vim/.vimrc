@@ -116,7 +116,6 @@
 	set hlsearch
 	set ruler
 	set showcmd
-	set ruler
 	set colorcolumn=80
 	set conceallevel=1
 	set hidden
@@ -378,9 +377,9 @@
 	\   'scss': ['stylelint'],
 	\   'css': ['stylelint'],
 	\   'cpp': ['cc'],
-	\   'rust': ['analyzer']
 	\}
 	   " 'reason': ['reason-language-server'],
+	" \   'rust': ['analyzer']
 
 	let g:ale_fixers = {
 	\   'javascript': ['prettier', 'eslint'],
@@ -605,7 +604,8 @@
 	endfunction
 
 	" Highlight the symbol and its references when holding the cursor
-	autocmd CursorHold * silent call CocActionAsync('highlight')
+	" autocmd CursorHold * silent call CocActionAsync('highlight')
+	autocmd CursorHold *.ts,*.tsx silent call CocActionAsync('doHover')
 
 	augroup mygroup
 		autocmd!
@@ -662,6 +662,7 @@
 
 			" Add `:OR` command for organize imports of the current buffer
 			command! -nargs=0 OR   :call     CocActionAsync('runCommand', 'editor.action.organizeImport')
+
 " }}}
 
 " vim-mundo {{{
