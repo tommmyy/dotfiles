@@ -1,10 +1,2 @@
-# Projects
-#
-# Prefix all project aliases with `pp` to avoid conflicts with another commands.
-
-# Configuration
-alias ppdot="cd ~/dotfiles/"
-alias ppdotfiles="cd ~/dotfiles/"
-alias ppwork="cd ~/workspaces/"
 
 

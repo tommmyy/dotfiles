@@ -17,4 +17,9 @@ activateByPid() {
   "
 }
 
-activateByPid $(pgrep -x "$selected")
+runAppByName() {
+	open -a "$1"
+}
+
+# activateByPid $(pgrep -x "$selected")
+runAppByName "$selected"
