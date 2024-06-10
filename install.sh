@@ -1,4 +1,4 @@
-stow bin bash zsh vim tmux editorconfig ack skhd yabai nvim
+stow bin bash zsh vim tmux editorconfig ack skhd yabai nvim husky
 # touch $HOME/.zfunctions/prompt_pure_setup
 # touch $HOME/.zfunctions/async
 

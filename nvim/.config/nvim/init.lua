@@ -24,8 +24,17 @@ vim.opt.rtp:prepend(lazypath)
 --    as they will be available in your neovim runtime.
 require("lazy").setup({
 	-- "github/copilot.vim",
-	"zbirenbaum/copilot.lua",
+	-- "zbirenbaum/copilot.lua",
 	-- NOTE: First, some plugins that don't require any configuration
+
+	{
+		"supermaven-inc/supermaven-nvim",
+		config = function()
+			require("supermaven-nvim").setup({
+				disable_inline_completion = true, -- disables inline completion for use with cmp
+			})
+		end,
+	},
 
 	-- Git related plugins
 	"tpope/vim-fugitive",
@@ -65,12 +74,12 @@ require("lazy").setup({
 			"folke/neodev.nvim",
 		},
 	},
-	{
-		"zbirenbaum/copilot-cmp",
-		config = function()
-			require("copilot_cmp").setup()
-		end,
-	},
+	-- {
+	-- 	"zbirenbaum/copilot-cmp",
+	-- 	config = function()
+	-- 		require("copilot_cmp").setup()
+	-- 	end,
+	-- },
 	{
 
 		"L3MON4D3/LuaSnip",
@@ -82,7 +91,7 @@ require("lazy").setup({
 		-- Autocompletion
 		"hrsh7th/nvim-cmp",
 		dependencies = {
-			"zbirenbaum/copilot-cmp",
+			-- "zbirenbaum/copilot-cmp",
 			"hrsh7th/cmp-nvim-lsp",
 			"hrsh7th/cmp-buffer",
 			"saadparwaiz1/cmp_luasnip",
@@ -203,6 +212,12 @@ require("lazy").setup({
 			pcall(require("nvim-treesitter.install").update({ with_sync = true }))
 		end,
 	},
+	-- {
+	-- 	"nvimtools/none-ls.nvim",
+	-- 	dependencies = {
+	-- 		"nvimtools/none-ls-extras.nvim",
+	-- 	},
+	-- },
 	{
 		"jay-babu/mason-null-ls.nvim",
 		event = { "BufReadPre", "BufNewFile" },
@@ -650,6 +665,7 @@ local servers = {
 			},
 		},
 	},
+	eslint = {},
 	svelte = {
 		settings = {
 			svelte = {
@@ -662,17 +678,17 @@ local servers = {
 				},
 			},
 		},
-		svelte = {
-			settings = {
-				plugin = {
-					typescript = {
-						diagnostics = {
-							enable = true,
-						},
-					},
-				},
-			},
-		},
+		-- svelte = {
+		-- 	settings = {
+		-- 		plugin = {
+		-- 			typescript = {
+		-- 				diagnostics = {
+		-- 					enable = true,
+		-- 				},
+		-- 			},
+		-- 		},
+		-- 	},
+		-- },
 	},
 	html = {},
 	cssls = {
@@ -715,25 +731,25 @@ capabilities.textDocument.completion.completionItem.snippetSupport = true
 
 -- copilot
 --
-require("copilot").setup({
-	suggestion = { enabled = true },
-	panel = { enabled = true },
-})
+-- require("copilot").setup({
+-- 	suggestion = { enabled = true },
+-- 	panel = { enabled = true },
+-- })
 
-vim.keymap.set("i", "<C-J>", 'copilot#Accept("\\<CR>")', {
-	expr = true,
-	replace_keycodes = false,
-})
-vim.g.copilot_no_tab_map = true
+-- vim.keymap.set("i", "<C-J>", 'copilot#Accept("\\<CR>")', {
+-- 	expr = true,
+-- 	replace_keycodes = false,
+-- })
+-- vim.g.copilot_no_tab_map = true
 
 -- null-ls
 local null_ls = require("null-ls")
 local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
 
 local formatting = null_ls.builtins.formatting
-local diagnostics = null_ls.builtins.diagnostics
-
-local command_resolver = require("null-ls.helpers.command_resolver")
+-- local diagnostics = null_ls.builtins.diagnostics
+--
+-- local command_resolver = require("null-ls.helpers.command_resolver")
 
 null_ls.setup({
 	debug = true,
@@ -745,26 +761,26 @@ null_ls.setup({
 		formatting.stylua,
 
 		-- formatting.eslint_d,
-		diagnostics.eslint_d.with({
-			extra_filetypes = { "svelte" },
-			dynamic_command = command_resolver.from_node_modules(),
-			-- only_local = "node_modules/.bin",
-			-- dynamic_command = function(params)
-			-- 	return command_resolver.from_node_modules(params)
-			-- 			or command_resolver.from_yarn_pnp(params)
-			-- 			or vim.fn.executable(params.command) == 1 and params.command
-			-- end,
-		}),
-		formatting.eslint_d.with({
-			extra_filetypes = { "svelte" },
-			dynamic_command = command_resolver.from_node_modules(),
-			-- only_local = "node_modules/.bin",
-			-- dynamic_command = function(params)
-			-- 	return command_resolver.from_node_modules(params)
-			-- 			or command_resolver.from_yarn_pnp(params)
-			-- 			or vim.fn.executable(params.command) == 1 and params.command
-			-- end,
-		}),
+		-- diagnostics.eslint_d.with({
+		-- 	extra_filetypes = { "svelte" },
+		-- 	dynamic_command = command_resolver.from_node_modules(),
+		-- 	-- only_local = "node_modules/.bin",
+		-- 	-- dynamic_command = function(params)
+		-- 	-- 	return command_resolver.from_node_modules(params)
+		-- 	-- 			or command_resolver.from_yarn_pnp(params)
+		-- 	-- 			or vim.fn.executable(params.command) == 1 and params.command
+		-- 	-- end,
+		-- }),
+		-- formatting.eslint_d.with({
+		-- 	extra_filetypes = { "svelte" },
+		-- 	dynamic_command = command_resolver.from_node_modules(),
+		-- 	-- only_local = "node_modules/.bin",
+		-- 	-- dynamic_command = function(params)
+		-- 	-- 	return command_resolver.from_node_modules(params)
+		-- 	-- 			or command_resolver.from_yarn_pnp(params)
+		-- 	-- 			or vim.fn.executable(params.command) == 1 and params.command
+		-- 	-- end,
+		-- }),
 	},
 	on_attach = function(client, bufnr)
 		if client.supports_method("textDocument/formatting") then
@@ -861,7 +877,7 @@ cmp.setup({
 	sorting = {
 		priority_weight = 2,
 		comparators = {
-			require("copilot_cmp.comparators").prioritize,
+			-- require("copilot_cmp.comparators").prioritize,
 
 			-- Below is the default comparator list and order for nvim-cmp
 			cmp.config.compare.offset,
@@ -877,7 +893,8 @@ cmp.setup({
 		},
 	},
 	sources = {
-		{ name = "copilot",    group_index = 2 },
+		{ name = "supermaven", group_index = 2 },
+		-- { name = "copilot",    group_index = 2 },
 		{ name = "nvim_lsp",   group_index = 2 },
 		{ name = "buffer",     group_index = 2 },
 		{ name = "async_path", group_index = 2 },

@@ -1,5 +1,7 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhistcnt =5
+let g:netrw_dirhistcnt =7
+let g:netrw_dirhist_7='/Users/tommmyy/workspaces/sdp/frontend-pom/chat-demo/source'
+let g:netrw_dirhist_6='/Users/tommmyy/workspaces/sdp/frontend-pom/chat-demo'
 let g:netrw_dirhist_5='/Users/tommmyy/workspaces/brain'
 let g:netrw_dirhist_4='/Users/tommmyy/workspaces/sdp/s-analytics/sources'
 let g:netrw_dirhist_3='/Users/tommmyy/workspaces/plotter-app'
@@ -7,6 +9,4 @@ let g:netrw_dirhist_2='/Users/tommmyy/workspaces/plotter-app/src'
 let g:netrw_dirhist_1='/Users/tommmyy/workspaces/plotter-app'
 let g:netrw_dirhist_0='/Users/tommmyy/workspaces/plotter-app/src'
 let g:netrw_dirhist_9='/Users/tommmyy/workspaces/plotter-app'
-let g:netrw_dirhist_8='/Users/tommmyy/workspaces/sdp/s-analytics/sources/lab/interactions-sa/src'
-let g:netrw_dirhist_7='/Users/tommmyy/workspaces/sdp/s-analytics/sources'
-let g:netrw_dirhist_6='/Users/tommmyy/workspaces/plotter-app'
+let g:netrw_dirhist_8='/Users/tommmyy/workspaces/sdp/frontend-pom/chat-demo/source/src'
