@@ -32,6 +32,7 @@ require("lazy").setup({
 		config = function()
 			require("supermaven-nvim").setup({
 				disable_inline_completion = true, -- disables inline completion for use with cmp
+				log_level = "off",            -- off, debug
 			})
 		end,
 	},
@@ -460,6 +461,7 @@ vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch curren
 vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "[S]earch by [G]rep" })
 vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iagnostics" })
 vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = "[S]earch Recent Files" })
+vim.keymap.set("n", "<leader>sq", builtin.quickfix, { desc = "[S] [Q]uickfix list" })
 
 vim.keymap.set("n", "<leader>tn", function()
 	require("trouble").next({ skip_groups = true, jump = true })
@@ -665,7 +667,16 @@ local servers = {
 			},
 		},
 	},
-	eslint = {},
+	-- https://github.com/neovim/nvim-lspconfig/issues/3149
+	-- "nvim-lspconfig": { "branch": "master", "commit": "74e14808cdb15e625449027019406e1ff6dda020" },
+	eslint = {
+		settings = {
+			workingDirectories = { mode = "auto" },
+			experimental = {
+				useFlatConfig = false,
+			},
+		},
+	},
 	svelte = {
 		settings = {
 			svelte = {
