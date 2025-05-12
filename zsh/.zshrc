@@ -1,6 +1,11 @@
+# NOTE: profiling zsh
 # uncomment the following line to print out profiling info. Also see the
 # `zprop` command at the end of the file:
 # zmodload zsh/zprof
+
+# NOTE: how to avoid env: node: No such file or directory at the start of new session?
+# TLDR: run this:sudo ln -s "$(which node)" /System/Volumes/Data/usr/local/bin
+# See: https://github.com/nvm-sh/nvm/issues/1702
 
 ls "$HOME/dotfiles/arts"|sort -R |tail -1 |while read file; do
   cat "$HOME/dotfiles/arts/$file"
