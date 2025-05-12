@@ -1,4 +1,3 @@
-source ~/.zprojects
 
 #  Aliases
 # For a full list of active aliases, run `alias`.
@@ -25,6 +24,5 @@ alias lynx="lynx -vikeys --display_charset=utf-8"
 alias vpnLunde='osascript -e "tell application \"/Applications/Tunnelblick.app\"" -e "connect \"Lundegaard-UDP\"" -e "end tell"'
 alias vpnDisconnect='osascript -e "tell application \"/Applications/Tunnelblick.app\"" -e "disconnect all" -e "end tell"'
 
-eval $(thefuck --alias)
 
 . "$HOME/.cargo/env"

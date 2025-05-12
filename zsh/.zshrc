@@ -1,3 +1,7 @@
+# uncomment the following line to print out profiling info. Also see the
+# `zprop` command at the end of the file:
+# zmodload zsh/zprof
+
 ls "$HOME/dotfiles/arts"|sort -R |tail -1 |while read file; do
   cat "$HOME/dotfiles/arts/$file"
 done
@@ -9,6 +13,10 @@ export PATH=$HOME/bin:/usr/local/bin:$PATH
 export PATH="$PATH:$HOME/Library/PackageManager/bin"
 export PATH="$(yarn global bin):$PATH"
 
+export ZSH_TMUX_ITERM2=true
+
+# eval "$(_PIPENV_COMPLETE=zsh_source pipenv)"
+
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
@@ -19,6 +27,11 @@ export fpath=( "$HOME/.zfunctions" $fpath )
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
 ZSH_THEME=""
+
+# activates when using it
+# zstyle ':omz:plugins:nvm' lazy yes
+# only in folder with .nvmrc:
+zstyle ':omz:plugins:nvm' autoload yes
 
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
@@ -34,16 +47,17 @@ plugins=(
   yarn
   zsh-syntax-highlighting
   zsh-autosuggestions
+	nvm
 )
-ZSH_TMUX_ITERM2=true
 
 source $ZSH/oh-my-zsh.sh
 
 
-# must be after oh-my-zsh
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+# # # replaced with oh-my-zsh plugin
+# # must be after oh-my-zsh
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 # HIST
 # set history size
@@ -78,3 +92,13 @@ test -e /Users/tommmyy/.iterm2_shell_integration.zsh && source /Users/tommmyy/.i
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# bun completions
+[ -s "/Users/tommmyy/.bun/_bun" ] && source "/Users/tommmyy/.bun/_bun"
+
+# see beginning of the file. This runs zsh profiling:
+# zprof
