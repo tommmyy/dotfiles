@@ -19,19 +19,14 @@
  # export PATH="/opt/homebrew/opt/openjdk@21/bin:$PATH"
  # export JAVA_HOME="/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home"
 
+export PATH=$HOME/.tmux/plugins/tmux-session-wizard/bin:$PATH
 
-zoom_join() {
-    # param $1   - room number
-    # [param $2] - room password
-    open "zoommtg://zoom.us/join?action=join&confno=$1&pwd=$2"
-}
+alias pinentry='pinentry-mac'
 
-alias zoom3='zoom_join 9599590003'
-alias zoommilan='zoom_join 4631653088 Rll2SENtU0VyOGFGTmt1TkoxRGRsUT09'
-alias zoomfastai='zoom_join 377931564 123'
 alias docker_clean_images='docker rmi $(docker images -a --filter=dangling=true -q)'
 alias docker_clean_ps='docker rm $(docker ps --filter=status=exited --filter=status=created -q)'
 alias whatsonport='f() { sudo lsof -ti tcp:$1};f'
+
 
 # killonport() {
 # if [ "$1" != "" ]

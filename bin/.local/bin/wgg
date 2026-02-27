@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+gpg -d ~/dotfiles/zsh/tomas_konrady.conf.gpg > /opt/homebrew/etc/wireguard/temp.conf
+# sudo wg-quick up temp
+# rm /opt/homebrew/etc/wireguard/temp.conf
+

@@ -26,17 +26,6 @@ local servers = {
 				},
 			},
 		},
-		-- svelte = {
-		-- 	settings = {
-		-- 		plugin = {
-		-- 			typescript = {
-		-- 				diagnostics = {
-		-- 					enable = true,
-		-- 				},
-		-- 			},
-		-- 		},
-		-- 	},
-		-- },
 	},
 	html = {},
 	cssls = {
@@ -73,12 +62,54 @@ local servers = {
 		},
 	},
 	ts_ls = {
-		init_options = { provideFormatter = false },
+		init_options = {
+			provideFormatter = false,
+			preferences = {
+				provideFormatter = false,
+				noSemicolons = false,
+				includeCompletionsForModuleExports = true,
+				includeCompletionsForImportStatements = true,
+				includeCompletionsWithSnippetText = true,
+				includeAutomaticOptionalChainCompletions = true,
+				includeInlayParameterNameHints = "all",
+				includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+				includeInlayFunctionParameterTypeHints = true,
+				includeInlayVariableTypeHints = true,
+				includeInlayPropertyDeclarationTypeHints = true,
+				includeInlayFunctionLikeReturnTypeHints = true,
+				includeInlayEnumMemberValueHints = true,
+				-- Key setting for type display
+				displayPartsForJSDoc = true,
+				generateReturnInDocTemplate = true,
+			},
+		},
 		settings = {
 			-- logVerbosity = "verbose",
 			logDirectory = "~/tslog/",
 			diagnostics = {
 				ignoredCodes = { 7016 },
+			},
+			typescript = {
+				inlayHints = {
+					includeInlayParameterNameHints = "all",
+					includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+					includeInlayFunctionParameterTypeHints = true,
+					includeInlayVariableTypeHints = true,
+					includeInlayPropertyDeclarationTypeHints = true,
+					includeInlayFunctionLikeReturnTypeHints = true,
+					includeInlayEnumMemberValueHints = true,
+				},
+			},
+			javascript = {
+				inlayHints = {
+					includeInlayParameterNameHints = "all",
+					includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+					includeInlayFunctionParameterTypeHints = true,
+					includeInlayVariableTypeHints = true,
+					includeInlayPropertyDeclarationTypeHints = true,
+					includeInlayFunctionLikeReturnTypeHints = true,
+					includeInlayEnumMemberValueHints = true,
+				},
 			},
 		},
 		filetypes = {
@@ -113,32 +144,22 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- NOTE: Here is where you install your plugins.
---  You can configure plugins using the `config` key.
---
---  You can also configure plugins after the setup call,
---    as they will be available in your neovim runtime.
 require("lazy").setup({
-	-- "github/copilot.vim",
-	-- "zbirenbaum/copilot.lua",
-	-- NOTE: First, some plugins that don't require any configuration
-
 	{
 		"supermaven-inc/supermaven-nvim",
 		config = function()
 			require("supermaven-nvim").setup({
 				disable_inline_completion = true, -- disables inline completion for use with cmp
-				log_level = "off",            -- off, debug
+				log_level = "off", -- off, debug
 			})
 		end,
 	},
-
 	-- Git related plugins
 	"tpope/vim-fugitive",
 	"tpope/vim-rhubarb",
 
 	-- Detect tabstop and shiftwidth automatically
-	"tpope/vim-sleuth",
+	"nmac427/guess-indent.nvim",
 	{
 		"folke/trouble.nvim",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -148,6 +169,7 @@ require("lazy").setup({
 			-- refer to the configuration section below
 		},
 	},
+	{ "j-hui/fidget.nvim", opts = {} },
 	-- NOTE: This is where your plugins related to LSP can be installed.
 	--  The configuration is done below. Search for lspconfig to find it below.
 	{
@@ -163,12 +185,7 @@ require("lazy").setup({
 			{ "mason-org/mason.nvim", opts = {} },
 			"mason-org/mason-lspconfig.nvim",
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
-			{
-				"j-hui/fidget.nvim",
-				tag = "legacy",
-				event = "LspAttach",
-				opts = {},
-			},
+			{ "j-hui/fidget.nvim", opts = {} },
 
 			-- Additional lua configuration, makes nvim stuff amazing!
 			"folke/neodev.nvim",
@@ -273,8 +290,8 @@ require("lazy").setup({
 					-- When you move your cursor, the highlights will be cleared (the second autocommand).
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
 					if
-							client
-							and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf)
+						client
+						and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf)
 					then
 						local highlight_augroup = vim.api.nvim_create_augroup("kickstart-lsp-highlight", { clear = false })
 						vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
@@ -347,24 +364,12 @@ require("lazy").setup({
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
-			-- Ensure the servers and tools above are installed
-			--
-			-- To check the current status of installed tools and/or manually install
-			-- other tools, you can run
-			--    :Mason
-			--
-			-- You can press `g?` for help in this menu.
-			--
-			-- `mason` had to be setup earlier: to configure its options see the
-			-- `dependencies` table for `nvim-lspconfig` above.
-			--
-			-- You can add other tools here that you want Mason to install
-			-- for you, so that they are available from within Neovim.
 			local ensure_installed = vim.tbl_keys(servers or {})
 			vim.list_extend(ensure_installed, {
 				"stylua", -- Used to format Lua code
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
+			-- print("ensure_installed:", vim.inspect(ensure_installed))
 
 			require("mason-lspconfig").setup({
 				ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
@@ -380,6 +385,16 @@ require("lazy").setup({
 					end,
 				},
 			})
+		end,
+	},
+	{
+		-- Highlight, edit, and navigate code
+		"nvim-treesitter/nvim-treesitter",
+		dependencies = {
+			"nvim-treesitter/nvim-treesitter-textobjects",
+		},
+		config = function()
+			pcall(require("nvim-treesitter.install").update({ with_sync = true }))
 		end,
 	},
 	-- {
@@ -408,7 +423,7 @@ require("lazy").setup({
 	},
 
 	-- Useful plugin to show you pending keybinds.
-	{ "folke/which-key.nvim",  opts = {} },
+	{ "folke/which-key.nvim", opts = {} },
 	{
 		-- Adds git releated signs to the gutter, as well as utilities for managing changes
 		"lewis6991/gitsigns.nvim",
@@ -468,20 +483,6 @@ require("lazy").setup({
 			},
 		},
 	},
-
-	-- {
-	-- 	-- Add indentation guides even on blank lines
-	-- 	"lukas-reineke/indent-blankline.nvim",
-	-- 	-- Enable `lukas-reineke/indent-blankline.nvim`
-	-- 	-- See `:help indent_blankline.txt`
-	-- 	main = "ibl",
-	-- 	opts = {},
-	-- 	-- opts = {
-	-- 	-- 	char = "┊",
-	-- 	-- 	show_trailing_blankline_indent = false,
-	-- 	-- },
-	-- },
-
 	-- "gc" to comment visual regions/lines
 	{ "numToStr/Comment.nvim", opts = {} },
 	{
@@ -496,7 +497,6 @@ require("lazy").setup({
 	},
 	{
 		"davidmh/mdx.nvim",
-		config = true,
 		dependencies = { "nvim-treesitter/nvim-treesitter" },
 	},
 	-- Fuzzy Finder (files, lsp, etc)
@@ -515,16 +515,6 @@ require("lazy").setup({
 		end,
 	},
 
-	{
-		-- Highlight, edit, and navigate code
-		"nvim-treesitter/nvim-treesitter",
-		dependencies = {
-			"nvim-treesitter/nvim-treesitter-textobjects",
-		},
-		config = function()
-			pcall(require("nvim-treesitter.install").update({ with_sync = true }))
-		end,
-	},
 	-- {
 	-- 	"nvimtools/none-ls.nvim",
 	-- 	dependencies = {
@@ -598,6 +588,8 @@ require("lazy").setup({
 					path = "~/workspaces/vaults/brain",
 				},
 			},
+			-- NOTE: https://github.com/epwalsh/obsidian.nvim/issues/664
+			ui = { enable = false },
 			new_notes_location = "current_dir",
 			daily_notes = {
 				folder = "Daily",
@@ -608,83 +600,70 @@ require("lazy").setup({
 				date_format = "%Y%m%d",
 				time_format = "%H%M",
 			},
-			-- see below for full list of options 👇
 		},
 	},
-	-- {
-	-- 	"folke/noice.nvim",
-	-- 	event = "VeryLazy",
-	-- 	opts = {
-	-- 		-- add any options here
-	-- 	},
-	-- 	dependencies = {
-	-- 		-- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
-	-- 		"MunifTanjim/nui.nvim",
-	-- 		-- OPTIONAL:
-	-- 		--   `nvim-notify` is only needed, if you want to use the notification view.
-	-- 		--   If not available, we use `mini` as the fallback
-	-- 		"rcarriga/nvim-notify",
-	-- 	},
-	-- },
-	-- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
-	--       These are some example plugins that I've included in the kickstart repository.
-	--       Uncomment any of the lines below to enable them.
-	-- require("kickstart.plugins.autoformat"),
-	-- { -- Autoformat
-	-- 	"stevearc/conform.nvim",
-	-- 	event = { "BufWritePre" },
-	-- 	cmd = { "ConformInfo" },
-	-- 	keys = {
-	-- 		{
-	-- 			"<leader>f",
-	-- 			function()
-	-- 				require("conform").format({ async = true, lsp_format = "fallback" })
-	-- 			end,
-	-- 			mode = "",
-	-- 			desc = "[F]ormat buffer",
-	-- 		},
-	-- 	},
-	-- 	opts = {
-	-- 		notify_on_error = false,
-	-- 		format_on_save = function(bufnr)
-	-- 			-- Disable "format_on_save lsp_fallback" for languages that don't
-	-- 			-- have a well standardized coding style. You can add additional
-	-- 			-- languages here or re-enable it for the disabled ones.
-	-- 			local disable_filetypes = { c = true, cpp = true }
-	-- 			local lsp_format_opt
-	-- 			if disable_filetypes[vim.bo[bufnr].filetype] then
-	-- 				lsp_format_opt = "never"
-	-- 			else
-	-- 				lsp_format_opt = "fallback"
-	-- 			end
-	-- 			return {
-	-- 				timeout_ms = 500,
-	-- 				lsp_format = lsp_format_opt,
-	-- 			}
-	-- 		end,
-	-- 		formatters_by_ft = {
-	-- 			lua = { "stylua" },
-	-- 			-- Conform can also run multiple formatters sequentially
-	-- 			-- python = { "isort", "black" },
-	-- 			--
-	-- 			-- You can use 'stop_after_first' to run the first available formatter from the list
-	-- 			javascript = { "prettierd", "prettier", stop_after_first = true },
-	-- 			javascriptreact = { "prettierd", "prettier", stop_after_first = true },
-	-- 			typescript = { "prettierd", "prettier", stop_after_first = true },
-	-- 			typescriptreact = { "prettierd", "prettier", stop_after_first = true },
-	-- 		},
-	-- 	},
-	-- },
-	-- require 'kickstart.plugins.debug',
+	{
+		"MeanderingProgrammer/render-markdown.nvim",
+		opts = {},
+	},
+	-- <AI SHIT> --
+	{
+		"NickvanDyke/opencode.nvim",
+		dependencies = {
+			-- Recommended for `ask()` and `select()`.
+			-- Required for `snacks` provider.
+			---@module 'snacks' <- Loads `snacks.nvim` types for configuration intellisense.
+			{ "folke/snacks.nvim", opts = { input = {}, picker = {}, terminal = {} } },
+		},
+		config = function()
+			---@type opencode.Opts
+			vim.g.opencode_opts = {
+				-- Your configuration, if any — see `lua/opencode/config.lua`, or "goto definition".
+			}
 
-	-- NOTE: The import below automatically adds your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
-	--    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
-	--    up-to-date with whatever is in the kickstart repo.
-	--
-	--    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
-	--
-	--    An additional note is that if you only copied in the `init.lua`, you can just comment this line
-	--    to get rid of the warning telling you that there are not plugins in `lua/custom/plugins/`.
+			-- Required for `opts.events.reload`.
+			vim.o.autoread = true
+
+			-- To switch back from OC to nvim pane:
+			-- 1. exit terminal mode: double tap Esc or <C-\><C-n>
+			-- 2. you can press <C-h> (or <C-w><C-h>) to navigate to next pane
+			-- UPDATE: i rebind the ctrl+h,j,k,l to work in terminal mode
+			-- See: split navigation below
+
+			vim.keymap.set({ "n", "x" }, "<C-a>", function()
+				require("opencode").ask("@this: ", { submit = true })
+			end, { desc = "Ask opencode" })
+
+			vim.keymap.set({ "n", "x" }, "<leader>ae", function()
+				require("opencode").start()
+				require("opencode").ask("@this: /editor", { submit = false })
+			end, { desc = "Ask with editor" })
+
+			vim.keymap.set({ "n", "x" }, "<leader>ap", function()
+				require("opencode").select()
+			end, { desc = "Execute opencode action…" })
+
+			vim.keymap.set({ "n", "t" }, "<leader>at", function()
+				require("opencode").toggle()
+			end, { desc = "Toggle opencode" })
+
+			vim.keymap.set({ "n", "x" }, "<leader>aa", function()
+				require("opencode").prompt("@this")
+			end, { desc = "Add to opencode" })
+
+			vim.keymap.set("n", "<S-C-u>", function()
+				require("opencode").command("session.half.page.up")
+			end, { desc = "opencode half page up" })
+
+			vim.keymap.set("n", "<S-C-d>", function()
+				require("opencode").command("session.half.page.down")
+			end, { desc = "opencode half page down" })
+			-- You may want these if you stick with the opinionated "<C-a>" and "<C-x>" above — otherwise consider "<leader>o".
+			-- vim.keymap.set("n", "+", "<C-a>", { desc = "Increment", noremap = true })
+			-- vim.keymap.set("n", "-", "<C-x>", { desc = "Decrement", noremap = true })
+		end,
+	},
+	-- </AI SHIT> --
 	{ import = "custom.plugins" },
 }, {})
 
@@ -832,8 +811,8 @@ vim.keymap.set("n", "<leader>tp", function()
 	require("trouble").previous({ skip_groups = true, jump = true })
 end, { desc = "Go to previous trouble" })
 
--- [[ MY Keymaps ]]
 --
+-- [[ MY Keymaps ]]
 --
 
 -- Switch tumux workspaces
@@ -856,6 +835,12 @@ vim.api.nvim_set_keymap("n", "<C-h>", "<C-w><C-h>", { noremap = true })
 vim.api.nvim_set_keymap("n", "<C-j>", "<C-w><C-j>", { noremap = true })
 vim.api.nvim_set_keymap("n", "<C-k>", "<C-w><C-k>", { noremap = true })
 vim.api.nvim_set_keymap("n", "<C-l>", "<C-w><C-l>", { noremap = true })
+
+-- for terminal mode - <c-\><c-n> go to Terminal mode
+vim.api.nvim_set_keymap("t", "<C-h>", [[<C-\><C-n><C-w>h]], { noremap = true })
+vim.api.nvim_set_keymap("t", "<C-j>", [[<C-\><C-n><C-w>j]], { noremap = true })
+vim.api.nvim_set_keymap("t", "<C-k>", [[<C-\><C-n><C-w>k]], { noremap = true })
+vim.api.nvim_set_keymap("t", "<C-l>", [[<C-\><C-n><C-w>l]], { noremap = true })
 
 -- "Better alternate buffer switching
 vim.api.nvim_set_keymap("n", "ž", "<C-^>", { silent = true, noremap = true })
@@ -883,8 +868,10 @@ vim.api.nvim_set_keymap("n", "<leader>ot", "<cmd>ObsidianTemplate<cr>", { desc =
 --
 -- https://github.com/nvim-tree/nvim-tree.lua/wiki/Open-At-Startup
 local function open_nvim_tree()
-	-- open the tree
-	require("nvim-tree.api").tree.open()
+	-- NOTE: to enable opening nvim without nvim-tree at start page: nvim --cmd "let g:no_tree=1"
+	if not vim.g.no_tree then
+		require("nvim-tree.api").tree.open()
+	end
 end
 vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
 vim.api.nvim_set_keymap("n", "<leader>e", ":NvimTreeFindFileToggle<cr>", { silent = true, noremap = true })
@@ -945,7 +932,7 @@ require("nvim-treesitter.configs").setup({
 		swap = {
 			enable = true,
 			swap_next = {
-				["<leader>a"] = "@parameter.inner",
+				-- ["<leader>a"] = "@parameter.inner",
 			},
 			swap_previous = {
 				["<leader>A"] = "@parameter.inner",
@@ -1197,12 +1184,13 @@ cmp.setup({
 		},
 	},
 	sources = {
-		{ name = "supermaven", group_index = 2 },
 		-- { name = "copilot",    group_index = 2 },
-		{ name = "nvim_lsp",   group_index = 2 },
-		{ name = "buffer",     group_index = 2 },
+		{ name = "nvim_lsp", group_index = 2 },
+		{ name = "supermaven", group_index = 2 },
+		{ name = "buffer", group_index = 2 },
+		{ name = "render-markdown" },
 		{ name = "async_path", group_index = 2 },
-		{ name = "luasnip",    group_index = 2 },
+		{ name = "luasnip", group_index = 2 },
 	},
 })
 

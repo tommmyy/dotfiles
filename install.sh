@@ -1,4 +1,5 @@
-stow bin bash zsh vim tmux editorconfig ack skhd yabai nvim husky
+stow bin bash zsh opencode tmux editorconfig ack nvim
+# stow bin bash zsh opencode vim tmux editorconfig ack skhd yabai nvim mcphub
 # touch $HOME/.zfunctions/prompt_pure_setup
 # touch $HOME/.zfunctions/async
 
@@ -9,8 +10,8 @@ ln -s "$PWD/limelight/bin/limelight" "/usr/local/bin/limelight"
 defaults write com.apple.finder AppleShowAllFiles TRUE
 killall Finder
 
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+# git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+# git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 
 # https://github.com/koekeishiya/skhd/issues/139#issuecomment-1114305242
 # brew services stop skhd

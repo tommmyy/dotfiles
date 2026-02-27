@@ -11,6 +11,10 @@ ls "$HOME/dotfiles/arts"|sort -R |tail -1 |while read file; do
   cat "$HOME/dotfiles/arts/$file"
 done
 
+
+# In secretes file still do not save the passwords directly. Instead:
+# 1. add to keychain: security add-generic-password -a "$USER" -s "my-password" -w "super-secret"
+# 2. in .zsh_secrets: export ANTHROPIC_API_KEY="$(security find-generic-password -a "$USER" -s "my-password" -w)"
 source "$HOME/.zsh_secrets"
 
 # If you come from bash you might have to change your $PATH.
@@ -19,6 +23,10 @@ export PATH="$PATH:$HOME/Library/PackageManager/bin"
 export PATH="$(yarn global bin):$PATH"
 
 export ZSH_TMUX_ITERM2=true
+# export EDITOR=nvim
+# export EDITOR='nvim --cmd "let g:no_tree=1"'
+# NOTE: run the nvim without nvimtree at homepage. see bin/.local/bin/nvim-notree and init.lua
+export EDITOR=nvim-quick-insert
 
 # eval "$(_PIPENV_COMPLETE=zsh_source pipenv)"
 
@@ -74,6 +82,9 @@ export SAVEHIST=10000
 # history file
 export HISTFILE=~/.zhistory
 
+# for sensitive commands containing passwords just add space at the start of the line
+setopt HIST_IGNORE_SPACE
+
 # append into history file
 setopt INC_APPEND_HISTORY
 
@@ -104,6 +115,9 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # bun completions
 [ -s "/Users/tommmyy/.bun/_bun" ] && source "/Users/tommmyy/.bun/_bun"
+
+# Zoxide - https://github.com/ajeetdsouza/zoxide
+eval "$(zoxide init zsh)"
 
 # see beginning of the file. This runs zsh profiling:
 # zprof

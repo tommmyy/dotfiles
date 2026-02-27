@@ -18,6 +18,7 @@ activateByPid() {
 }
 
 runAppByName() {
+	# open -g -a "iTerm" && osascript -e "tell application \"System Events\" to set frontmost of process \"iTerm2\" to true"
 	open -a "$1"
 }
 
