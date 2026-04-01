@@ -1,0 +1,8 @@
+[pre-start]
+install_sdp_sources_dependencies = "[ \"{{ primary_worktree_path }}\" = \"/Users/tommmyy/workspaces/sdp\" ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && (cd \"{{ worktree_path }}/s-analytics/sources\" && yarn install)"
+
+[post-switch]
+install_sdp_sources_dependencies_if_missing = "[ \"{{ primary_worktree_path }}\" = \"/Users/tommmyy/workspaces/sdp\" ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && [ ! -d \"{{ worktree_path }}/s-analytics/sources/node_modules\" ] && (cd \"{{ worktree_path }}/s-analytics/sources\" && yarn install)"
+
+[pre-remove]
+cleanup_sdp_sources_node_modules = "[ \"{{ primary_worktree_path }}\" = \"/Users/tommmyy/workspaces/sdp\" ] && rm -rf \"{{ worktree_path }}/s-analytics/sources/node_modules\""

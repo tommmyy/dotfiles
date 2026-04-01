@@ -65,6 +65,8 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
+eval "$(wt config shell init zsh)"
+
 
 # # # replaced with oh-my-zsh plugin
 # # must be after oh-my-zsh

@@ -1,0 +1,73 @@
+[pre-start]
+install_sdp_sources_dependencies = "[ \"{{ primary_worktree_path }}\" = \"/Users/tommmyy/workspaces/sdp\" ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && (cd \"{{ worktree_path }}/s-analytics/sources\" && yarn install && yarn setup-development-husky)"
+
+[post-switch]
+install_sdp_sources_dependencies_if_missing = "[ \"{{ primary_worktree_path }}\" = \"/Users/tommmyy/workspaces/sdp\" ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && [ ! -d \"{{ worktree_path }}/s-analytics/sources/node_modules\" ] && (cd \"{{ worktree_path }}/s-analytics/sources\" && yarn install)"
+ensure_sdp_husky_bootstrap = "[ \"{{ primary_worktree_path }}\" = \"/Users/tommmyy/workspaces/sdp\" ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && [ ! -d \"{{ worktree_path }}/s-analytics/sources/.husky/_\" ] && (cd \"{{ worktree_path }}/s-analytics/sources\" && yarn setup-development-husky)"
+
+[pre-remove]
+cleanup_sdp_sources_node_modules = "[ \"{{ primary_worktree_path }}\" = \"/Users/tommmyy/workspaces/sdp\" ] && rm -rf \"{{ worktree_path }}/s-analytics/sources/node_modules\""
+
+[commit.generation]
+command = "sh -lc 'prompt=$(cat); opencode run -m openai/gpt-5.4-mini --format json \"$prompt\" | jq -r \"select(.type == \\\"text\\\") | .part.text\"'"
+
+[projects."bitbucket.org/lundegaard/sdp".commit.generation]
+template = """
+Write exactly one commit subject line and nothing else.
+
+Required format:
+<TICKET> <TYPE>(sa): <message>
+
+Rules:
+- Extract <TICKET> from the branch name as the first token matching [A-Z]+-[0-9]+.
+- The realm is always exactly (sa).
+- Map branch prefixes to <TYPE>:
+  - feature/* -> feat
+  - fix/*, bugfix/*, hotfix/* -> fix
+  - anything else -> chore
+- If the diff clearly contradicts the branch prefix, prefer the diff.
+- Keep the message concise, imperative, lowercase after the colon unless a proper noun requires otherwise.
+- Output only the final commit subject line, with no quotes, no code block, no explanation.
+
+Examples:
+- CUS-1 feat(sa): add campaign filter
+- PER-1 fix(sa): handle empty response
+- PER-12 chore(sa): update analytics deps
+
+Context:
+Branch: {{ branch }}
+Diffstat:
+{{ git_diff_stat }}
+
+Diff:
+{{ git_diff }}
+"""
+
+squash-template = """
+Write exactly one commit subject line and nothing else.
+
+Required format:
+<TICKET> <TYPE>(sa): <message>
+
+Rules:
+- Extract <TICKET> from the branch name as the first token matching [A-Z]+-[0-9]+.
+- The realm is always exactly (sa).
+- Map branch prefixes to <TYPE>:
+  - feature/* -> feat
+  - fix/*, bugfix/*, hotfix/* -> fix
+  - anything else -> chore
+- If the combined diff clearly contradicts the branch prefix, prefer the diff.
+- Summarize the combined change set in one concise imperative line.
+- Output only the final commit subject line, with no quotes, no code block, no explanation.
+
+Existing commits:
+{% for commit in commits %}- {{ commit }}
+{% endfor %}
+
+Branch: {{ branch }}
+Diffstat:
+{{ git_diff_stat }}
+
+Diff:
+{{ git_diff }}
+"""

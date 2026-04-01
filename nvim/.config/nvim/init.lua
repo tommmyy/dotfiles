@@ -62,6 +62,11 @@ local servers = {
 		},
 	},
 	ts_ls = {
+		root_dir = function(fname)
+			local util = require("lspconfig.util")
+			return util.root_pattern("yarn.lock", ".git")(fname)
+				or util.path.dirname(fname)
+		end,
 		init_options = {
 			provideFormatter = false,
 			preferences = {
@@ -115,21 +120,55 @@ local servers = {
 		filetypes = {
 			"javascript",
 			"javascriptreact",
-			"javascript.jsx",
 			"typescript",
 			"typescriptreact",
-			"typescript.tsx",
 		},
 	},
 	eslint = {
+		filetypes = {
+			"javascript",
+			"javascriptreact",
+			"typescript",
+			"typescriptreact",
+			"svelte",
+		},
+		root_dir = function(fname)
+			local util = require("lspconfig.util")
+			return util.root_pattern(
+				"eslint.config.js",
+				"eslint.config.cjs",
+				"eslint.config.mjs",
+				".eslintrc",
+				".eslintrc.js",
+				".eslintrc.cjs",
+				".eslintrc.json",
+				"package.json",
+				".git"
+			)(fname)
+		end,
 		settings = {
-			workingDirectories = { mode = "auto" },
+			validate = "on",
+			workingDirectory = { mode = "location" },
 			experimental = {
 				useFlatConfig = false,
 			},
 		},
+		on_new_config = function(new_config, new_root_dir)
+			new_config.settings = new_config.settings or {}
+			new_config.settings.workingDirectory = {
+				directory = new_root_dir,
+				["!cwd"] = true,
+			}
+		end,
 	},
 }
+
+vim.filetype.add({
+	extension = {
+		jsx = "javascriptreact",
+		tsx = "typescriptreact",
+	},
+})
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -484,7 +523,15 @@ require("lazy").setup({
 		},
 	},
 	-- "gc" to comment visual regions/lines
-	{ "numToStr/Comment.nvim", opts = {} },
+	{
+		"numToStr/Comment.nvim",
+		dependencies = { "JoosepAlviste/nvim-ts-context-commentstring" },
+		opts = function()
+			return {
+				pre_hook = require("ts_context_commentstring.integrations.comment_nvim").create_pre_hook(),
+			}
+		end,
+	},
 	{
 		"kelly-lin/telescope-ag",
 		dependencies = { "nvim-telescope/telescope.nvim" },
