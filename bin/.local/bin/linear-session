@@ -1,29 +1,29 @@
 #!/usr/bin/env node
 
 const {
-  mkdtempSync,
-  writeFileSync,
-  rmSync,
-  readFileSync,
-  existsSync,
+	mkdtempSync,
+	writeFileSync,
+	rmSync,
+	readFileSync,
+	existsSync,
 } = require("fs");
 const { tmpdir } = require("os");
 const { join } = require("path");
 const { spawnSync } = require("child_process");
 
 function loadProjectConfig(repoPath) {
-  const configPath = join(repoPath, ".wtconfig");
-  if (!existsSync(configPath)) return {};
-  try {
-    return JSON.parse(readFileSync(configPath, "utf8"));
-  } catch (e) {
-    log(`warning: failed to parse ${configPath}: ${e.message}`);
-    return {};
-  }
+	const configPath = join(repoPath, ".wtconfig");
+	if (!existsSync(configPath)) return {};
+	try {
+		return JSON.parse(readFileSync(configPath, "utf8"));
+	} catch (e) {
+		log(`warning: failed to parse ${configPath}: ${e.message}`);
+		return {};
+	}
 }
 
 function usage() {
-  process.stderr.write(`Usage: linear-feature-env-v2 [options] <LINEAR_ISSUE_ID>
+	process.stderr.write(`Usage: linear-session [options] <LINEAR_ISSUE_ID>
 
 Options:
   -i, --implement           Launch opencode in the spawned tmux session
@@ -32,125 +32,134 @@ Options:
   -h, --help                Show this help
 
 Examples:
-  linear-feature-env-v2 CUS-123
-  linear-feature-env-v2 --implement CUS-123
-  linear-feature-env-v2 -i -p "Focus on API timeout config" CUS-123
+  linear-session CUS-123
+  linear-session --implement CUS-123
+  linear-session -i -p "Focus on API timeout config" CUS-123
+
+Project config (.wtconfig):
+  Place a .wtconfig JSON file in the repo root to customize behavior.
+
+  Supported keys:
+    subdir    After switching worktree, cd into this subdirectory if it exists.
+
+  Example .wtconfig:
+    { "subdir": "frontend/app" }
 `);
 }
 
 function log(message) {
-  process.stderr.write(`[linear-feature-env-v2] ${message}\n`);
+	process.stderr.write(`[linear-session] ${message}\n`);
 }
 
 function fail(message, extra) {
-  process.stderr.write(`${message}\n`);
-  if (extra) {
-    process.stderr.write(`${extra}\n`);
-  }
-  process.exit(1);
+	process.stderr.write(`${message}\n`);
+	if (extra) {
+		process.stderr.write(`${extra}\n`);
+	}
+	process.exit(1);
 }
 
 function shellQuote(value) {
-  if (value.length === 0) return "''";
-  return `'${value.replace(/'/g, `'"'"'`)}'`;
+	if (value.length === 0) return "''";
+	return `'${value.replace(/'/g, `'"'"'`)}'`;
 }
 
 function run(command, args, options = {}) {
-  const result = spawnSync(command, args, {
-    encoding: "utf8",
-    stdio: options.stdio || ["ignore", "pipe", "pipe"],
-    cwd: options.cwd,
-    env: options.env || process.env,
-  });
+	const result = spawnSync(command, args, {
+		encoding: "utf8",
+		stdio: options.stdio || ["ignore", "pipe", "pipe"],
+		cwd: options.cwd,
+		env: options.env || process.env,
+	});
 
-  if (result.error) {
-    fail(`Failed to run ${command}: ${result.error.message}`);
-  }
+	if (result.error) {
+		fail(`Failed to run ${command}: ${result.error.message}`);
+	}
 
-  if (options.check !== false && result.status !== 0) {
-    fail(
-      `Command failed: ${command} ${args.join(" ")}`,
-      [result.stdout, result.stderr].filter(Boolean).join("\n").trim(),
-    );
-  }
+	if (options.check !== false && result.status !== 0) {
+		fail(
+			`Command failed: ${command} ${args.join(" ")}`,
+			[result.stdout, result.stderr].filter(Boolean).join("\n").trim(),
+		);
+	}
 
-  return result;
+	return result;
 }
 
 function requireCmd(command) {
-  const result = run("sh", ["-lc", `command -v ${shellQuote(command)}`], {
-    check: false,
-  });
-  if (result.status !== 0) {
-    fail(`Missing required command: ${command}`);
-  }
+	const result = run("sh", ["-lc", `command -v ${shellQuote(command)}`], {
+		check: false,
+	});
+	if (result.status !== 0) {
+		fail(`Missing required command: ${command}`);
+	}
 }
 
 function parseArgs(argv) {
-  let implement = false;
-  let repoPath = "";
-  let extraPrompt = "";
-  const positional = [];
+	let implement = false;
+	let repoPath = "";
+	let extraPrompt = "";
+	const positional = [];
 
-  for (let i = 0; i < argv.length; i += 1) {
-    const arg = argv[i];
-    if (arg === "-i" || arg === "--implement") {
-      implement = true;
-      continue;
-    }
-    if (arg === "-r" || arg === "--repo-path") {
-      repoPath = argv[i + 1] || "";
-      if (!repoPath) fail(`Missing value for ${arg}`);
-      i += 1;
-      continue;
-    }
-    if (arg === "-p" || arg === "--prompt") {
-      extraPrompt = argv[i + 1] || "";
-      if (!extraPrompt) fail(`Missing value for ${arg}`);
-      i += 1;
-      continue;
-    }
-    if (arg === "-h" || arg === "--help") {
-      usage();
-      process.exit(0);
-    }
-    if (arg === "--") {
-      positional.push(...argv.slice(i + 1));
-      break;
-    }
-    if (arg.startsWith("-")) {
-      fail(`Unknown option: ${arg}`);
-    }
-    positional.push(arg);
-  }
+	for (let i = 0; i < argv.length; i += 1) {
+		const arg = argv[i];
+		if (arg === "-i" || arg === "--implement") {
+			implement = true;
+			continue;
+		}
+		if (arg === "-r" || arg === "--repo-path") {
+			repoPath = argv[i + 1] || "";
+			if (!repoPath) fail(`Missing value for ${arg}`);
+			i += 1;
+			continue;
+		}
+		if (arg === "-p" || arg === "--prompt") {
+			extraPrompt = argv[i + 1] || "";
+			if (!extraPrompt) fail(`Missing value for ${arg}`);
+			i += 1;
+			continue;
+		}
+		if (arg === "-h" || arg === "--help") {
+			usage();
+			process.exit(0);
+		}
+		if (arg === "--") {
+			positional.push(...argv.slice(i + 1));
+			break;
+		}
+		if (arg.startsWith("-")) {
+			fail(`Unknown option: ${arg}`);
+		}
+		positional.push(arg);
+	}
 
-  return { implement, repoPath, extraPrompt, issueId: positional[0] || "" };
+	return { implement, repoPath, extraPrompt, issueId: positional[0] || "" };
 }
 
 function resolveRepoPath(repoPath) {
-  if (repoPath) {
-    const resolved = run(
-      "git",
-      ["-C", repoPath, "rev-parse", "--show-toplevel"],
-      { check: false },
-    );
-    if (resolved.status !== 0) {
-      fail("Could not determine a git repository. Use --repo-path <path>.");
-    }
-    return resolved.stdout.trim();
-  }
+	if (repoPath) {
+		const resolved = run(
+			"git",
+			["-C", repoPath, "rev-parse", "--show-toplevel"],
+			{ check: false },
+		);
+		if (resolved.status !== 0) {
+			fail("Could not determine a git repository. Use --repo-path <path>.");
+		}
+		return resolved.stdout.trim();
+	}
 
-  const resolved = run("git", ["rev-parse", "--show-toplevel"], {
-    check: false,
-  });
-  if (resolved.status !== 0) {
-    fail("Could not determine a git repository. Use --repo-path <path>.");
-  }
-  return resolved.stdout.trim();
+	const resolved = run("git", ["rev-parse", "--show-toplevel"], {
+		check: false,
+	});
+	if (resolved.status !== 0) {
+		fail("Could not determine a git repository. Use --repo-path <path>.");
+	}
+	return resolved.stdout.trim();
 }
 
 function buildPromptForFeatureMetadata(issueId, extraPrompt) {
-  return `Fetch Linear issue ${issueId} and return only compact JSON with this exact shape:
+	return `Fetch Linear issue ${issueId} and return only compact JSON with this exact shape:
 {"branch":"feature/CUS-1-short-description","session":"cus-1-short-description","title":"Issue title","prompt":"Implementation prompt or empty string"}
 
 Rules:
@@ -171,185 +180,185 @@ ${extraPrompt}`;
 }
 
 function runOpencode(repoPath, prompt) {
-  log("asking opencode to derive branch and session");
-  const result = run(
-    "opencode",
-    [
-      "run",
-      "-m",
-      "openai/gpt-5.4-mini",
-      "--format",
-      "json",
-      "--dir",
-      repoPath,
-      prompt,
-    ],
-    { check: false },
-  );
-  if (result.status !== 0) {
-    fail(
-      "opencode did not return a final response.",
-      result.stderr || result.stdout,
-    );
-  }
+	log("asking opencode to derive branch and session");
+	const result = run(
+		"opencode",
+		[
+			"run",
+			"-m",
+			"openai/gpt-5.4-mini",
+			"--format",
+			"json",
+			"--dir",
+			repoPath,
+			prompt,
+		],
+		{ check: false },
+	);
+	if (result.status !== 0) {
+		fail(
+			"opencode did not return a final response.",
+			result.stderr || result.stdout,
+		);
+	}
 
-  const texts = [];
-  for (const line of result.stdout.split("\n")) {
-    if (!line.trim()) continue;
-    try {
-      const event = JSON.parse(line);
-      if (
-        event.type === "text" &&
-        event.part &&
-        typeof event.part.text === "string"
-      ) {
-        texts.push(event.part.text);
-      }
-    } catch (_) {
-      // Ignore non-JSON lines defensively.
-    }
-  }
+	const texts = [];
+	for (const line of result.stdout.split("\n")) {
+		if (!line.trim()) continue;
+		try {
+			const event = JSON.parse(line);
+			if (
+				event.type === "text" &&
+				event.part &&
+				typeof event.part.text === "string"
+			) {
+				texts.push(event.part.text);
+			}
+		} catch (_) {
+			// Ignore non-JSON lines defensively.
+		}
+	}
 
-  const finalText = texts[texts.length - 1];
-  if (!finalText) {
-    fail("opencode did not return a final response.", result.stdout);
-  }
+	const finalText = texts[texts.length - 1];
+	if (!finalText) {
+		fail("opencode did not return a final response.", result.stdout);
+	}
 
-  try {
-    return JSON.parse(finalText);
-  } catch (_) {
-    fail("Could not parse opencode response as expected JSON.", finalText);
-  }
+	try {
+		return JSON.parse(finalText);
+	} catch (_) {
+		fail("Could not parse opencode response as expected JSON.", finalText);
+	}
 }
 
 function tmuxHasSession(sessionName) {
-  const result = run("tmux", ["has-session", "-t", sessionName], {
-    check: false,
-  });
-  return result.status === 0;
+	const result = run("tmux", ["has-session", "-t", sessionName], {
+		check: false,
+	});
+	return result.status === 0;
 }
 
 function branchExists(repoPath, branchName) {
-  const local = run(
-    "git",
-    [
-      "-C",
-      repoPath,
-      "show-ref",
-      "--verify",
-      "--quiet",
-      `refs/heads/${branchName}`,
-    ],
-    { check: false },
-  );
-  if (local.status === 0) return true;
-  const remote = run(
-    "git",
-    [
-      "-C",
-      repoPath,
-      "show-ref",
-      "--verify",
-      "--quiet",
-      `refs/remotes/origin/${branchName}`,
-    ],
-    { check: false },
-  );
-  return remote.status === 0;
+	const local = run(
+		"git",
+		[
+			"-C",
+			repoPath,
+			"show-ref",
+			"--verify",
+			"--quiet",
+			`refs/heads/${branchName}`,
+		],
+		{ check: false },
+	);
+	if (local.status === 0) return true;
+	const remote = run(
+		"git",
+		[
+			"-C",
+			repoPath,
+			"show-ref",
+			"--verify",
+			"--quiet",
+			`refs/remotes/origin/${branchName}`,
+		],
+		{ check: false },
+	);
+	return remote.status === 0;
 }
 
 function attachOrSwitch(sessionName) {
-  if (process.env.TMUX) {
-    const result = spawnSync("tmux", ["switch-client", "-t", sessionName], {
-      stdio: "inherit",
-    });
-    process.exit(result.status ?? 1);
-  }
-  const result = spawnSync("tmux", ["attach", "-t", sessionName], {
-    stdio: "inherit",
-  });
-  process.exit(result.status ?? 1);
+	if (process.env.TMUX) {
+		const result = spawnSync("tmux", ["switch-client", "-t", sessionName], {
+			stdio: "inherit",
+		});
+		process.exit(result.status ?? 1);
+	}
+	const result = spawnSync("tmux", ["attach", "-t", sessionName], {
+		stdio: "inherit",
+	});
+	process.exit(result.status ?? 1);
 }
 
 function main() {
-  const {
-    implement,
-    repoPath: inputRepoPath,
-    extraPrompt,
-    issueId,
-  } = parseArgs(process.argv.slice(2));
-  if (!issueId) {
-    usage();
-    process.exit(1);
-  }
+	const {
+		implement,
+		repoPath: inputRepoPath,
+		extraPrompt,
+		issueId,
+	} = parseArgs(process.argv.slice(2));
+	if (!issueId) {
+		usage();
+		process.exit(1);
+	}
 
-  log(`starting for issue ${issueId}`);
+	log(`starting for issue ${issueId}`);
 
-  for (const command of ["opencode", "tmux", "wt", "git"]) {
-    requireCmd(command);
-  }
+	for (const command of ["opencode", "tmux", "wt", "git"]) {
+		requireCmd(command);
+	}
 
-  const repoPath = resolveRepoPath(inputRepoPath);
-  log(`using repo ${repoPath}`);
+	const repoPath = resolveRepoPath(inputRepoPath);
+	log(`using repo ${repoPath}`);
 
-  const response = runOpencode(
-    repoPath,
-    buildPromptForFeatureMetadata(issueId, extraPrompt),
-  );
-  const branchName = response.branch || "";
-  const sessionName = response.session || "";
-  const issueTitle = response.title || "";
-  let implementPrompt = response.prompt || "";
+	const response = runOpencode(
+		repoPath,
+		buildPromptForFeatureMetadata(issueId, extraPrompt),
+	);
+	const branchName = response.branch || "";
+	const sessionName = response.session || "";
+	const issueTitle = response.title || "";
+	let implementPrompt = response.prompt || "";
 
-  if (!branchName || !sessionName) {
-    fail(
-      "Could not parse opencode response as expected JSON.",
-      JSON.stringify(response),
-    );
-  }
+	if (!branchName || !sessionName) {
+		fail(
+			"Could not parse opencode response as expected JSON.",
+			JSON.stringify(response),
+		);
+	}
 
-  log(`resolved branch=${branchName} session=${sessionName}`);
+	log(`resolved branch=${branchName} session=${sessionName}`);
 
-  if (tmuxHasSession(sessionName)) {
-    log("tmux session already exists, switching to it");
-    process.stdout.write(`Session: ${sessionName}\nBranch: ${branchName}\n`);
-    attachOrSwitch(sessionName);
-  }
+	if (tmuxHasSession(sessionName)) {
+		log("tmux session already exists, switching to it");
+		process.stdout.write(`Session: ${sessionName}\nBranch: ${branchName}\n`);
+		attachOrSwitch(sessionName);
+	}
 
-  let wtCommand = "wt switch -v";
-  if (!branchExists(repoPath, branchName)) {
-    wtCommand = "wt switch --create";
-  }
-  log(`using worktrunk command: ${wtCommand}`);
+	let wtCommand = "wt switch -v";
+	if (!branchExists(repoPath, branchName)) {
+		wtCommand = "wt switch --create";
+	}
+	log(`using worktrunk command: ${wtCommand}`);
 
-  if (implement && !implementPrompt) {
-    implementPrompt = `Implement Linear issue ${issueId}.`;
-    if (issueTitle) {
-      implementPrompt += `\n\nTitle: ${issueTitle}`;
-    }
-    if (extraPrompt) {
-      implementPrompt += `\n\nAdditional guidance:\n${extraPrompt}`;
-    }
-  }
+	if (implement && !implementPrompt) {
+		implementPrompt = `Implement Linear issue ${issueId}.`;
+		if (issueTitle) {
+			implementPrompt += `\n\nTitle: ${issueTitle}`;
+		}
+		if (extraPrompt) {
+			implementPrompt += `\n\nAdditional guidance:\n${extraPrompt}`;
+		}
+	}
 
-  const projectConfig = loadProjectConfig(repoPath);
-  const subdir = projectConfig.subdir || "";
+	const projectConfig = loadProjectConfig(repoPath);
+	const subdir = projectConfig.subdir || "";
 
-  let sendCmd = `${wtCommand} ${shellQuote(branchName)}`;
-  if (subdir) {
-    sendCmd += ` && [ -d ${shellQuote(subdir)} ] && cd ${shellQuote(subdir)}`;
-  }
-  if (implement) {
-    sendCmd += ` && opencode --prompt ${shellQuote(implementPrompt)}`;
-  }
+	let sendCmd = `${wtCommand} ${shellQuote(branchName)}`;
+	if (subdir) {
+		sendCmd += ` && [ -d ${shellQuote(subdir)} ] && cd ${shellQuote(subdir)}`;
+	}
+	if (implement) {
+		sendCmd += ` && opencode --prompt ${shellQuote(implementPrompt)}`;
+	}
 
-  log(`creating tmux session ${sessionName}`);
-  run("tmux", ["new-session", "-d", "-s", sessionName, "-c", repoPath]);
-  run("tmux", ["send-keys", "-t", sessionName, sendCmd, "Enter"]);
+	log(`creating tmux session ${sessionName}`);
+	run("tmux", ["new-session", "-d", "-s", sessionName, "-c", repoPath]);
+	run("tmux", ["send-keys", "-t", sessionName, sendCmd, "Enter"]);
 
-  log("session created, attaching");
-  process.stdout.write(`Session: ${sessionName}\nBranch: ${branchName}\n`);
-  attachOrSwitch(sessionName);
+	log("session created, attaching");
+	process.stdout.write(`Session: ${sessionName}\nBranch: ${branchName}\n`);
+	attachOrSwitch(sessionName);
 }
 
 main();
