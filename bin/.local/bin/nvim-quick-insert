@@ -1,3 +1,5 @@
 #!/usr/bin/env sh
+# NOTE: used in .zshrc `export EDITOR=nvim-quick-insert` to run nvim in insert mode
+# from tools that uses EDITOR variable.
 exec nvim --cmd 'let g:no_tree=1' +'normal! G' +'startinsert!' "$@"
 
