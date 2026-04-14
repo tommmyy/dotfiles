@@ -1,25 +1,53 @@
 #!/usr/bin/env node
 
-const {
-	mkdtempSync,
-	writeFileSync,
-	rmSync,
-	readFileSync,
-	existsSync,
-} = require("fs");
-const { tmpdir } = require("os");
+const { readFileSync, existsSync } = require("fs");
+const { homedir } = require("os");
 const { join } = require("path");
 const { spawnSync } = require("child_process");
 
-function loadProjectConfig(repoPath) {
-	const configPath = join(repoPath, ".wtconfig");
+function loadJsonConfig(configPath, label) {
 	if (!existsSync(configPath)) return {};
 	try {
 		return JSON.parse(readFileSync(configPath, "utf8"));
 	} catch (e) {
-		log(`warning: failed to parse ${configPath}: ${e.message}`);
+		log(`warning: failed to parse ${label} ${configPath}: ${e.message}`);
 		return {};
 	}
+}
+
+function loadGlobalConfig() {
+	const xdgConfigHome =
+		process.env.XDG_CONFIG_HOME || join(homedir(), ".config");
+	const configPaths = [
+		join(xdgConfigHome, "linear-session", "config.json"),
+		join(
+			__dirname,
+			"..",
+			"..",
+			"..",
+			".config",
+			"linear-session",
+			"config.json",
+		),
+	];
+	console.log(configPaths);
+
+	for (const configPath of configPaths) {
+		if (!existsSync(configPath)) continue;
+		return loadJsonConfig(configPath, "global config");
+	}
+
+	return {};
+}
+
+function resolvePreset(globalConfig, projectName) {
+	if (!projectName) return {};
+	const presets = globalConfig.projects || {};
+	const preset = presets[projectName];
+	if (!preset || typeof preset !== "object") {
+		fail(`Unknown project preset: ${projectName}`);
+	}
+	return preset;
 }
 
 function usage() {
@@ -27,23 +55,39 @@ function usage() {
 
 Options:
   -i, --implement           Launch opencode in the spawned tmux session
+  -P, --project <name>      Use a named project preset from config
   -r, --repo-path <path>    Repository path to run wt in (defaults to current git repo)
   -p, --prompt <text>       Extra implementation guidance
+  -f, --feature-name <text> Hint for the branch/session name (e.g. "adding a test")
   -h, --help                Show this help
 
 Examples:
   linear-session CUS-123
+  linear-session --project sdp CUS-123
   linear-session --implement CUS-123
   linear-session -i -p "Focus on API timeout config" CUS-123
+  linear-session -f "adding a test" CUS-123
 
-Project config (.wtconfig):
-  Place a .wtconfig JSON file in the repo root to customize behavior.
+Global config (~/.config/linear-session/config.json):
+  Use this for project presets that select a repo before the issue is resolved.
+  Preferred keys:
+    repoPath    Repository path for the preset.
+    baseBranch  Branch to check out in the main repo before creating the worktree.
+    baseFolder  After switching worktree, cd into this folder if it exists.
 
-  Supported keys:
-    subdir    After switching worktree, cd into this subdirectory if it exists.
+  Example config:
+    {
+      "projects": {
+        "sdp": {
+          "repoPath": "~/workspaces/sdp",
+	          "baseBranch": "develop",
+	          "baseFolder": "frontend/app"
+        }
+      }
+    }
 
-  Example .wtconfig:
-    { "subdir": "frontend/app" }
+Legacy repo config (.wtconfig):
+  Removed. Use ~/.config/linear-session/config.json presets instead.
 `);
 }
 
@@ -97,14 +141,22 @@ function requireCmd(command) {
 
 function parseArgs(argv) {
 	let implement = false;
+	let projectName = "";
 	let repoPath = "";
 	let extraPrompt = "";
+	let featureName = "";
 	const positional = [];
 
 	for (let i = 0; i < argv.length; i += 1) {
 		const arg = argv[i];
 		if (arg === "-i" || arg === "--implement") {
 			implement = true;
+			continue;
+		}
+		if (arg === "-P" || arg === "--project" || arg === "--preset") {
+			projectName = argv[i + 1] || "";
+			if (!projectName) fail(`Missing value for ${arg}`);
+			i += 1;
 			continue;
 		}
 		if (arg === "-r" || arg === "--repo-path") {
@@ -116,6 +168,12 @@ function parseArgs(argv) {
 		if (arg === "-p" || arg === "--prompt") {
 			extraPrompt = argv[i + 1] || "";
 			if (!extraPrompt) fail(`Missing value for ${arg}`);
+			i += 1;
+			continue;
+		}
+		if (arg === "-f" || arg === "--feature-name") {
+			featureName = argv[i + 1] || "";
+			if (!featureName) fail(`Missing value for ${arg}`);
 			i += 1;
 			continue;
 		}
@@ -133,7 +191,19 @@ function parseArgs(argv) {
 		positional.push(arg);
 	}
 
-	return { implement, repoPath, extraPrompt, issueId: positional[0] || "" };
+	return {
+		implement,
+		projectName,
+		repoPath,
+		extraPrompt,
+		featureName,
+		issueId: positional[0] || "",
+	};
+}
+
+function expandHomePath(value) {
+	if (!value || !value.startsWith("~/")) return value;
+	return join(homedir(), value.slice(2));
 }
 
 function resolveRepoPath(repoPath) {
@@ -158,22 +228,26 @@ function resolveRepoPath(repoPath) {
 	return resolved.stdout.trim();
 }
 
-function buildPromptForFeatureMetadata(issueId, extraPrompt) {
+function buildPromptForFeatureMetadata(issueId, extraPrompt, featureName) {
+	const featureNameRule = featureName
+		? `\n9. IMPORTANT: The user provided a feature name hint: "${featureName}". Use this hint to derive the <short-kebab-title> portion of branch and session names instead of inferring from the issue title.`
+		: "";
+
 	return `Fetch Linear issue ${issueId} and return only compact JSON with this exact shape:
 {"branch":"feature/CUS-1-short-description","session":"cus-1-short-description","title":"Issue title","prompt":"Implementation prompt or empty string"}
 
 Rules:
 1. Infer branch prefix from the Linear task labels. If task has label:
    - "Bug" -> fix
-   - "Improvement" or "Feature" -> feature
-   - otherwise -> chore
+   - "Docs" -> chore
+   - Otherwise -> feature
 2. Branch format must be <type>/<ISSUE-ID>-<short-kebab-title>.
 3. Session format must be <issue-id-lowercase>-<short-kebab-title> and must not contain slash.
 4. If taskId starts with "CUS" (e.g. CUS-12) add project name attached to issue to <short-kebab-title>
 5. Keep the slug short.
 6. Prompt should be a concise implementation prompt built from the issue title and description.
 7. If the extra guidance below is non-empty, include it in the prompt. If it is empty, omit it.
-8. Output JSON only. No markdown. No prose.
+8. Output JSON only. No markdown. No prose.${featureNameRule}
 
 Extra guidance:
 ${extraPrompt}`;
@@ -267,6 +341,15 @@ function branchExists(repoPath, branchName) {
 	return remote.status === 0;
 }
 
+function resolveUniqueBranch(repoPath, baseBranch) {
+	if (!branchExists(repoPath, baseBranch)) return baseBranch;
+	let counter = 1;
+	while (branchExists(repoPath, `${baseBranch}-${counter}`)) {
+		counter += 1;
+	}
+	return `${baseBranch}-${counter}`;
+}
+
 function attachOrSwitch(sessionName) {
 	if (process.env.TMUX) {
 		const result = spawnSync("tmux", ["switch-client", "-t", sessionName], {
@@ -283,8 +366,10 @@ function attachOrSwitch(sessionName) {
 function main() {
 	const {
 		implement,
+		projectName,
 		repoPath: inputRepoPath,
 		extraPrompt,
+		featureName,
 		issueId,
 	} = parseArgs(process.argv.slice(2));
 	if (!issueId) {
@@ -298,31 +383,51 @@ function main() {
 		requireCmd(command);
 	}
 
-	const repoPath = resolveRepoPath(inputRepoPath);
+	const globalConfig = loadGlobalConfig();
+	console.log(globalConfig);
+	const preset = resolvePreset(globalConfig, projectName);
+	const repoPath = resolveRepoPath(
+		expandHomePath(inputRepoPath || preset.repoPath || ""),
+	);
 	log(`using repo ${repoPath}`);
 
 	const response = runOpencode(
 		repoPath,
-		buildPromptForFeatureMetadata(issueId, extraPrompt),
+		buildPromptForFeatureMetadata(issueId, extraPrompt, featureName),
 	);
-	const branchName = response.branch || "";
-	const sessionName = response.session || "";
+	const suggestedBranch = response.branch || "";
+	const suggestedSession = response.session || "";
 	const issueTitle = response.title || "";
 	let implementPrompt = response.prompt || "";
 
-	if (!branchName || !sessionName) {
+	if (!suggestedBranch || !suggestedSession) {
 		fail(
 			"Could not parse opencode response as expected JSON.",
 			JSON.stringify(response),
 		);
 	}
 
-	log(`resolved branch=${branchName} session=${sessionName}`);
+	log(`resolved branch=${suggestedBranch} session=${suggestedSession}`);
 
-	if (tmuxHasSession(sessionName)) {
+	if (tmuxHasSession(suggestedSession)) {
 		log("tmux session already exists, switching to it");
-		process.stdout.write(`Session: ${sessionName}\nBranch: ${branchName}\n`);
-		attachOrSwitch(sessionName);
+		process.stdout.write(
+			`Session: ${suggestedSession}\nBranch: ${suggestedBranch}\n`,
+		);
+		attachOrSwitch(suggestedSession);
+	}
+
+	// Resolve branch name collisions by appending a counter suffix
+	const branchName = resolveUniqueBranch(repoPath, suggestedBranch);
+	const sessionName =
+		branchName !== suggestedBranch
+			? suggestedSession + branchName.slice(suggestedBranch.length)
+			: suggestedSession;
+
+	if (branchName !== suggestedBranch) {
+		log(
+			`branch collision detected, using ${branchName} (session: ${sessionName})`,
+		);
 	}
 
 	let wtCommand = "wt switch -v";
@@ -341,12 +446,16 @@ function main() {
 		}
 	}
 
-	const projectConfig = loadProjectConfig(repoPath);
-	const subdir = projectConfig.subdir || "";
+	const baseBranch = preset.baseBranch || "";
+	const baseFolder = preset.baseFolder || preset.subdir || "";
 
-	let sendCmd = `${wtCommand} ${shellQuote(branchName)}`;
-	if (subdir) {
-		sendCmd += ` && [ -d ${shellQuote(subdir)} ] && cd ${shellQuote(subdir)}`;
+	let sendCmd = "";
+	if (baseBranch) {
+		sendCmd += `git checkout ${shellQuote(baseBranch)} && `;
+	}
+	sendCmd += `${wtCommand} ${shellQuote(branchName)}`;
+	if (baseFolder) {
+		sendCmd += ` && [ -d ${shellQuote(baseFolder)} ] && cd ${shellQuote(baseFolder)}`;
 	}
 	if (implement) {
 		sendCmd += ` && opencode --prompt ${shellQuote(implementPrompt)}`;

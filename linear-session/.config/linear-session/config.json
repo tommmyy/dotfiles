@@ -1,0 +1,9 @@
+{
+	"projects": {
+		"sdp": {
+			"repoPath": "~/workspaces/sdp",
+			"baseBranch": "develop",
+			"baseFolder": "s-analytics/sources"
+		}
+	}
+}

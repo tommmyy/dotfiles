@@ -1,0 +1,6 @@
+{
+  "eval_id": 3,
+  "eval_name": "single-site-english",
+  "prompt": "write onboarding email in english for customer FashionUK, site: fashionuk.com, identifier: fuk",
+  "assertions": []
+}

@@ -1,0 +1,6 @@
+{
+  "eval_id": 2,
+  "eval_name": "multi-site-czech",
+  "prompt": "compose deployment email for EMOS - sites: emos.cz (ems), emos.sk (emssk), emos.hu (emshu)",
+  "assertions": []
+}

@@ -7,6 +7,7 @@ Based on Kickstart.nvim
 
 -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
 local servers = {
+	astro = {},
 	tailwindcss = {},
 	pyright = {},
 	-- mypy = {},
@@ -64,8 +65,7 @@ local servers = {
 	ts_ls = {
 		root_dir = function(fname)
 			local util = require("lspconfig.util")
-			return util.root_pattern("yarn.lock", ".git")(fname)
-				or util.path.dirname(fname)
+			return util.root_pattern("yarn.lock", ".git")(fname) or util.path.dirname(fname)
 		end,
 		init_options = {
 			provideFormatter = false,
@@ -122,6 +122,7 @@ local servers = {
 			"javascriptreact",
 			"typescript",
 			"typescriptreact",
+			"astro",
 		},
 	},
 	eslint = {
@@ -131,6 +132,7 @@ local servers = {
 			"typescript",
 			"typescriptreact",
 			"svelte",
+			"astro",
 		},
 		root_dir = function(fname)
 			local util = require("lspconfig.util")
@@ -167,6 +169,7 @@ vim.filetype.add({
 	extension = {
 		jsx = "javascriptreact",
 		tsx = "typescriptreact",
+		astro = "astro",
 	},
 })
 
@@ -498,7 +501,9 @@ require("lazy").setup({
 					group_empty = true,
 				},
 				filters = {
+					git_ignored = true,
 					dotfiles = false,
+					exclude = { "/private[^/]*", ".env*" },
 				},
 			})
 		end,
@@ -681,11 +686,6 @@ require("lazy").setup({
 				require("opencode").ask("@this: ", { submit = true })
 			end, { desc = "Ask opencode" })
 
-			vim.keymap.set({ "n", "x" }, "<leader>ae", function()
-				require("opencode").start()
-				require("opencode").ask("@this: /editor", { submit = false })
-			end, { desc = "Ask with editor" })
-
 			vim.keymap.set({ "n", "x" }, "<leader>ap", function()
 				require("opencode").select()
 			end, { desc = "Execute opencode action…" })
@@ -862,6 +862,32 @@ end, { desc = "Go to previous trouble" })
 -- [[ MY Keymaps ]]
 --
 
+local function copy_path_or_range()
+	local filepath = vim.fn.expand("%:p")
+	local mode = vim.fn.mode()
+	local text
+
+	if mode == "v" or mode == "V" or mode == "\22" then
+		local start_line = vim.fn.line("v")
+		local end_line = vim.fn.line(".")
+
+		if start_line > end_line then
+			start_line, end_line = end_line, start_line
+		end
+
+		text = string.format("%s:L%d-L%d", filepath, start_line, end_line)
+	else
+		text = filepath
+	end
+
+	vim.fn.setreg("+", text)
+	print("Copied: " .. text)
+end
+
+vim.keymap.set({ "n", "x" }, "<leader>cp", copy_path_or_range, {
+	desc = "Copy file path or selected line range",
+})
+
 -- Switch tumux workspaces
 vim.api.nvim_set_keymap("n", "<C-f>", ":silent !tmux neww tmux-sessionizer<CR>", { silent = true, noremap = true })
 -- nnoremap <leader>l :redraw!<CR>
@@ -928,7 +954,18 @@ vim.api.nvim_set_keymap("n", "<leader>e", ":NvimTreeFindFileToggle<cr>", { silen
 -- See `:help nvim-treesitter`
 require("nvim-treesitter.configs").setup({
 	-- Add languages to be installed here that you want installed for treesitter
-	ensure_installed = { "lua", "python", "rust", "tsx", "typescript", "help", "vim", "markdown", "markdown_inline" },
+	ensure_installed = {
+		"lua",
+		"python",
+		"rust",
+		"tsx",
+		"typescript",
+		"help",
+		"vim",
+		"markdown",
+		"markdown_inline",
+		"astro",
+	},
 	-- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
 	auto_install = true,
 	highlight = { enable = true, disable = { "rust", "python", "lua" } },

@@ -1,4 +1,4 @@
-stow bin bash zsh opencode tmux editorconfig ack nvim worktrunk
+stow bin bash zsh opencode tmux editorconfig ack nvim worktrunk linear-session
 # stow bin bash zsh opencode vim tmux editorconfig ack skhd yabai nvim mcphub
 # touch $HOME/.zfunctions/prompt_pure_setup
 # touch $HOME/.zfunctions/async

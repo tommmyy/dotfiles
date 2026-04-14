@@ -1,7 +1,5 @@
 [pre-start]
 prime_sdp_sources_dependencies = "[ \"{{ primary_worktree_path }}\" = \"/Users/tommmyy/workspaces/sdp\" ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && wt step copy-ignored"
-
-[post-start]
 setup_sdp_sources_dependencies = "[ \"{{ primary_worktree_path }}\" = \"/Users/tommmyy/workspaces/sdp\" ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && (cd \"{{ worktree_path }}/s-analytics/sources\" && yarn install && yarn setup-development-husky && yarn prepare-workspace)"
 
 [pre-remove]

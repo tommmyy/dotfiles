@@ -1,0 +1,30 @@
+Dobrý den,
+
+zasílám informace k nasazení sondy Perselio.com.
+
+Vytvořili jsme sondy pro sběr uživatelských interakcí na webech EMOS.
+
+Zde je seznam:
+
+emos.cz: https://static.perselio.com/versions/v3/interactions-ems.js
+emos.sk: https://static.perselio.com/versions/v3/interactions-emssk.js
+emos.hu: https://static.perselio.com/versions/v3/interactions-emshu.js
+
+Skripty, prosím, umístěte do hlavičky stránky v HTML dokumentu. Nejlépe bez využití GTM kvůli rychlosti načtení. Příklad:
+
+```html
+<html>
+  <head>
+    <script src="https://static.perselio.com/versions/v3/interactions-ems.js" async></script>
+    <!-- ostatní skripty -->
+  </head>
+</html>
+```
+
+Skripty zatím naše plochy nevykreslují, pouze sbírají analytická data pro trénink AI modelů.
+
+Neváhejte mě kontaktovat, pokud nejsou instrukce jasné.
+Kdy, prosím, budou skripty nasazené?
+Rádi bychom zvalidovali, že vše bez problémů funguje.
+
+Děkuji.

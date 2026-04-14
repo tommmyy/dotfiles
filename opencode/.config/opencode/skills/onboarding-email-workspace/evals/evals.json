@@ -1,0 +1,23 @@
+{
+  "skill_name": "onboarding-email",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "write onboarding email for altisport.cz, identifier: alt",
+      "expected_output": "Czech email for a single site with one generated Perselio script URL and an HTML head example.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "compose deployment email for EMOS - sites: emos.cz (ems), emos.sk (emssk), emos.hu (emshu)",
+      "expected_output": "Czech email for multiple sites with a list of generated Perselio script URLs and one HTML head example.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "write onboarding email in english for customer FashionUK, site: fashionuk.com, identifier: fuk",
+      "expected_output": "English email for a single site with one generated Perselio script URL and an HTML head example.",
+      "files": []
+    }
+  ]
+}

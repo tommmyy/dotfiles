@@ -1,0 +1,27 @@
+Dobrý den,
+
+zasílám informace k nasazení sondy Perselio.com.
+
+Vytvořili jsme sondu pro sběr uživatelských interakcí na webu altisport.cz.
+
+URL:
+https://static.perselio.com/versions/v3/interactions-alt.js
+
+Tento skript, prosím, umístěte do hlavičky stránky v HTML dokumentu. Nejlépe bez využití GTM kvůli rychlosti načtení.
+
+```html
+<html>
+  <head>
+    <script src="https://static.perselio.com/versions/v3/interactions-alt.js" async></script>
+    <!-- ostatní skripty -->
+  </head>
+</html>
+```
+
+Skript zatím naše plochy nevykreslují, pouze sbírají analytická data pro trénink AI modelů.
+
+Neváhejte mě kontaktovat, pokud nejsou instrukce jasné.
+Kdy, prosím, bude skript nasazený?
+Rádi bychom zvalidovali, že vše bez problémů funguje.
+
+Děkuji.

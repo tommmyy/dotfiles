@@ -1,0 +1,27 @@
+Hello,
+
+I am sending information regarding the deployment of the Perselio.com tracking script.
+
+We have created a tracking script for collecting user interactions on the website fashionuk.com.
+
+URL:
+https://static.perselio.com/versions/v3/interactions-fuk.js
+
+Please place this script in the head section of the HTML document. Preferably do not use GTM due to loading speed.
+
+```html
+<html>
+  <head>
+    <script src="https://static.perselio.com/versions/v3/interactions-fuk.js" async></script>
+    <!-- other scripts -->
+  </head>
+</html>
+```
+
+At this stage, the script does not render any Perselio surfaces yet. It only collects analytics data for AI model training.
+
+Please do not hesitate to contact me if any of the instructions are unclear.
+When do you expect the script to be deployed?
+We would like to validate that everything works correctly.
+
+Thank you.

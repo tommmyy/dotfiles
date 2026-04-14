@@ -20,6 +20,7 @@ Create Linear issues through MCP with a strict intake flow so the agent only ask
 - `title`
 - `assignee`
 - `description`
+- `cycle`
 
 Do not create the issue until all four fields are known.
 
@@ -78,5 +79,5 @@ After creating the issue, respond with:
 
 - Asking multiple back-and-forth questions when one consolidated missing-fields question is enough.
 - Asking for a field the user already provided.
-- Creating an issue before `team`, `project`, `title`, `description` and `assignee` are all known.
+- Creating an issue before `team`, `project`, `title`, `description`, `cycle` and `assignee` are all known.
 - Creating an issue without first **correcting obvious typos** in user-provided text.
