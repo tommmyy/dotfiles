@@ -5,6 +5,12 @@
 	// "model": "openai/gpt-5.4",
 	"model": "anthropic/claude-opus-4-6",
 	"autoupdate": true,
+	"command": {
+		"pr-done": {
+			"template": "Create a summary for this PR and post it as a comment on the associated Linear task (from the branch name). Then mark the task as done. To identify the branch-only changes, use: - git log HEAD ^origin/develop --oneline to find commits unique to this branch - git show <commit> (or git diff <merge-base>..HEAD) for the actual diff - Do NOT use git diff origin/develop -- it includes unrelated changes when the branch is not rebased.",
+			"description": "Summarize PR, comment on Linear task, mark task as done",
+		},
+	},
 	"plugin": [
 		// "opencode-claude-auth"
 		"@ex-machina/opencode-anthropic-auth",
