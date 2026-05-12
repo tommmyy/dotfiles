@@ -59,6 +59,8 @@ Tento skript, prosim, umistete do hlavicky stranky v html dokumentu. Nejlepe bez
 
 <html>
 	<head>
+		<link rel="preconnect" href="https://static.perselio.com">
+		<link rel="dns-prefetch" href="https://static.perselio.com">
 		<script src="{script_url}" async></script>
 		<!-- ostatni skripty -->
 	</head>
@@ -96,6 +98,8 @@ Skript, prosim, umistete do hlavicky stranky v html dokumentu. Nejlepe bez vyuzi
 
 <html>
 	<head>
+		<link rel="preconnect" href="https://static.perselio.com">
+		<link rel="dns-prefetch" href="https://static.perselio.com">
 		<script src="{example_script_url}" async></script>
 		<!-- ostatni skripty -->
 	</head>
@@ -136,7 +140,7 @@ When the user requests English, adapt the content while keeping the same structu
 2. We created a tracking probe/script for their site(s)
 3. The script URL(s)
 4. Place it in the HTML `<head>`, preferably without GTM for loading speed
-5. Code example
+5. Code example with optimization tags (preconnect, dns-prefetch)
 6. The script only collects analytics data for AI model training, it doesn't render any visual elements yet
 7. Contact us if instructions are unclear
 8. When will the script be deployed? We'd like to validate everything works.
@@ -161,6 +165,8 @@ When the user requests English, adapt the content while keeping the same structu
 - Script URLs always use the base `https://static.perselio.com/versions/v3/interactions-{identifier}.js`.
 - Always recommend placing the script in the HTML `<head>` without GTM (Google Tag Manager) for better loading performance.
 - The `async` attribute on the script tag is important — always include it.
+- Never include the `crossorigin` attribute on the `<script>`.
+- Always include the optimization `<link>` tags (`preconnect` and `dns-prefetch` for `https://static.perselio.com`) before the script tag. These speed up the initial connection to the CDN.
 - Keep the tone professional but friendly — the Czech style uses polite "vy" form (vykání).
 - When both business and technical contacts exist, prefer the technical person in `Komu` and keep the business owner in `Kopie`.
 - If the user asks for a "final version", include the send-ready envelope (`Předmět`, `Komu`, `Kopie`) when the emails are known.
