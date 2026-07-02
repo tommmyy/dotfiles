@@ -1,5 +1,5 @@
 ---
-name: skill-improver
+name: personal-skill-improver
 description: Improve skill from current context
 disable-model-invocation: true
 ---

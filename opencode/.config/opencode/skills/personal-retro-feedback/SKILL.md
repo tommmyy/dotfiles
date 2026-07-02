@@ -1,5 +1,5 @@
 ---
-name: retro-feedback
+name: personal-retro-feedback
 description: >
   Add retrospective feedback from a local markdown file to a Linear retrospective issue.
   Use this skill whenever the user wants to submit retro notes, add retro feedback,
@@ -103,14 +103,15 @@ within a cell. For example:
 CRITICAL rules for table cell formatting:
 - **NEVER use literal newlines** inside a table row. A newline breaks the
   markdown row boundary and will corrupt the entire table.
-- **NEVER use markdown list syntax** (`- item` or `* item`) inside cells.
-  Linear converts `-` to `*` and only renders the first line as a bullet;
-  the rest appear as plain text with a hyphen prefix.
+- **Use `- ` dash prefix before each item, combined with `<br>` separators.**
+  Linear converts `-` to `*` internally but renders them correctly as bullets.
+  This is the preferred format. Example:
+  `- item one<br>- item two<br>- item three`
 - **Use `<br>` WITHOUT a trailing space** to avoid an extra leading space
-  on each new line in Linear's renderer. Write `item one<br>item two`,
-  NOT `item one <br> item two`.
-- The Linear API may store `<br>` as `&#10;` — this is expected and renders
-  as line breaks in the UI.
+  on each new line in Linear's renderer. Write `- item one<br>- item two`,
+  NOT `- item one <br> - item two`.
+- The Linear API may store `<br>` as `&#10;` and `-` as `*` — this is expected
+  and renders correctly as bulleted line breaks in the UI.
 - If the user prefers a single-line format, use `·` (middle dot) as a
   separator: `item one · item two · item three`. This is a proven safe
   format used in previous retros.
@@ -140,9 +141,8 @@ username unless told otherwise.
   table corruption. A single newline inside `| ... |` splits the row and
   destroys the table structure. Always keep each row on a single line and use
   `<br>` for in-cell line breaks.
-- **NEVER use markdown list syntax (`- ` or `* `) inside table cells**. It
-  does not render correctly — only the first item becomes a bullet, the rest
-  are plain text.
+- **Use `- item<br>- item` format for bullet-like lists in cells.** Linear
+  converts `-` to `*` but renders all items correctly when combined with `<br>`.
 - **`<br>` spacing matters**: Use `item<br>item`, NOT `item <br> item`. The
   trailing space before `<br>` is fine, but a space after `<br>` adds a
   visible leading space on the next line in Linear.

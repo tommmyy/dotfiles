@@ -20,18 +20,55 @@ source "$HOME/.zsh_secrets"
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export PATH="$PATH:$HOME/Library/PackageManager/bin"
-export PATH="$(yarn global bin):$PATH"
+# NOTE: `$(yarn global bin)` spawned node+yarn on every shell start (~0.2-1s),
+# just to resolve a static path. Hardcode it instead. Run `yarn global bin`
+# manually if the location ever changes.
+export PATH="/opt/homebrew/bin:$PATH"
 
 export ZSH_TMUX_ITERM2=true
 # export EDITOR=nvim
 # export EDITOR='nvim --cmd "let g:no_tree=1"'
 # NOTE: run the nvim without nvimtree at homepage. see bin/.local/bin/nvim-notree and init.lua
 export EDITOR=nvim-quick-insert
+export OPENCODE_DISABLE_CLAUDE_CODE=1
+export OPENCODE_DISABLE_CLAUDE_CODE_PROMPT=1 # ignore ~/.claude/CLAUDE.md
+export OPENCODE_DISABLE_CLAUDE_CODE_SKILLS=1 # ignore ~/.claude/skills
 
 # eval "$(_PIPENV_COMPLETE=zsh_source pipenv)"
 
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
+
+# Speed up startup: skip oh-my-zsh's update check (git fetch + version compare)
+# and skip the slow compinit security audit (compaudit), which dominated startup.
+DISABLE_AUTO_UPDATE=true
+DISABLE_UPDATE_PROMPT=true
+ZSH_DISABLE_COMPFIX=true
+
+# Cache completion init: compinit rebuilds the ~50KB dump on every launch
+# (~450ms). Run a full compinit only once a day; otherwise reuse the cached
+# dump with `compinit -C` (skips the slow scan/freshness checks).
+#
+# NOTE: we do NOT call compinit ourselves and then stub it into a no-op.
+# OMZ's own compinit call (further down, in oh-my-zsh.sh) is what manages
+# the dump's metadata (an "#omz revision"/"#omz fpath" comment appended to
+# the dump) and deletes+rebuilds the dump whenever OMZ itself or the plugin
+# list changes. Stubbing compinit made OMZ delete the dump on every single
+# launch (metadata never matched) and then silently do nothing, leaving
+# only a 2-line dump with no completions in it -- breaking all completion,
+# including plain path/file completion.
+# Instead we redefine `compinit` to transparently inject `-C` into whatever
+# call OMZ makes when the dump is still fresh, and otherwise let it run for
+# real. `builtin autoload -XUz` loads+runs the *real* compinit from $fpath,
+# which self-removes and re-autoloads itself when done (see its last line),
+# so this wrapper only ever affects the single call OMZ makes below.
+ZSH_COMPDUMP="$HOME/.zcompdump"
+compinit() {
+  if [[ -n ${ZSH_COMPDUMP}(#qN.mh-24) ]]; then
+    set -- -C "$@"
+  fi
+  builtin autoload -XUz
+}
 
 # fpath+=$HOME/pure
 export fpath=( "$HOME/.zfunctions" $fpath )
@@ -60,12 +97,12 @@ plugins=(
   yarn
   zsh-syntax-highlighting
   zsh-autosuggestions
-	nvm
+	# nvm
 )
 
 source $ZSH/oh-my-zsh.sh
 
-eval "$(wt config shell init zsh)"
+# eval "$(wt config shell init zsh)"
 
 
 # # # replaced with oh-my-zsh plugin
@@ -116,7 +153,7 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 # bun completions
-[ -s "/Users/tommmyy/.bun/_bun" ] && source "/Users/tommmyy/.bun/_bun"
+# [ -s "/Users/tommmyy/.bun/_bun" ] && source "/Users/tommmyy/.bun/_bun"
 
 # Zoxide - https://github.com/ajeetdsouza/zoxide
 eval "$(zoxide init zsh)"

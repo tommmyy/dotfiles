@@ -497,6 +497,9 @@ require("lazy").setup({
 		config = function()
 			require("nvim-tree").setup({
 				sort_by = "case_sensitive",
+				view = {
+					width = 45,
+				},
 				renderer = {
 					group_empty = true,
 				},
@@ -543,7 +546,7 @@ require("lazy").setup({
 		config = function()
 			local telescope_ag = require("telescope-ag")
 			telescope_ag.setup({
-				cmd = telescope_ag.cmds.ag, -- defaults to telescope_ag.cmds.ag
+				cmd = { "ag", "--hidden" },
 			})
 		end,
 	},
@@ -805,6 +808,18 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 -- See `:help telescope` and `:help telescope.setup()`
 require("telescope").setup({
 	defaults = {
+		path_display = { "truncate" },
+		-- Show the full path of the SELECTED entry as the preview window's title
+		-- (top border), updating as you move the cursor.
+		dynamic_preview_title = true,
+		layout_strategy = "flex",
+		layout_config = {
+			width = 0.95,
+			height = 0.95,
+			preview_cutoff = 1,
+			horizontal = { preview_width = 0.6 },
+			vertical = { preview_height = 0.6 },
+		},
 		mappings = {
 			i = {
 				["<C-u>"] = false,
@@ -814,6 +829,16 @@ require("telescope").setup({
 			},
 		},
 	},
+})
+
+-- Fix tab width in Telescope preview windows (guess-indent does not run there,
+-- so tabbed files would otherwise render at the default tabstop of 8).
+vim.api.nvim_create_autocmd("User", {
+	pattern = "TelescopePreviewerLoaded",
+	callback = function()
+		vim.bo.tabstop = 2
+		vim.wo.list = false
+	end,
 })
 
 -- Enable telescope fzf native, if installed
@@ -862,30 +887,41 @@ end, { desc = "Go to previous trouble" })
 -- [[ MY Keymaps ]]
 --
 
-local function copy_path_or_range()
-	local filepath = vim.fn.expand("%:p")
-	local mode = vim.fn.mode()
-	local text
+local function make_copy_path_fn(relative)
+	return function()
+		local filepath
+		if relative then
+			filepath = vim.fn.expand("%:.")
+		else
+			filepath = vim.fn.expand("%:p")
+		end
+		local mode = vim.fn.mode()
+		local text
 
-	if mode == "v" or mode == "V" or mode == "\22" then
-		local start_line = vim.fn.line("v")
-		local end_line = vim.fn.line(".")
+		if mode == "v" or mode == "V" or mode == "\22" then
+			local start_line = vim.fn.line("v")
+			local end_line = vim.fn.line(".")
 
-		if start_line > end_line then
-			start_line, end_line = end_line, start_line
+			if start_line > end_line then
+				start_line, end_line = end_line, start_line
+			end
+
+			text = string.format("%s:L%d-L%d", filepath, start_line, end_line)
+		else
+			text = filepath
 		end
 
-		text = string.format("%s:L%d-L%d", filepath, start_line, end_line)
-	else
-		text = filepath
+		vim.fn.setreg("+", text)
+		print("Copied: " .. text)
 	end
-
-	vim.fn.setreg("+", text)
-	print("Copied: " .. text)
 end
 
-vim.keymap.set({ "n", "x" }, "<leader>cp", copy_path_or_range, {
-	desc = "Copy file path or selected line range",
+vim.keymap.set({ "n", "x" }, "<leader>cp", make_copy_path_fn(false), {
+	desc = "Copy absolute file path or selected line range",
+})
+
+vim.keymap.set({ "n", "x" }, "<leader>cr", make_copy_path_fn(true), {
+	desc = "Copy relative file path (from PWD) or selected line range",
 })
 
 -- Switch tumux workspaces

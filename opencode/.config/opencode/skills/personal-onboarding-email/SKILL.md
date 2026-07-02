@@ -1,5 +1,5 @@
 ---
-name: onboarding-email
+name: personal-onboarding-email
 description: >
   Generate onboarding emails for Perselio.com customers with analytics script deployment instructions.
   Use this skill whenever the user asks to write, draft, or compose an onboarding email, a script deployment email,

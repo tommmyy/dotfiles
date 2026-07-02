@@ -3,7 +3,14 @@
 		"sdp": {
 			"repoPath": "~/workspaces/sdp",
 			"baseBranch": "develop",
-			"baseFolder": "s-analytics/sources"
+			"baseFolder": "s-analytics/sources",
+			"subproject": "sdp"
+		},
+		"console": {
+			"repoPath": "~/workspaces/sdp",
+			"baseBranch": "develop",
+			"baseFolder": "perselio-console",
+			"subproject": "console"
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ---
-name: linear-task-intake
+name: personal-linear-task-intake
 description: >
   Use this skill when the user asks to create a Linear task/issue/ticket (for example:
   "create a task in linear", "open a linear issue", "add a ticket in linear.app").

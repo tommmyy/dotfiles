@@ -5,6 +5,8 @@ const { homedir } = require("os");
 const { join } = require("path");
 const { spawnSync } = require("child_process");
 
+const OPENCODE_METADATA_MODEL = "openai/gpt-5.4-mini-fast";
+
 function loadJsonConfig(configPath, label) {
 	if (!existsSync(configPath)) return {};
 	try {
@@ -254,13 +256,17 @@ ${extraPrompt}`;
 }
 
 function runOpencode(repoPath, prompt) {
+	if (!process.env.OPENAI_API_KEY) {
+		fail("OPENAI_API_KEY is required to generate branch and session names.");
+	}
+
 	log("asking opencode to derive branch and session");
 	const result = run(
 		"opencode",
 		[
 			"run",
 			"-m",
-			"openai/gpt-5.4-mini",
+			OPENCODE_METADATA_MODEL,
 			"--format",
 			"json",
 			"--dir",
@@ -299,7 +305,8 @@ function runOpencode(repoPath, prompt) {
 	}
 
 	try {
-		return JSON.parse(finalText);
+		const stripped = finalText.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+		return JSON.parse(stripped);
 	} catch (_) {
 		fail("Could not parse opencode response as expected JSON.", finalText);
 	}
@@ -448,8 +455,12 @@ function main() {
 
 	const baseBranch = preset.baseBranch || "";
 	const baseFolder = preset.baseFolder || preset.subdir || "";
+	const subproject = preset.subproject || "";
 
 	let sendCmd = "";
+	if (subproject) {
+		sendCmd += `export WT_SUBPROJECT=${shellQuote(subproject)} && `;
+	}
 	if (baseBranch) {
 		sendCmd += `git checkout ${shellQuote(baseBranch)} && `;
 	}

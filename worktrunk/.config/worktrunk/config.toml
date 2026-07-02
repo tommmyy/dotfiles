@@ -1,12 +1,15 @@
-[pre-start]
-prime_sdp_sources_dependencies = "[ \"{{ primary_worktree_path }}\" = \"/Users/tommmyy/workspaces/sdp\" ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && wt step copy-ignored"
-setup_sdp_sources_dependencies = "[ \"{{ primary_worktree_path }}\" = \"/Users/tommmyy/workspaces/sdp\" ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && (cd \"{{ worktree_path }}/s-analytics/sources\" && yarn install && yarn setup-development-husky && yarn prepare-workspace)"
+[projects."bitbucket.org/lundegaard/sdp".pre-start]
+prime_sdp_sources_dependencies = "[ \"$WT_SUBPROJECT\" = sdp ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && wt step copy-ignored || true"
+setup_sdp_sources_dependencies = "[ \"$WT_SUBPROJECT\" = sdp ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && (cd \"{{ worktree_path }}/s-analytics/sources\" && yarn install && yarn setup-development-husky && yarn prepare-workspace) || true"
+prime_console_dependencies = "[ \"$WT_SUBPROJECT\" = console ] && [ -f \"{{ worktree_path }}/perselio-console/package.json\" ] && wt step copy-ignored || true"
+setup_console_dependencies = "[ \"$WT_SUBPROJECT\" = console ] && [ -f \"{{ worktree_path }}/perselio-console/package.json\" ] && (cd \"{{ worktree_path }}/perselio-console\" && yarn install) || true"
 
-[pre-remove]
-cleanup_sdp_sources_node_modules = "[ \"{{ primary_worktree_path }}\" = \"/Users/tommmyy/workspaces/sdp\" ] && rm -rf \"{{ worktree_path }}/s-analytics/sources/node_modules\""
+[projects."bitbucket.org/lundegaard/sdp".pre-remove]
+cleanup_sdp_sources_node_modules = "[ -d \"{{ worktree_path }}/s-analytics/sources/node_modules\" ] && rm -rf \"{{ worktree_path }}/s-analytics/sources/node_modules\" || true"
+cleanup_console_node_modules = "[ -d \"{{ worktree_path }}/perselio-console/node_modules\" ] && rm -rf \"{{ worktree_path }}/perselio-console/node_modules\" || true"
 
 [commit.generation]
-command = "sh -lc 'prompt=$(cat); opencode run -m openai/gpt-5.4-mini --format json \"$prompt\" | jq -r \"select(.type == \\\"text\\\") | .part.text\"'"
+command = "sh -lc 'prompt=$(cat); : \"${OPENAI_API_KEY:?OPENAI_API_KEY is required}\"; opencode run -m openai/gpt-5.4-mini-fast --format json \"$prompt\" | jq -r \"select(.type == \\\"text\\\") | .part.text\"'"
 
 [projects."bitbucket.org/lundegaard/sdp".commit.generation]
 template = """
@@ -16,7 +19,7 @@ Required format:
 <TICKET> <TYPE>(sa): <message>
 
 Rules:
-- Extract <TICKET> from the branch name as the first token matching [A-Z]+-[0-9]+.
+- Extract <TICKET> from the branch name as the first token matching [A-Z]+-[0-9]+. If no ticket is found, omit the <TICKET> prefix entirely.
 - The realm is always exactly (sa).
 - Map branch prefixes to <TYPE>:
   - feature/* -> feat
@@ -30,6 +33,7 @@ Examples:
 - CUS-1 feat(sa): add campaign filter
 - PER-1 fix(sa): handle empty response
 - PER-12 chore(sa): update analytics deps
+- chore(sa): update ci config
 
 Context:
 Branch: {{ branch }}
@@ -47,7 +51,7 @@ Required format:
 <TICKET> <TYPE>(sa): <message>
 
 Rules:
-- Extract <TICKET> from the branch name as the first token matching [A-Z]+-[0-9]+.
+- Extract <TICKET> from the branch name as the first token matching [A-Z]+-[0-9]+. If no ticket is found, omit the <TICKET> prefix entirely.
 - The realm is always exactly (sa).
 - Map branch prefixes to <TYPE>:
   - feature/* -> feat

@@ -1,5 +1,5 @@
 ---
-name: linear-cycle-work-overview
+name: personal-linear-cycle-work-overview
 description: >
   Use this skill whenever the user asks for an overview, summary, recap, slide prep,
   retrospective input, or report of their completed work in the current Linear cycle,

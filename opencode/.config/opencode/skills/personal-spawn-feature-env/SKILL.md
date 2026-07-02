@@ -1,5 +1,5 @@
 ---
-name: spawn-feature-env
+name: personal-spawn-feature-env
 description: >
   Use this skill when the user wants to spawn a new tmux session from a Linear task,
   create a dedicated git worktree with worktrunk, and optionally launch opencode to
