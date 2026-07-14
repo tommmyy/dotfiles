@@ -24,30 +24,57 @@ feature branch (named after the issue) so the staged changes move onto it. The
 ### 1. Inspect staged changes
 
 Run `git diff --staged --stat` and `git diff --staged`. If nothing is staged,
-stop and tell the user there's nothing to file — don't invent a task. Read the
-hunks (not just file names); they are the source for the issue title/description.
+first fall back to staging everything with `git add -A`, then re-run
+`git diff --staged --stat`. Only if there is still nothing to stage (clean tree)
+do you stop and tell the user there's nothing to file — don't invent a task.
+Read the hunks (not just file names) to understand the change — but the
+description must stay brief (see step 3), not a hunk-by-hunk retelling.
 
 ### 2. Check the base branch early
 
 Run `git rev-parse --abbrev-ref HEAD`. Remember whether it is `develop`. If it
 is **not** `develop`, warn now: the issue can still be created, but the branch
-step (step 4) will be skipped.
+step (step 5) will be skipped.
 
 ### 3. Create the Linear issue via `personal-linear-task-intake`
 
 Delegate issue creation to the **`personal-linear-task-intake`** skill — follow
 its intake flow and field requirements; do not restate them here. This skill
-only pins two fields and derives two:
+pins three fields (assignee, cycle, state) and derives two (title, description):
 
 - **assignee**: always `"me"`.
 - **cycle**: always `"current"`.
-- **title / description**: derive from the staged diff (title describes the
-  change; description summarizes problem + fix and names the files touched).
+- **state**: always **create with `"Todo"`** (never leave it on the team's
+  default, e.g. Backlog).
+- **title**: derive from the staged diff — one line describing the change,
+  in plain functional terms. Do NOT include file or path names (e.g. write
+  "Fix precart back button" not "Fix precart back button (critical.scss)") —
+  the title becomes the Linear URL slug, which becomes the branch name (step 5),
+  so a file name here leaks into the branch name too.
+- **description**: brief and to the point. A short summary of what changed and
+  why (a couple of sentences, or a few terse bullets if there are genuinely
+  distinct changes). Do NOT list the files touched, do NOT restate the diff
+  hunk by hunk, do NOT pad with headings for a small change. Keep it minimal;
+  the diff is the source of truth for detail.
 
 So the only fields to ask the user for are the ones intake requires that can't
-be derived or pinned. Capture the returned issue **identifier** and **url**.
+be derived or pinned — in practice this is almost always just **team** and
+**project** (you can't infer these reliably from a diff, even when the diff
+references an issue key like `CUS-722`). Ask for them in one consolidated
+question, and in that same message present the derived **title** and
+**description** for confirmation so the user can correct them in the same turn.
+Capture the returned issue **identifier** and **url**.
 
-### 4. Create the branch (only on `develop`)
+### 4. Move the issue Todo → In Progress
+
+VERY IMPORTANT: the issue must **first** be created in `Todo` (step 3), then
+**immediately** updated to `In Progress` here. Do these as two distinct steps —
+create as `Todo`, then right away flip it to `In Progress`. Do not create the
+issue directly in `In Progress`, and do not skip this transition.
+
+Call `linear_save_issue` with the captured issue `id` and `state: "In Progress"`.
+
+### 5. Create the branch (only on `develop`)
 
 If step 2 found the branch is `develop`, derive the branch name from the issue
 URL by taking everything after `/issue/`:
@@ -65,7 +92,7 @@ that the branch was not created and which branch you're on.
 > Prefer parsing the URL over Linear's suggested `gitBranchName` — the requested
 > format is `<IDENTIFIER>/<slug>`, not `<user>/<identifier>-<slug>`.
 
-### 5. Report back
+### 6. Report back
 
 - Issue identifier + URL.
 - Branch name and whether it was created or skipped (with reason if skipped).
@@ -73,7 +100,14 @@ that the branch was not created and which branch you're on.
 ## Common mistakes
 
 - Filing an issue when nothing is staged.
+- Creating the issue directly in `In Progress`, or skipping the
+  Todo → In Progress transition — always create as `Todo` first, then
+  immediately update to `In Progress` (step 4).
 - Restating intake rules instead of deferring to `personal-linear-task-intake`.
 - Using `gitBranchName` from Linear instead of `<IDENTIFIER>/<slug>` from the URL.
+- Letting a file/path name slip into the issue title (and thus the branch name)
+  — keep titles file-agnostic, per step 3.
 - Creating the branch when not on `develop`.
 - Committing the staged changes — this workflow only stages/moves them.
+- Bloating the description: listing touched files, retelling the diff hunk by
+  hunk, or adding Problem/Fix/Files headings for a small change. Keep it brief.

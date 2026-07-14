@@ -32,7 +32,6 @@ function loadGlobalConfig() {
 			"config.json",
 		),
 	];
-	console.log(configPaths);
 
 	for (const configPath of configPaths) {
 		if (!existsSync(configPath)) continue;
@@ -60,7 +59,8 @@ Options:
   -P, --project <name>      Use a named project preset from config
   -r, --repo-path <path>    Repository path to run wt in (defaults to current git repo)
   -p, --prompt <text>       Extra implementation guidance
-  -f, --feature-name <text> Hint for the branch/session name (e.g. "adding a test")
+  -f, --feature-name <text> Override the slug used in the branch/session name
+                            (default: slug from the Linear issue URL)
   -h, --help                Show this help
 
 Examples:
@@ -230,37 +230,59 @@ function resolveRepoPath(repoPath) {
 	return resolved.stdout.trim();
 }
 
-function buildPromptForFeatureMetadata(issueId, extraPrompt, featureName) {
-	const featureNameRule = featureName
-		? `\n9. IMPORTANT: The user provided a feature name hint: "${featureName}". Use this hint to derive the <short-kebab-title> portion of branch and session names instead of inferring from the issue title.`
-		: "";
-
-	return `Fetch Linear issue ${issueId} and return only compact JSON with this exact shape:
-{"branch":"feature/CUS-1-short-description","session":"cus-1-short-description","title":"Issue title","prompt":"Implementation prompt or empty string"}
-
-Rules:
-1. Infer branch prefix from the Linear task labels. If task has label:
-   - "Bug" -> fix
-   - "Docs" -> chore
-   - Otherwise -> feature
-2. Branch format must be <type>/<ISSUE-ID>-<short-kebab-title>.
-3. Session format must be <issue-id-lowercase>-<short-kebab-title> and must not contain slash.
-4. If taskId starts with "CUS" (e.g. CUS-12) add project name attached to issue to <short-kebab-title>
-5. Keep the slug short.
-6. Prompt should be a concise implementation prompt built from the issue title and description.
-7. If the extra guidance below is non-empty, include it in the prompt. If it is empty, omit it.
-8. Output JSON only. No markdown. No prose.${featureNameRule}
-
-Extra guidance:
-${extraPrompt}`;
+function slugify(value) {
+	return String(value || "")
+		.toLowerCase()
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-+|-+$/g, "");
 }
 
-function runOpencode(repoPath, prompt) {
-	if (!process.env.OPENAI_API_KEY) {
-		fail("OPENAI_API_KEY is required to generate branch and session names.");
+function branchTypeFromLabels(labels) {
+	const normalized = (labels || []).map((label) =>
+		String(label).toLowerCase(),
+	);
+	if (normalized.includes("bug")) return "fix";
+	if (normalized.includes("docs")) return "chore";
+	return "feature";
+}
+
+// Derive branch/session deterministically from the Linear issue.
+// - branch:  <type>/<ISSUE-ID>-<slug>
+// - session: <issue-id-lowercase>-<slug>   (no slashes)
+// The slug comes from the issue URL slug (preferred) or the title.
+function deriveFeatureMetadata(issue, issueId, featureName) {
+	const idUpper = String(issueId).toUpperCase();
+	const type = branchTypeFromLabels(issue.labels);
+
+	let slug = "";
+	if (featureName) {
+		slug = slugify(featureName);
+	} else {
+		// Prefer the slug embedded in the Linear issue URL, e.g.
+		// https://linear.app/org/issue/CUS-698/compact-product-cards-...
+		const url = String(issue.url || "");
+		const match = url.match(/\/issue\/[^/]+\/([^/?#]+)/i);
+		slug = match ? match[1] : slugify(issue.title);
 	}
 
-	log("asking opencode to derive branch and session");
+	const branch = `${type}/${idUpper}-${slug}`;
+	const session = `${idUpper.toLowerCase()}-${slug}`.replace(/\//g, "-");
+
+	return { branch, session, title: issue.title || "" };
+}
+
+function fetchLinearIssue(repoPath, issueId) {
+	log(`fetching Linear issue ${issueId}`);
+	const prompt = `Fetch Linear issue ${issueId} using the Linear tools and return ONLY compact JSON with this exact shape:
+{"url":"<issue url>","title":"<issue title>","labels":["<label>"]}
+
+Rules:
+- "url" must be the full Linear issue URL including the slug segment.
+- "labels" is the array of the issue's label names (empty array if none).
+- Output JSON only. No markdown. No prose. Do not invent or shorten any value.`;
+
 	const result = run(
 		"opencode",
 		[
@@ -305,10 +327,13 @@ function runOpencode(repoPath, prompt) {
 	}
 
 	try {
-		const stripped = finalText.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+		const stripped = finalText
+			.replace(/^```(?:json)?\s*/i, "")
+			.replace(/\s*```$/, "")
+			.trim();
 		return JSON.parse(stripped);
 	} catch (_) {
-		fail("Could not parse opencode response as expected JSON.", finalText);
+		fail("Could not parse Linear issue response as expected JSON.", finalText);
 	}
 }
 
@@ -391,26 +416,24 @@ function main() {
 	}
 
 	const globalConfig = loadGlobalConfig();
-	console.log(globalConfig);
 	const preset = resolvePreset(globalConfig, projectName);
 	const repoPath = resolveRepoPath(
 		expandHomePath(inputRepoPath || preset.repoPath || ""),
 	);
 	log(`using repo ${repoPath}`);
 
-	const response = runOpencode(
-		repoPath,
-		buildPromptForFeatureMetadata(issueId, extraPrompt, featureName),
-	);
-	const suggestedBranch = response.branch || "";
-	const suggestedSession = response.session || "";
-	const issueTitle = response.title || "";
-	let implementPrompt = response.prompt || "";
+	const issue = fetchLinearIssue(repoPath, issueId);
+	const {
+		branch: suggestedBranch,
+		session: suggestedSession,
+		title: issueTitle,
+	} = deriveFeatureMetadata(issue, issueId, featureName);
+	let implementPrompt = "";
 
 	if (!suggestedBranch || !suggestedSession) {
 		fail(
-			"Could not parse opencode response as expected JSON.",
-			JSON.stringify(response),
+			"Could not derive branch/session from the Linear issue.",
+			JSON.stringify(issue),
 		);
 	}
 

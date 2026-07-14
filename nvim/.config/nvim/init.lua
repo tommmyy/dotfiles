@@ -5,6 +5,14 @@ Based on Kickstart.nvim
 --
 --]]
 
+if vim.loader then
+	vim.loader.enable()
+end
+
+-- Disable netrw before lazy.nvim/plugin registration; nvim-tree owns file browsing.
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
 local servers = {
 	astro = {},
@@ -151,9 +159,9 @@ local servers = {
 		settings = {
 			validate = "on",
 			workingDirectory = { mode = "location" },
-			experimental = {
-				useFlatConfig = false,
-			},
+			-- ESLint 9 flat config (eslint.config.js). Legacy eslintrc projects
+			-- still work: ESLint 9 auto-detects, and `true` matches our repos.
+			useFlatConfig = true,
 		},
 		on_new_config = function(new_config, new_root_dir)
 			new_config.settings = new_config.settings or {}
@@ -163,6 +171,10 @@ local servers = {
 			}
 		end,
 	},
+	-- Fast Rust linter (PER-233). In-buffer diagnostics via oxc_language_server;
+	-- roots on .oxlintrc.json. Runs alongside eslint (which keeps import
+	-- resolution). :OxcFixAll applies --fix to the buffer.
+	oxlint = {},
 }
 
 vim.filetype.add({
@@ -189,6 +201,7 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 	{
 		"supermaven-inc/supermaven-nvim",
+		event = "InsertEnter",
 		config = function()
 			require("supermaven-nvim").setup({
 				disable_inline_completion = true, -- disables inline completion for use with cmp
@@ -204,6 +217,7 @@ require("lazy").setup({
 	"nmac427/guess-indent.nvim",
 	{
 		"folke/trouble.nvim",
+		cmd = "Trouble",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		opts = {
 			-- your configuration comes here
@@ -211,7 +225,7 @@ require("lazy").setup({
 			-- refer to the configuration section below
 		},
 	},
-	{ "j-hui/fidget.nvim", opts = {} },
+	{ "j-hui/fidget.nvim", event = "VeryLazy", opts = {} },
 	-- NOTE: This is where your plugins related to LSP can be installed.
 	--  The configuration is done below. Search for lspconfig to find it below.
 	{
@@ -227,8 +241,6 @@ require("lazy").setup({
 			{ "mason-org/mason.nvim", opts = {} },
 			"mason-org/mason-lspconfig.nvim",
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
-			{ "j-hui/fidget.nvim", opts = {} },
-
 			-- Additional lua configuration, makes nvim stuff amazing!
 			"folke/neodev.nvim",
 		},
@@ -410,7 +422,7 @@ require("lazy").setup({
 			vim.list_extend(ensure_installed, {
 				"stylua", -- Used to format Lua code
 			})
-			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
+			require("mason-tool-installer").setup({ ensure_installed = ensure_installed, run_on_start = false })
 			-- print("ensure_installed:", vim.inspect(ensure_installed))
 
 			require("mason-lspconfig").setup({
@@ -435,9 +447,7 @@ require("lazy").setup({
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter-textobjects",
 		},
-		config = function()
-			pcall(require("nvim-treesitter.install").update({ with_sync = true }))
-		end,
+		build = ":TSUpdate",
 	},
 	-- {
 	-- 	"zbirenbaum/copilot-cmp",
@@ -465,10 +475,11 @@ require("lazy").setup({
 	},
 
 	-- Useful plugin to show you pending keybinds.
-	{ "folke/which-key.nvim", opts = {} },
+	{ "folke/which-key.nvim", event = "VeryLazy", opts = {} },
 	{
 		-- Adds git releated signs to the gutter, as well as utilities for managing changes
 		"lewis6991/gitsigns.nvim",
+		event = "VeryLazy",
 		opts = {
 			-- See `:help gitsigns.txt`
 			signs = {
@@ -491,6 +502,7 @@ require("lazy").setup({
 	{
 		"nvim-tree/nvim-tree.lua",
 		version = "*",
+		cmd = { "NvimTreeClose", "NvimTreeFindFile", "NvimTreeFindFileToggle", "NvimTreeOpen", "NvimTreeToggle" },
 		dependencies = {
 			"nvim-tree/nvim-web-devicons",
 		},
@@ -513,6 +525,7 @@ require("lazy").setup({
 	},
 	{
 		"nvim-treesitter/nvim-treesitter-context",
+		event = "VeryLazy",
 	},
 	{
 		"tree-sitter/tree-sitter-jsdoc",
@@ -520,6 +533,7 @@ require("lazy").setup({
 	{
 		-- Set lualine as statusline
 		"nvim-lualine/lualine.nvim",
+		event = "VeryLazy",
 		-- See `:help lualine.txt`
 		opts = {
 			options = {
@@ -552,6 +566,7 @@ require("lazy").setup({
 	},
 	{
 		"davidmh/mdx.nvim",
+		ft = { "markdown", "markdown.mdx", "mdx" },
 		dependencies = { "nvim-treesitter/nvim-treesitter" },
 	},
 	-- Fuzzy Finder (files, lsp, etc)
@@ -659,6 +674,7 @@ require("lazy").setup({
 	},
 	{
 		"MeanderingProgrammer/render-markdown.nvim",
+		ft = { "markdown", "markdown.mdx" },
 		opts = {},
 	},
 	-- <AI SHIT> --
@@ -776,11 +792,6 @@ vim.o.cmdheight = 2
 
 vim.g.matchparen_timeout = 20
 vim.g.matchparen_insert_timeout = 20
-
--- nvim-tree
-vim.g.loaded_netrw = 1
-
-vim.g.loaded_netrwPlugin = 1
 
 --
 -- [[ Basic Keymaps ]]
@@ -978,7 +989,7 @@ vim.api.nvim_set_keymap("n", "<leader>ot", "<cmd>ObsidianTemplate<cr>", { desc =
 -- https://github.com/nvim-tree/nvim-tree.lua/wiki/Open-At-Startup
 local function open_nvim_tree()
 	-- NOTE: to enable opening nvim without nvim-tree at start page: nvim --cmd "let g:no_tree=1"
-	if not vim.g.no_tree then
+	if not vim.g.no_tree and vim.fn.argc() == 0 then
 		require("nvim-tree.api").tree.open()
 	end
 end
@@ -1154,7 +1165,11 @@ null_ls.setup({
 		-- diagnostics.eslint_d.with({
 		-- 	extra_filetypes = { "svelte" },
 		-- }),
-		formatting.prettierd,
+		formatting.prettierd.with({
+			dynamic_command = function(params, done)
+				done(params.command)
+			end,
+		}),
 		formatting.stylua,
 		-- formatting.black,
 		-- diagnostics.mypy,
@@ -1231,8 +1246,8 @@ null_ls.setup({
 
 local mason_null_ls = require("mason-null-ls")
 mason_null_ls.setup({
-	automatic_installation = true,
-	ensure_installed = vim.tbl_keys(servers),
+	automatic_installation = false,
+	ensure_installed = { "prettierd", "stylua" },
 })
 
 -- nvim-cmp setup

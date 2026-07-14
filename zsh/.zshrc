@@ -33,6 +33,7 @@ export EDITOR=nvim-quick-insert
 export OPENCODE_DISABLE_CLAUDE_CODE=1
 export OPENCODE_DISABLE_CLAUDE_CODE_PROMPT=1 # ignore ~/.claude/CLAUDE.md
 export OPENCODE_DISABLE_CLAUDE_CODE_SKILLS=1 # ignore ~/.claude/skills
+export OPENCODE_ENABLE_EXA=1
 
 # eval "$(_PIPENV_COMPLETE=zsh_source pipenv)"
 

@@ -170,6 +170,7 @@
 		"external_directory": {
 			"~/.config/opencode/**": "allow",
 			"~/workspaces/sdp/s-analytics/sources/private.plans/**": "allow",
+			"~/worklog/**": "allow",
 			"~/tmp/*": "allow",
 			"/tmp": "allow",
 			"/tmp/*": "allow",
