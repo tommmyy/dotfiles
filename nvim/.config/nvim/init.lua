@@ -226,6 +226,7 @@ require("lazy").setup({
 		},
 	},
 	{ "j-hui/fidget.nvim", event = "VeryLazy", opts = {} },
+	{ "folke/lazydev.nvim", ft = "lua", opts = {} },
 	-- NOTE: This is where your plugins related to LSP can be installed.
 	--  The configuration is done below. Search for lspconfig to find it below.
 	{
@@ -241,8 +242,6 @@ require("lazy").setup({
 			{ "mason-org/mason.nvim", opts = {} },
 			"mason-org/mason-lspconfig.nvim",
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
-			-- Additional lua configuration, makes nvim stuff amazing!
-			"folke/neodev.nvim",
 		},
 		config = function()
 			-- Brief aside: **What is LSP?**
@@ -421,6 +420,7 @@ require("lazy").setup({
 			local ensure_installed = vim.tbl_keys(servers or {})
 			vim.list_extend(ensure_installed, {
 				"stylua", -- Used to format Lua code
+				"prettierd", -- Used by conform.nvim for web formats
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed, run_on_start = false })
 			-- print("ensure_installed:", vim.inspect(ensure_installed))
@@ -585,19 +585,32 @@ require("lazy").setup({
 		end,
 	},
 
-	-- {
-	-- 	"nvimtools/none-ls.nvim",
-	-- 	dependencies = {
-	-- 		"nvimtools/none-ls-extras.nvim",
-	-- 	},
-	-- },
 	{
-		"jay-babu/mason-null-ls.nvim",
-		event = { "BufReadPre", "BufNewFile" },
-		dependencies = {
-			"williamboman/mason.nvim",
-			"nvimtools/none-ls.nvim",
-			-- "jose-elias-alvarez/null-ls.nvim",
+		"stevearc/conform.nvim",
+		event = "BufWritePre",
+		cmd = "ConformInfo",
+		opts = {
+			formatters_by_ft = {
+				astro = { "prettierd" },
+				css = { "prettierd" },
+				html = { "prettierd" },
+				javascript = { "prettierd" },
+				javascriptreact = { "prettierd" },
+				json = { "prettierd" },
+				jsonc = { "prettierd" },
+				lua = { "stylua" },
+				markdown = { "prettierd" },
+				["markdown.mdx"] = { "prettierd" },
+				scss = { "prettierd" },
+				svelte = { "prettierd" },
+				typescript = { "prettierd" },
+				typescriptreact = { "prettierd" },
+				yaml = { "prettierd" },
+			},
+			format_on_save = {
+				timeout_ms = 3000,
+				lsp_format = "fallback",
+			},
 		},
 	},
 
@@ -1129,14 +1142,6 @@ vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagn
 --  Add any additional override configuration in the following tables. They will be passed to
 --  the `settings` field of the server config. You must look up that documentation yourself.
 
--- Setup neovim lua configuration
-require("neodev").setup()
-
--- nvim-cmp supports additional completion capabilities, so broadcast that to servers
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
-capabilities.textDocument.completion.completionItem.snippetSupport = true
-
 -- copilot
 --
 -- require("copilot").setup({
@@ -1149,69 +1154,6 @@ capabilities.textDocument.completion.completionItem.snippetSupport = true
 -- 	replace_keycodes = false,
 -- })
 -- vim.g.copilot_no_tab_map = true
-
--- null-ls
-local null_ls = require("null-ls")
-local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-
-local formatting = null_ls.builtins.formatting
-local diagnostics = null_ls.builtins.diagnostics
---
--- local command_resolver = require("null-ls.helpers.command_resolver")
-
-null_ls.setup({
-	debug = false,
-	sources = {
-		-- diagnostics.eslint_d.with({
-		-- 	extra_filetypes = { "svelte" },
-		-- }),
-		formatting.prettierd.with({
-			dynamic_command = function(params, done)
-				done(params.command)
-			end,
-		}),
-		formatting.stylua,
-		-- formatting.black,
-		-- diagnostics.mypy,
-		-- diagnostics.ruff,
-
-		-- formatting.eslint_d,
-		-- diagnostics.eslint_d.with({
-		-- 	extra_filetypes = { "svelte" },
-		-- 	dynamic_command = command_resolver.from_node_modules(),
-		-- 	-- only_local = "node_modules/.bin",
-		-- 	-- dynamic_command = function(params)
-		-- 	-- 	return command_resolver.from_node_modules(params)
-		-- 	-- 			or command_resolver.from_yarn_pnp(params)
-		-- 	-- 			or vim.fn.executable(params.command) == 1 and params.command
-		-- 	-- end,
-		-- }),
-		-- formatting.eslint_d.with({
-		-- 	extra_filetypes = { "svelte" },
-		-- 	dynamic_command = command_resolver.from_node_modules(),
-		-- 	-- only_local = "node_modules/.bin",
-		-- 	-- dynamic_command = function(params)
-		-- 	-- 	return command_resolver.from_node_modules(params)
-		-- 	-- 			or command_resolver.from_yarn_pnp(params)
-		-- 	-- 			or vim.fn.executable(params.command) == 1 and params.command
-		-- 	-- end,
-		-- }),
-	},
-	on_attach = function(client, bufnr)
-		if client.supports_method("textDocument/formatting") then
-			vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-			vim.api.nvim_create_autocmd("BufWritePre", {
-				group = augroup,
-				buffer = bufnr,
-				callback = function()
-					-- on 0.8, you should use vim.lsp.buf.format({ bufnr = bufnr }) instead
-					-- vim.lsp.buf.formatting_sync()
-					vim.lsp.buf.format({ bufnr = bufnr })
-				end,
-			})
-		end
-	end,
-})
 
 -- -- Setup mason so it can manage external tooling
 -- require("mason").setup()
@@ -1243,12 +1185,6 @@ null_ls.setup({
 -- 		-- end
 -- 	end,
 -- })
-
-local mason_null_ls = require("mason-null-ls")
-mason_null_ls.setup({
-	automatic_installation = false,
-	ensure_installed = { "prettierd", "stylua" },
-})
 
 -- nvim-cmp setup
 local cmp = require("cmp")
