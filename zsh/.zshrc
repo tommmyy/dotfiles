@@ -15,7 +15,16 @@ done
 # In secretes file still do not save the passwords directly. Instead:
 # 1. add to keychain: security add-generic-password -a "$USER" -s "my-password" -w "super-secret"
 # 2. in .zsh_secrets: export ANTHROPIC_API_KEY="$(security find-generic-password -a "$USER" -s "my-password" -w)"
-source "$HOME/.zsh_secrets"
+# Loading Keychain-backed values blocks the first prompt for several seconds.
+# Load them before the first command instead, so new tabs become usable at once.
+load_zsh_secrets() {
+  source "$HOME/.zsh_secrets"
+}
+
+load_zsh_secrets_before_first_command() {
+  add-zsh-hook -d preexec load_zsh_secrets_before_first_command
+  load_zsh_secrets
+}
 
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
@@ -103,6 +112,9 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
+autoload -Uz add-zsh-hook
+add-zsh-hook -Uz preexec load_zsh_secrets_before_first_command
+
 # eval "$(wt config shell init zsh)"
 
 
@@ -134,7 +146,7 @@ setopt HIST_IGNORE_DUPS
 #add timestamp for each entry
 setopt EXTENDED_HISTORY
 
-autoload -U promptinit; promptinit
+autoload -Uz promptinit; promptinit
 prompt pure
 
 source ~/.zprofile

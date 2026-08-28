@@ -1,0 +1,61 @@
+ffmpeg version 7.1.1 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 17.0.0 (clang-1700.0.13.3)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/7.1.1_3 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags='-Wl,-ld_classic' --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      59. 39.100 / 59. 39.100
+  libavcodec     61. 19.101 / 61. 19.101
+  libavformat    61.  7.100 / 61.  7.100
+  libavdevice    61.  3.100 / 61.  3.100
+  libavfilter    10.  4.100 / 10.  4.100
+  libswscale      8.  3.100 /  8.  3.100
+  libswresample   5.  3.100 /  5.  3.100
+  libpostproc    58.  3.100 / 58.  3.100
+Input #0, matroska,webm, from '/Users/tommmyy/Downloads/Dirty.Dancing.1987.1080p.WEB-DL.AAC2.0.H.264-RgN/Dirty.Dancing.1987.1080p.WEB-DL.AAC2.0.H.264-RgN.mkv':
+  Metadata:
+    COMPATIBLE_BRANDS: iso6dash
+    MAJOR_BRAND     : iso6
+    MINOR_VERSION   : 0
+    ENCODER         : Lavf61.1.100
+  Duration: 01:36:00.82, start: 0.000000, bitrate: 5125 kb/s
+  Stream #0:0: Video: h264 (Main), yuv420p(progressive), 1920x1080 [SAR 1:1 DAR 16:9], 25 fps, 25 tbr, 1k tbn (default)
+      Metadata:
+        title           : from TreZzoR with love, fuck off SkT 
+        HANDLER_NAME    : USP Video Handler
+        VENDOR_ID       : [0][0][0][0]
+        ENCODER         : AVC Coding
+        DURATION        : 01:36:00.785000000
+  Stream #0:1(cze): Audio: aac (LC), 44100 Hz, stereo, fltp (default)
+      Metadata:
+        title           : from TreZzoR with love, fuck off SkT 
+        HANDLER_NAME    : USP Sound Handler
+        VENDOR_ID       : [0][0][0][0]
+        DURATION        : 01:36:00.824000000
+Stream mapping:
+  Stream #0:0 -> #0:0 (copy)
+  Stream #0:1 -> #0:1 (copy)
+Output #0, mp4, to '/Users/tommmyy/.config/opencode/skills/personal-video-to-ps4/work/Dirty_Dancing_1987_PS4.mp4':
+  Metadata:
+    COMPATIBLE_BRANDS: iso6dash
+    MAJOR_BRAND     : iso6
+    MINOR_VERSION   : 0
+    genre           : Romance/Drama
+    title           : Dirty Dancing
+    year            : 1987
+    date            : 1987
+    encoder         : Lavf61.7.100
+  Stream #0:0: Video: h264 (Main) (avc1 / 0x31637661), yuv420p(progressive), 1920x1080 [SAR 1:1 DAR 16:9], q=2-31, 25 fps, 25 tbr, 16k tbn (default)
+      Metadata:
+        title           : from TreZzoR with love, fuck off SkT 
+        HANDLER_NAME    : USP Video Handler
+        VENDOR_ID       : [0][0][0][0]
+        ENCODER         : AVC Coding
+        DURATION        : 01:36:00.785000000
+  Stream #0:1(ces): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp (default)
+      Metadata:
+        DURATION        : 01:36:00.824000000
+        title           : from TreZzoR with love, fuck off SkT 
+        HANDLER_NAME    : USP Sound Handler
+        VENDOR_ID       : [0][0][0][0]
+Press [q] to stop, [?] for help
+frame=15269 fps=0.0 q=-1.0 size=  385536KiB time=00:10:10.74 bitrate=5171.2kbits/s speed=1.21e+03x    frame=32939 fps=32719 q=-1.0 size=  827136KiB time=00:21:57.62 bitrate=5142.5kbits/s speed=1.31e+03x    frame=51854 fps=34332 q=-1.0 size= 1302272KiB time=00:34:34.22 bitrate=5143.2kbits/s speed=1.37e+03x    frame=70682 fps=35070 q=-1.0 size= 1769216KiB time=00:47:07.34 bitrate=5126.2kbits/s speed=1.4e+03x    frame=88055 fps=34931 q=-1.0 size= 2211584KiB time=00:58:42.26 bitrate=5143.6kbits/s speed=1.4e+03x    frame=105593 fps=34895 q=-1.0 size= 2653952KiB time=01:10:23.78 bitrate=5147.3kbits/s speed=1.4e+03x    frame=116869 fps=33127 q=-1.0 size= 2932480KiB time=01:17:54.82 bitrate=5138.8kbits/s speed=1.33e+03x    frame=134006 fps=33243 q=-1.0 size= 3366656KiB time=01:29:20.30 bitrate=5145.2kbits/s speed=1.33e+03x    [mp4 @ 0x12c806a00] Starting second pass: moving the moov atom to the beginning of the file
+[out#0/mp4 @ 0x600001348000] video:3509740KiB audio:90422KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.121309%
+frame=144020 fps=15892 q=-1.0 Lsize= 3604529KiB time=01:36:00.74 bitrate=5125.8kbits/s speed= 636x    

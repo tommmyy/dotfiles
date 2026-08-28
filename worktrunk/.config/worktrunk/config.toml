@@ -1,8 +1,153 @@
+# Which subproject(s) to set up is configured per project, in the repo itself:
+#   <primary worktree>/.wtconfig   ->   subproject="sdp"   or   subproject="sdp console"
+# That file is already gitignored in the sdp repo (.gitignore:105).
+# The WT_SUBPROJECT env var takes PRECEDENCE over .wtconfig, as an ad-hoc, one-off
+# override (this is what `linear-session --project console` relies on).
+#
+# Guard contract for every hook below:
+#   - subproject not selected / dir absent -> exit 0 (skip quietly, do not abort)
+#   - selected and the real work fails     -> non-zero (pre-start aborts the worktree)
+# Do NOT wrap these in a trailing `|| true`: that is what previously hid failures.
 [projects."bitbucket.org/lundegaard/sdp".pre-start]
-prime_sdp_sources_dependencies = "[ \"$WT_SUBPROJECT\" = sdp ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && wt step copy-ignored || true"
-setup_sdp_sources_dependencies = "[ \"$WT_SUBPROJECT\" = sdp ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && (cd \"{{ worktree_path }}/s-analytics/sources\" && yarn install && yarn setup-development-husky && yarn prepare-workspace) || true"
-prime_console_dependencies = "[ \"$WT_SUBPROJECT\" = console ] && [ -f \"{{ worktree_path }}/perselio-console/package.json\" ] && wt step copy-ignored || true"
-setup_console_dependencies = "[ \"$WT_SUBPROJECT\" = console ] && [ -f \"{{ worktree_path }}/perselio-console/package.json\" ] && (cd \"{{ worktree_path }}/perselio-console\" && yarn install) || true"
+check_subproject = """
+SUBCFG="{{ primary_worktree_path }}/.wtconfig"
+SUB="${WT_SUBPROJECT:-}"
+if [ -z "$SUB" ] && [ -f "$SUBCFG" ]; then SUB=$(. "$SUBCFG" >/dev/null 2>&1; printf '%s' "${subproject:-}"); fi
+if [ -n "${WT_SUBPROJECT:-}" ]; then
+  echo "wt: subproject=$SUB (from WT_SUBPROJECT, overriding $SUBCFG)" >&2
+fi
+if [ -z "$SUB" ]; then
+  echo "wt: no subproject configured -- skipping ALL sdp/console setup hooks." >&2
+  echo "wt: fix by adding a line like  subproject=sdp  (or  subproject='sdp console')  to $SUBCFG" >&2
+fi
+exit 0
+"""
+# Prime node_modules with ONE APFS clonefile(2) call on the whole directory.
+#
+# Measured on this repo (~143k files / 1.1G):
+#   no priming ......................... yarn link step 1m57s  (2m01s total)
+#   old `cp -Rc` ....................... minutes; per-file clone, 143k syscalls
+#   clonefile(2) on the directory ...... 3.8s, then yarn install 10.9s => ~15s total
+#
+# `cp -Rc` is slow because it walks the tree and clones each file individually.
+# clonefile(2) clones a whole directory hierarchy in a single syscall, copy-on-write,
+# so it costs ~no disk. macOS `cp` gives no way to reach this, hence the python3 shim.
+#
+# install-state.gz MUST be carried across too. Without it yarn re-runs every postinstall
+# against the primed tree, which is what used to blow up: esbuild's install.js skips
+# maybeOptimizePackage under yarn (`!isYarn()`), leaves isToPathJS = true, and validates
+# with `node bin/esbuild --version` -- which only works if bin/esbuild is still the
+# pristine JS shim. Carrying the state means those scripts simply do not re-run.
+# Same shim-swap pattern affects @swc/core, sharp, @parcel/watcher, unrs-resolver.
+#
+# If the clone fails for any reason (non-APFS, cross-volume), we clean up and skip:
+# yarn then does a normal full install. Slower, but always correct.
+prime_sdp_sources_node_modules = """
+SUBCFG="{{ primary_worktree_path }}/.wtconfig"
+SUB="${WT_SUBPROJECT:-}"
+if [ -z "$SUB" ] && [ -f "$SUBCFG" ]; then SUB=$(. "$SUBCFG" >/dev/null 2>&1; printf '%s' "${subproject:-}"); fi
+case " $SUB " in *" sdp "*) ;; *) exit 0 ;; esac
+SRC="{{ primary_worktree_path }}/s-analytics/sources"
+DST="{{ worktree_path }}/s-analytics/sources"
+[ -f "$DST/package.json" ] || exit 0
+[ -d "$SRC/node_modules" ] || exit 0
+[ -e "$DST/node_modules" ] && exit 0
+PY=/usr/bin/python3
+[ -x "$PY" ] || PY=$(command -v python3) || exit 0
+if ! "$PY" -c 'import ctypes, ctypes.util, sys
+lib = ctypes.CDLL(ctypes.util.find_library("System"), use_errno=True)
+lib.clonefile.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int]
+sys.exit(0 if lib.clonefile(sys.argv[1].encode(), sys.argv[2].encode(), 0) == 0 else 1)' "$SRC/node_modules" "$DST/node_modules"; then
+  echo "wt: clonefile prime failed -- falling back to a full yarn install" >&2
+  rm -rf "$DST/node_modules"
+  exit 0
+fi
+if [ -f "$SRC/.yarn/install-state.gz" ]; then
+  mkdir -p "$DST/.yarn"
+  cp -c "$SRC/.yarn/install-state.gz" "$DST/.yarn/install-state.gz" 2>/dev/null || true
+fi
+"""
+prime_sdp_sources_env = """
+SUBCFG="{{ primary_worktree_path }}/.wtconfig"
+SUB="${WT_SUBPROJECT:-}"
+if [ -z "$SUB" ] && [ -f "$SUBCFG" ]; then SUB=$(. "$SUBCFG" >/dev/null 2>&1; printf '%s' "${subproject:-}"); fi
+case " $SUB " in *" sdp "*) ;; *) exit 0 ;; esac
+SRC="{{ primary_worktree_path }}/s-analytics/sources"
+DST="{{ worktree_path }}/s-analytics/sources"
+[ -f "$DST/package.json" ] || exit 0
+for f in "$SRC"/.env "$SRC"/.env.*; do
+  [ -f "$f" ] || continue
+  dest="$DST/$(basename "$f")"
+  [ -e "$dest" ] || cp -c "$f" "$dest"
+done
+"""
+setup_sdp_sources_dependencies = """
+SUBCFG="{{ primary_worktree_path }}/.wtconfig"
+SUB="${WT_SUBPROJECT:-}"
+if [ -z "$SUB" ] && [ -f "$SUBCFG" ]; then SUB=$(. "$SUBCFG" >/dev/null 2>&1; printf '%s' "${subproject:-}"); fi
+case " $SUB " in *" sdp "*) ;; *) exit 0 ;; esac
+DST="{{ worktree_path }}/s-analytics/sources"
+[ -f "$DST/package.json" ] || exit 0
+cd "$DST" || exit 1
+yarn install || exit 1
+yarn setup-development-husky || exit 1
+yarn prepare-workspace || exit 1
+"""
+# Same idea as prime_sdp_sources_node_modules, but console is a yarn workspaces
+# monorepo (nodeLinker: node-modules, enableGlobalCache: false), so the state that
+# must come across is spread over several ignored paths: the root node_modules, one
+# per workspace under packages/*, .yarn/cache, .yarn/install-state.gz, .env*, and the
+# .turbo / .next build caches. Rather than hardcode that list (it drifts as workspaces
+# are added), ask git for the ignored entries under perselio-console and clone each.
+#
+# This is `wt step copy-ignored` scoped to one subtree. The unscoped version is
+# repo-wide, so a console worktree also cloned s-analytics/sources/node_modules
+# (1.0G / 143k files) that console never uses. Disk cost of that was ~nil -- these are
+# APFS CoW clones, `du` just double-counts them -- but it cost ~11s of wall clock on
+# every console worktree (measured: 14.4s repo-wide vs 3.4s with it already present).
+#
+# git lists a wholly-ignored directory as one entry with a trailing slash, so each
+# clonefile(2) call covers an entire tree in one syscall. Entries already present in
+# the destination are skipped, matching copy-ignored's no-overwrite behaviour.
+# If a clone fails (non-APFS, cross-volume) we fall back to cp -R; if that fails too
+# we skip and let yarn install rebuild it. Priming is an optimisation, never required
+# for correctness, so this hook always exits 0.
+prime_console_ignored = """
+SUBCFG="{{ primary_worktree_path }}/.wtconfig"
+SUB="${WT_SUBPROJECT:-}"
+if [ -z "$SUB" ] && [ -f "$SUBCFG" ]; then SUB=$(. "$SUBCFG" >/dev/null 2>&1; printf '%s' "${subproject:-}"); fi
+case " $SUB " in *" console "*) ;; *) exit 0 ;; esac
+SRC="{{ primary_worktree_path }}"
+DST="{{ worktree_path }}"
+[ -f "$DST/perselio-console/package.json" ] || exit 0
+PY=/usr/bin/python3
+[ -x "$PY" ] || PY=$(command -v python3) || exit 0
+CLONE='import ctypes, ctypes.util, sys
+lib = ctypes.CDLL(ctypes.util.find_library("System"), use_errno=True)
+lib.clonefile.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int]
+sys.exit(0 if lib.clonefile(sys.argv[1].encode(), sys.argv[2].encode(), 0) == 0 else 1)'
+git -C "$SRC" -c core.quotePath=false status --porcelain --ignored=matching -uall -- perselio-console 2>/dev/null \\
+  | sed -n 's|^!! ||p' | sed 's|/$||' | while IFS= read -r rel; do
+  [ -n "$rel" ] || continue
+  [ -e "$SRC/$rel" ] || continue
+  [ -e "$DST/$rel" ] && continue
+  mkdir -p "$(dirname "$DST/$rel")" || continue
+  "$PY" -c "$CLONE" "$SRC/$rel" "$DST/$rel" && continue
+  rm -rf "$DST/$rel"
+  cp -R "$SRC/$rel" "$DST/$rel" 2>/dev/null || rm -rf "$DST/$rel"
+done
+exit 0
+"""
+setup_console_dependencies = """
+SUBCFG="{{ primary_worktree_path }}/.wtconfig"
+SUB="${WT_SUBPROJECT:-}"
+if [ -z "$SUB" ] && [ -f "$SUBCFG" ]; then SUB=$(. "$SUBCFG" >/dev/null 2>&1; printf '%s' "${subproject:-}"); fi
+case " $SUB " in *" console "*) ;; *) exit 0 ;; esac
+DST="{{ worktree_path }}/perselio-console"
+[ -f "$DST/package.json" ] || exit 0
+cd "$DST" || exit 1
+yarn install || exit 1
+"""
 
 [projects."bitbucket.org/lundegaard/sdp".pre-remove]
 cleanup_sdp_sources_node_modules = "[ -d \"{{ worktree_path }}/s-analytics/sources/node_modules\" ] && rm -rf \"{{ worktree_path }}/s-analytics/sources/node_modules\" || true"

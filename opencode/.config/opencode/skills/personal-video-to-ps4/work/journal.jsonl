@@ -1,0 +1,14 @@
+2026-07-15T17:17:42Z	START	/Users/tommmyy/.config/opencode/skills/personal-video-to-ps4/work/Dirty_Dancing_1987_PS4.mp4	remux h264+aac->mp4
+2026-07-15T17:23:40Z	DONE	/Volumes/tommmyy/Movies/Dirty_Dancing_1987_PS4.mp4	verified on volume, size match
+2026-07-15T17:23:52Z	RM-SRC	/Users/tommmyy/Downloads/Dirty.Dancing.1987.1080p.WEB-DL.AAC2.0.H.264-RgN/Dirty.Dancing.1987.1080p.WEB-DL.AAC2.0.H.264-RgN.mkv	source removed after verify
+2026-07-19T17:11:29Z	START	/Users/tommmyy/.config/opencode/skills/personal-video-to-ps4/work/Night_at_the_Museum_2006_PS4.mp4	transcode hevc10bit4k->h264 8bit 1080p, eac3->ac3
+2026-07-19T17:41:11Z	DONE	/Volumes/tommmyy/Movies/Night_at_the_Museum_2006_PS4.mp4	verified on volume, size match, start_time=0
+2026-07-19T17:41:18Z	RM-SRC	/Users/tommmyy/Downloads/Noc+v+muzeu-Night+at+the+museum(2006)CZ-ENG+UHDR.mkv	source removed after verify
+2026-07-23T17:11:09Z	START	/Users/tommmyy/.config/opencode/skills/personal-video-to-ps4/work/Jak_utopit_doktora_Mracka_1975_PS4.mp4	remux h264+aac->mp4
+2026-07-23T17:12:48Z	DONE	/Volumes/tommmyy/Movies/Jak_utopit_doktora_Mracka_1975_PS4.mp4	verified on volume, size match
+2026-07-23T17:12:53Z	RM-SRC	/Users/tommmyy/Downloads/Jak+utopit+doktora+Mráčka,+aneb+Konec+vodníků+v+Čechách+.mp4	source removed after verify
+2026-08-02T20:01:20Z	START	/Volumes/tommmyy/Movies/Masters_of_the_Universe_2026_PS4.mp4	video=copy audio=3x eac3->ac3 640k subs=5x subrip->mov_text
+2026-08-02T20:02:49Z	VERIFY-LOCAL	/Volumes/tommmyy/Movies/Masters_of_the_Universe_2026_PS4.mp4	v=h264/yuv420p a=ac3 start=0.077000 na=3 ns=5 dur=8634.669000
+2026-08-02T20:02:49Z	FAIL	/Volumes/tommmyy/Movies/Masters_of_the_Universe_2026_PS4.mp4	nonzero a:0 start_time=0.077000 -> needs bake-silence
+2026-08-02T20:14:16Z	COPIED	/Volumes/tommmyy/Movies/Masters_of_the_Universe_2026_PS4.mp4	cp finished
+2026-08-02T20:14:50Z	DONE	/Volumes/tommmyy/Movies/Masters_of_the_Universe_2026_PS4.mp4	verified on volume, size match 11547539458, decode ok

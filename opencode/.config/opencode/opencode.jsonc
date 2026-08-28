@@ -15,6 +15,13 @@
 			"template": "Create a summary for this PR and post it as a comment on the associated Linear task (from the branch name). Then mark the task as done. To identify the branch-only changes, use: - git log HEAD ^origin/develop --oneline to find commits unique to this branch - git show <commit> (or git diff <merge-base>..HEAD) for the actual diff - Do NOT use git diff origin/develop -- it includes unrelated changes when the branch is not rebased.",
 			"description": "Summarize PR, comment on Linear task, mark task as done",
 		},
+		"refactor": {
+			"template": "Scope: `$ARGUMENTS` (default to `worktree` if empty; the only other recognized value is `branch`). Goal: improve code quality WITHOUT changing external behavior -- better naming, structure, and readability; remove duplication and dead code; align with the conventions already used in the surrounding files (read them first, including any AGENTS.md/README). SELECTING THE DIFF: if scope is `worktree` (default), run `git add -A` first, then work from the staged diff (`git diff --cached`). If scope is `branch`, also consider the whole branch: `base=$(git merge-base HEAD origin/develop)`, then `git diff $base..HEAD` (never diff directly against `origin/develop` -- it pulls in unrelated changes when the branch is not rebased), then `git add -A`. Consider EVERY changed file type, not just JS/TS: JSX, SCSS/CSS, config/JSON5, templates, docs and tests all count. HUNT FOR DUPLICATION deliberately across the whole diff -- repeated literals, logic blocks, JSX, CSS declarations/selectors, or copy-pasted sibling files -- and remove it with the DRY tool the language offers (a shared function/constant for JS, a mixin/placeholder/variable for SCSS), even when the copies live in different scopes or files (you do NOT have to merge selectors to dedupe them). Do NOT bail out with 'already clean' when the diff under review introduced duplication; if you judge a duplicate to be intentional/idiomatic, say so explicitly and why. Respect anti-churn rules: no reformatting untouched code, no speculative abstractions (YAGNI -- every new helper/param needs >=2 real callers), keep the diff minimal and scoped. STEPS: 1) Read each in-scope file before editing. 2) Make focused, behavior-preserving edits only. 3) VERIFY: run the project's typecheck + lint + tests + build gates and report which you ran and their result; for a pure output transform (e.g. extracting an SCSS mixin) PROVE the built artifact is byte-identical by compiling and diffing, do not just assume it. 4) Leave all changes staged (`git add -A`); do NOT commit or push. Report a short summary of what was refactored, what you deliberately left as-is and why, and how you verified it.",
+			"description": "Refactor worktree (default) or full branch for code quality; hunt duplication across all file types, verify gates, stage (no commit)",
+			"agent": "build",
+			"model": "anthropic/claude-opus-4-8",
+			"variant": "high",
+		},
 	},
 	"plugin": [
 		"opencode-claude-auth@latest",
@@ -27,7 +34,7 @@
 			"command": [
 				"npx",
 				"-y",
-				"mcp-remote",
+				"mcp-remote@0.2.5",
 				"https://mcp.linear.app/mcp"
 			],
 			"enabled": true,
@@ -40,6 +47,15 @@
 				"CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}",
 			},
 			"enabled": false,
+		},
+		"claude-design": {
+			"type": "local",
+			"command": [
+				"npx",
+				"-y",
+				"github:erdnj/claude-design-mcp",
+			],
+			"enabled": true,
 		},
 		// in Chrome: chrome://inspect/#remote-debugging
 		"chrome-devtools": {

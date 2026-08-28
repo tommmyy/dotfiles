@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+# t-preview - fzf preview for `t`: what is actually going on in a directory.
+#
+# Answers "what is in this session?" without paying for an LLM call at preview
+# time: opencode already stores an LLM-written title per session in its SQLite
+# database, so those titles (plus open todos) are read straight off disk in a
+# few ms. `opencode session list` would be the stabler API but takes ~800ms,
+# which is far too slow to re-run on every cursor move.
+#
+# Usage: t-preview <fzf line>   (either "name: N window(s)" or a ~/path)
+
+set -uo pipefail
+
+DB="${OPENCODE_DB:-$HOME/.local/share/opencode/opencode.db}"
+MAX_SESSIONS=${T_PREVIEW_SESSIONS:-5}
+MAX_TODOS=${T_PREVIEW_TODOS:-4}
+
+if [[ -t 1 ]] || [[ -n ${FORCE_COLOR:-} ]]; then C=1; else C=1; fi
+if [[ $C == 1 ]]; then
+  R=$'\033[0m'; B=$'\033[1m'; DIM=$'\033[2m'
+  BLUE=$'\033[34m'; GREEN=$'\033[32m'; YEL=$'\033[33m'; MAG=$'\033[35m'; CYAN=$'\033[36m'
+else
+  R= B= DIM= BLUE= GREEN= YEL= MAG= CYAN=
+fi
+
+WIDTH=${FZF_PREVIEW_COLUMNS:-72}
+[[ $WIDTH -lt 32 ]] && WIDTH=32
+
+label() { printf '%s%-9s%s' "$DIM" "$1" "$R"; }
+sql() { sqlite3 -readonly -separator $'\t' "$DB" "$1" 2>/dev/null; }
+
+# Elide the middle of an over-long string; the ends carry the information
+# (which worktree, which leaf) while the middle is boilerplate.
+elide() {
+  local s="$1" max="$2" keep
+  if [[ ${#s} -le $max ]]; then printf '%s' "$s"; return; fi
+  keep=$(((max - 1) / 2))
+  printf '%s…%s' "${s:0:keep}" "${s: -$((max - keep - 1))}"
+}
+
+LINE="${1:-}"
+[[ -z $LINE ]] && exit 0
+
+# Resolve the highlighted line to a directory and, if it exists, a session.
+# display-message needs an attached client to resolve #{session_path} and
+# quietly yields an empty string in a popup, so go through list-sessions.
+path_of_session() {
+  tmux list-sessions -F '#{session_name}	#{session_path}' 2>/dev/null |
+    awk -F'\t' -v n="$1" '$1 == n { print $2; exit }'
+}
+
+SESSION="" DIR=""
+if [[ $LINE == *": "*"window(s)"* ]]; then
+  SESSION=${LINE%%:*}
+  DIR=$(path_of_session "$SESSION")
+else
+  DIR=${LINE/#\~/$HOME}
+  DIR=${DIR%/}
+  [[ -d $DIR ]] || { printf '%s(no such directory)%s\n' "$DIM" "$R"; exit 0; }
+  SESSION=$(tmux list-sessions -F '#{session_name}	#{session_path}' 2>/dev/null |
+    awk -F'\t' -v d="$DIR" '$2 == d { print $1; exit }')
+fi
+[[ -z $DIR || ! -d $DIR ]] && { printf '%s(unresolved)%s\n' "$DIM" "$R"; exit 0; }
+
+printf '%s%s%s\n' "$B$BLUE" "$(elide "${DIR/#$HOME/\~}" "$WIDTH")" "$R"
+
+# ---- session ---------------------------------------------------------------
+if [[ -n $SESSION ]]; then
+  running=$(tmux list-panes -t "=$SESSION" -F '#{pane_current_command}' 2>/dev/null |
+    grep -c -E '^opencode' || true)
+  windows=$(tmux list-windows -t "=$SESSION" -F '#{window_index}:#{window_name}' 2>/dev/null | paste -sd' ' -)
+  note=""
+  [[ ${running:-0} -gt 0 ]] && note=" ${GREEN}opencode running${R}"
+  printf '%s%s%s%s\n' "$(label session)" "$GREEN" "$SESSION" "$R$note"
+  [[ -n $windows ]] && printf '%s%s%s\n' "$(label windows)" "$DIM" "$windows$R"
+else
+  printf '%s%snew session%s\n' "$(label session)" "$DIM" "$R"
+fi
+
+# ---- git -------------------------------------------------------------------
+if git -C "$DIR" rev-parse --git-dir >/dev/null 2>&1; then
+  branch=$(git -C "$DIR" rev-parse --abbrev-ref HEAD 2>/dev/null)
+  dirty=$(git -C "$DIR" status --porcelain --untracked-files=no 2>/dev/null | wc -l | tr -d ' ')
+  state=""
+  [[ ${dirty:-0} -gt 0 ]] && state=" ${YEL}${dirty} changed${R}"
+  printf '%s%s%s%s\n' "$(label git)" "$MAG" "$(elide "$branch" $((WIDTH - 22)))" "$R$state"
+  last=$(git -C "$DIR" log -1 --format='%h %s' 2>/dev/null | cut -c1-$((WIDTH - 20)))
+  rel=$(git -C "$DIR" log -1 --format='%cr' 2>/dev/null)
+  [[ -n $last ]] && printf '%s%s%s\n' "$(label '')" "$DIM" "$last · $rel$R"
+fi
+
+# ---- opencode --------------------------------------------------------------
+# Schema is opencode's private business, so every failure degrades to silence
+# rather than a broken preview.
+if [[ -r $DB ]] && command -v sqlite3 >/dev/null 2>&1; then
+  esc=${DIR//\'/\'\'}
+  summary=$(sql "SELECT count(*), coalesce(round(sum(cost),2),0) FROM session
+                 WHERE (directory = '$esc' OR directory LIKE '$esc/%')
+                   AND time_archived IS NULL;")
+  count=${summary%%$'\t'*}
+  cost=${summary##*$'\t'}
+
+  if [[ ${count:-0} -gt 0 ]]; then
+    printf '%s%s session(s)%s\n' "$(label opencode)" "$count" "${DIM} · \$$cost$R"
+    sql "SELECT title, time_updated FROM session
+         WHERE (directory = '$esc' OR directory LIKE '$esc/%')
+           AND time_archived IS NULL
+         ORDER BY time_updated DESC LIMIT $MAX_SESSIONS;" |
+      while IFS=$'\t' read -r title ts; do
+        when=$(date -r "$((ts / 1000))" '+%d.%m %H:%M' 2>/dev/null)
+        printf '  %s•%s %-46.46s %s%s%s\n' "$CYAN" "$R" "$title" "$DIM" "$when" "$R"
+      done
+
+    todos=$(sql "SELECT t.content FROM todo t JOIN session s ON s.id = t.session_id
+                 WHERE (s.directory = '$esc' OR s.directory LIKE '$esc/%')
+                   AND t.status IN ('in_progress','pending')
+                 ORDER BY t.time_updated DESC LIMIT $MAX_TODOS;")
+    if [[ -n $todos ]]; then
+      printf '%s%sopen todos%s\n' "$(label '')" "$DIM" "$R"
+      printf '%s\n' "$todos" | while IFS= read -r c; do
+        printf '  %s▸%s %.60s\n' "$YEL" "$R" "$c"
+      done
+    fi
+  fi
+fi

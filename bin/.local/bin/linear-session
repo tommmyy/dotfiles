@@ -61,6 +61,8 @@ Options:
   -p, --prompt <text>       Extra implementation guidance
   -f, --feature-name <text> Override the slug used in the branch/session name
                             (default: slug from the Linear issue URL)
+  -b, --branch-prefix <t>   Force feature|fix|chore (default: inferred from labels)
+  -s, --session-name <name> Override the tmux session name
   -h, --help                Show this help
 
 Examples:
@@ -147,6 +149,8 @@ function parseArgs(argv) {
 	let repoPath = "";
 	let extraPrompt = "";
 	let featureName = "";
+	let branchPrefix = "";
+	let sessionNameOverride = "";
 	const positional = [];
 
 	for (let i = 0; i < argv.length; i += 1) {
@@ -179,6 +183,21 @@ function parseArgs(argv) {
 			i += 1;
 			continue;
 		}
+		if (arg === "-b" || arg === "--branch-prefix") {
+			branchPrefix = argv[i + 1] || "";
+			if (!branchPrefix) fail(`Missing value for ${arg}`);
+			if (!["feature", "fix", "chore"].includes(branchPrefix)) {
+				fail(`Invalid ${arg}: ${branchPrefix} (feature|fix|chore)`);
+			}
+			i += 1;
+			continue;
+		}
+		if (arg === "-s" || arg === "--session-name") {
+			sessionNameOverride = argv[i + 1] || "";
+			if (!sessionNameOverride) fail(`Missing value for ${arg}`);
+			i += 1;
+			continue;
+		}
 		if (arg === "-h" || arg === "--help") {
 			usage();
 			process.exit(0);
@@ -199,6 +218,8 @@ function parseArgs(argv) {
 		repoPath,
 		extraPrompt,
 		featureName,
+		branchPrefix,
+		sessionNameOverride,
 		issueId: positional[0] || "",
 	};
 }
@@ -252,9 +273,9 @@ function branchTypeFromLabels(labels) {
 // - branch:  <type>/<ISSUE-ID>-<slug>
 // - session: <issue-id-lowercase>-<slug>   (no slashes)
 // The slug comes from the issue URL slug (preferred) or the title.
-function deriveFeatureMetadata(issue, issueId, featureName) {
+function deriveFeatureMetadata(issue, issueId, featureName, branchPrefix) {
 	const idUpper = String(issueId).toUpperCase();
-	const type = branchTypeFromLabels(issue.labels);
+	const type = branchPrefix || branchTypeFromLabels(issue.labels);
 
 	let slug = "";
 	if (featureName) {
@@ -270,17 +291,33 @@ function deriveFeatureMetadata(issue, issueId, featureName) {
 	const branch = `${type}/${idUpper}-${slug}`;
 	const session = `${idUpper.toLowerCase()}-${slug}`.replace(/\//g, "-");
 
-	return { branch, session, title: issue.title || "" };
+	return {
+		branch,
+		session,
+		title: issue.title || "",
+		description: issue.description || "",
+	};
 }
 
-function fetchLinearIssue(repoPath, issueId) {
+// Fetches the issue AND moves it out of Todo in the same opencode call, so
+// spawning an env costs one LLM round-trip rather than two.
+function fetchLinearIssueAndMarkStarted(repoPath, issueId) {
 	log(`fetching Linear issue ${issueId}`);
-	const prompt = `Fetch Linear issue ${issueId} using the Linear tools and return ONLY compact JSON with this exact shape:
-{"url":"<issue url>","title":"<issue title>","labels":["<label>"]}
+	const prompt = `Fetch Linear issue ${issueId} using the Linear tools.
+
+Then, ONLY if its current status type is "unstarted" or "backlog", move it to the team's in-progress status:
+- list the team's statuses, pick the one whose type is "started", preferring the one named exactly "In Progress"
+- never pick a status whose type is "completed" or "canceled"
+- if the current status type is anything else (already started, completed, canceled), change nothing
+
+Return ONLY compact JSON with this exact shape:
+{"url":"<issue url>","title":"<issue title>","description":"<issue description>","labels":["<label>"],"status":"<status name after any change>","moved":<true or false>}
 
 Rules:
 - "url" must be the full Linear issue URL including the slug segment.
+- "description" is the issue's full description markdown, including any acceptance criteria. Empty string if none.
 - "labels" is the array of the issue's label names (empty array if none).
+- "moved" is true only if you actually changed the status.
 - Output JSON only. No markdown. No prose. Do not invent or shorten any value.`;
 
 	const result = run(
@@ -402,6 +439,8 @@ function main() {
 		repoPath: inputRepoPath,
 		extraPrompt,
 		featureName,
+		branchPrefix,
+		sessionNameOverride,
 		issueId,
 	} = parseArgs(process.argv.slice(2));
 	if (!issueId) {
@@ -422,12 +461,21 @@ function main() {
 	);
 	log(`using repo ${repoPath}`);
 
-	const issue = fetchLinearIssue(repoPath, issueId);
+	const issue = fetchLinearIssueAndMarkStarted(repoPath, issueId);
+	if (issue.status) {
+		log(
+			issue.moved
+				? `issue moved to ${issue.status}`
+				: `issue left at ${issue.status}`,
+		);
+	}
 	const {
 		branch: suggestedBranch,
-		session: suggestedSession,
+		session: derivedSession,
 		title: issueTitle,
-	} = deriveFeatureMetadata(issue, issueId, featureName);
+		description: issueDescription,
+	} = deriveFeatureMetadata(issue, issueId, featureName, branchPrefix);
+	const suggestedSession = sessionNameOverride || derivedSession;
 	let implementPrompt = "";
 
 	if (!suggestedBranch || !suggestedSession) {
@@ -449,8 +497,10 @@ function main() {
 
 	// Resolve branch name collisions by appending a counter suffix
 	const branchName = resolveUniqueBranch(repoPath, suggestedBranch);
+	// An explicit --session-name is used verbatim; a derived one picks up the
+	// same collision suffix as the branch so the pair stays aligned.
 	const sessionName =
-		branchName !== suggestedBranch
+		!sessionNameOverride && branchName !== suggestedBranch
 			? suggestedSession + branchName.slice(suggestedBranch.length)
 			: suggestedSession;
 
@@ -470,6 +520,17 @@ function main() {
 		implementPrompt = `Implement Linear issue ${issueId}.`;
 		if (issueTitle) {
 			implementPrompt += `\n\nTitle: ${issueTitle}`;
+		}
+		if (issueDescription) {
+			// The whole prompt is typed into the session via `tmux send-keys`, so
+			// cap the description rather than risk a multi-KB keystroke payload.
+			// The agent has the issue id and can fetch the rest if it needs it.
+			const MAX_DESCRIPTION = 4000;
+			const trimmed =
+				issueDescription.length > MAX_DESCRIPTION
+					? `${issueDescription.slice(0, MAX_DESCRIPTION)}\n\n[truncated — fetch ${issueId} in Linear for the full description]`
+					: issueDescription;
+			implementPrompt += `\n\nDescription:\n${trimmed}`;
 		}
 		if (extraPrompt) {
 			implementPrompt += `\n\nAdditional guidance:\n${extraPrompt}`;

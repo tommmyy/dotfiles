@@ -10,194 +10,35 @@ description: >
 
 # Spawn Feature Env
 
-## Purpose
-
-Create an isolated feature environment from a Linear issue by deriving a branch name,
-spawning a detached tmux session, switching or creating a `wt` worktree, and optionally
-starting `opencode` with a prompt built from the issue details.
-
-## Dependencies
-
-Required CLIs:
+Run `linear-session`. Do not hand-roll `tmux` + `wt` — a second implementation drifts.
 
 ```bash
-which tmux
-which wt
-which git
-which opencode
+linear-session [-i] [-P <preset>] [-p "<guidance>"] [-f <slug>] [-b <prefix>] [-s <session>] [-r <path>] <ISSUE-ID>
 ```
 
-Linear access is required when the user provides a Linear issue URL or identifier.
+| flag | meaning |
+| --- | --- |
+| `-i`, `--implement` | launch `opencode` in the session |
+| `-P`, `--project` | preset from `~/.config/linear-session/config.json` |
+| `-p`, `--prompt` | extra implementation guidance |
+| `-f`, `--feature-name` | override the branch/session slug |
+| `-b`, `--branch-prefix` | force `feature`\|`fix`\|`chore` |
+| `-s`, `--session-name` | override the tmux session name |
+| `-r`, `--repo-path` | repo to run `wt` in (default: current) |
 
-## Inputs
+Pass the identifier only (`CUS-123`). The script fetches title, description,
+labels and URL; derives the branch prefix from labels and the slug from the
+issue URL; resolves branch collisions; applies preset `baseBranch`/`baseFolder`/
+`subproject`; switches to an existing session instead of clobbering it; builds
+the `-i` prompt from title + description; and moves the issue Todo/Backlog →
+In Progress.
 
-- `issue`: Linear issue identifier or URL, for example `CUS-123` or `https://linear.app/.../issue/CUS-123/...`
-- `repo_path`: repository path to run `wt` in; default to the current repository
-- `implement`: boolean; when true, launch `opencode` inside the new worktree
-- `branch_prefix`: optional; default to `feature`. Use `fix` only when the user explicitly asks or the issue is clearly a bugfix.
-- `session_name`: optional override for the tmux session name
-- `extra_prompt`: optional extra implementation guidance from the user
+It attaches (or `switch-client` when already inside tmux) and exits, so it is
+the last thing you run. Report the session and branch it printed.
 
-## Steps
+## Rules
 
-### 1. Load the Linear issue
-
-If the user gave a Linear URL or issue id, fetch the issue first. Extract:
-
-- identifier, for example `CUS-123`
-- title
-- description
-- project, team, labels, and acceptance criteria when useful
-
-Do not ask the user to restate the issue if Linear already has the information.
-
-### 2. Derive branch and session names
-
-Build a branch slug from the issue title:
-
-- lowercase
-- replace non-alphanumeric runs with `-`
-- trim leading and trailing `-`
-- keep it short and readable
-
-Branch format:
-
-```text
-<branch_prefix>/<IDENTIFIER>-<slug>
-```
-
-Required branch naming:
-
-- `feature/CUS-1-short-description`
-- `fix/CUS-1-short-description`
-- `chore/CUS-1-short-description`
-
-Rules:
-
-- `<IDENTIFIER>` must be the Linear issue id exactly, for example `CUS-1` or `PER-12`
-- `<branch_prefix>` must be one of `feature`, `fix`, or `chore`
-- infer `<branch_prefix>` from the Linear issue type first
-- map Linear bug / fix / defect style issues to `fix`
-- map Linear chore / maintenance / refactor / tooling / tech-debt style issues to `chore`
-- map all other product or delivery work to `feature`
-- only override the inferred prefix when the user explicitly asks for a different one
-- `<slug>` should be a short kebab-case summary from the issue title
-
-Examples:
-
-- `feature/CUS-123-fix-login-timeout`
-- `fix/PER-12-handle-empty-response`
-- `chore/CUS-44-update-rspack-config`
-
-When Linear does not expose a reliable task type field, infer from the issue title, labels, and description using the same mapping.
-
-tmux session name must not contain `/`, so use:
-
-```text
-<identifier-lowercase>-<slug>
-```
-
-Examples:
-
-- `cus-123-fix-login-timeout`
-- `per-12-handle-empty-response`
-
-If the session already exists, do not overwrite it silently. Ask whether to reuse it or create a different session name.
-
-### 3. Build the opencode prompt when implementation is requested
-
-If `implement` is true, compose a compact prompt from the Linear issue:
-
-```text
-Implement Linear issue <IDENTIFIER>.
-
-Title: <title>
-
-Description:
-<description>
-
-Additional guidance:
-<extra_prompt>
-```
-
-Keep the prompt direct. Include acceptance criteria or constraints when present. Do not add unrelated planning instructions.
-
-### 4. Spawn the tmux session
-
-Run the `wt` command from the target repository.
-
-Without implementation:
-
-```bash
-tmux new-session -d -s "$SESSION" "wt switch --create \"$BRANCH\""
-```
-
-With implementation in opencode:
-
-```bash
-tmux new-session -d -s "$SESSION" "wt switch --create \"$BRANCH\" -x 'opencode --prompt' -- $(printf '%q' "$PROMPT")"
-```
-
-If the branch already exists and the user did not ask to create from scratch, use `wt switch` without `--create`.
-
-### 5. Report the result
-
-After spawning the session, tell the user:
-
-- tmux session name
-- branch name
-- whether `opencode` was launched
-- how to attach to the session
-
-Use:
-
-```bash
-tmux attach -t <session-name>
-```
-
-If the caller explicitly asks for machine-readable output, return only compact JSON with the requested fields and no surrounding prose.
-
-## Common Mistakes
-
-- Do not put `/` in the tmux session name. Use the branch only for git; sanitize the session separately.
-- Do not invent issue details when a Linear id or URL is available. Fetch the issue first.
-- Do not use `--create` when the branch already exists unless the user explicitly wants a fresh branch attempt.
-- Do not launch `opencode run` for an interactive coding session; use `opencode --prompt` when the user wants the agent to continue working inside tmux.
-- Do not pass raw multiline prompts into tmux without shell escaping; use `printf '%q'` when embedding the prompt into the command string.
-
-## Complete Working Example
-
-Use this pattern when the user asks to start working on a Linear issue immediately:
-
-```bash
-ISSUE_ID="CUS-123"
-TITLE="Fix login timeout"
-SLUG="fix-login-timeout"
-BRANCH="feature/${ISSUE_ID}-${SLUG}"
-SESSION="cus-123-fix-login-timeout"
-PROMPT="Implement Linear issue CUS-123.
-
-Title: Fix login timeout
-
-Description:
-The login session expires after 5 minutes. Find the session timeout config and extend it to 24 hours."
-
-tmux new-session -d -s "$SESSION" "wt switch --create \"$BRANCH\" -x 'opencode --prompt' -- $(printf '%q' "$PROMPT")"
-```
-
-Use this pattern when the user only wants the environment prepared:
-
-```bash
-ISSUE_ID="CUS-123"
-SLUG="fix-login-timeout"
-BRANCH="feature/${ISSUE_ID}-${SLUG}"
-SESSION="cus-123-fix-login-timeout"
-
-tmux new-session -d -s "$SESSION" "wt switch --create \"$BRANCH\""
-```
-
-## Notes / Edge Cases
-
-- `wt switch -x ...` runs the execute command inside the target worktree, so do not add a separate `cd`.
-- If the user provides a repo path outside the current repository, run the `tmux new-session` command from that repo.
-- Prefer the branch prefix inferred from the Linear issue type over manual defaults.
+- Only override `-b`/`-s`/`-f` when the user explicitly asks; the derived values are canonical.
+- Never move an issue to Done — the user owns that transition.
+- Requires `opencode`, `tmux`, `wt`, `git`; the script checks and fails loudly.
+- Source: `~/dotfiles/bin/.local/bin/linear-session`. Fix behaviour there, not here.

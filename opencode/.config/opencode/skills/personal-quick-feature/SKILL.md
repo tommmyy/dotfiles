@@ -29,6 +29,10 @@ first fall back to staging everything with `git add -A`, then re-run
 do you stop and tell the user there's nothing to file — don't invent a task.
 Read the hunks (not just file names) to understand the change — but the
 description must stay brief (see step 3), not a hunk-by-hunk retelling.
+While reading the hunks, also judge whether the change could significantly
+affect analytics results — analytics/tracking events, changes to a
+collector/probe, or a significant UI change (this feeds the `Data-issue`
+label in step 3).
 
 ### 2. Check the base branch early
 
@@ -56,14 +60,20 @@ pins three fields (assignee, cycle, state) and derives two (title, description):
   distinct changes). Do NOT list the files touched, do NOT restate the diff
   hunk by hunk, do NOT pad with headings for a small change. Keep it minimal;
   the diff is the source of truth for detail.
+- **labels**: if the change could significantly influence analytics results —
+  analytics events, changes to a collector/probe, or a significant UI change
+  (e.g. altering elements that are tracked) — add the `Data-issue` label. Skip
+  it for changes with no plausible analytics impact.
 
-So the only fields to ask the user for are the ones intake requires that can't
-be derived or pinned — in practice this is almost always just **team** and
-**project** (you can't infer these reliably from a diff, even when the diff
-references an issue key like `CUS-722`). Ask for them in one consolidated
-question, and in that same message present the derived **title** and
-**description** for confirmation so the user can correct them in the same turn.
-Capture the returned issue **identifier** and **url**.
+`team` and `project` follow intake's **Team & Project Selection** rule:
+single-tenant change → team CUS + that tenant's project; general/multi-tenant
+change → team PER. If the diff makes the tenant scope obvious (e.g. a
+tenant-specific config/theme file, or an issue key like `CUS-722` referenced
+in context), derive both without asking. Otherwise ask the user which tenant
+it affects (or confirm it's general) in one consolidated question, and in
+that same message present the derived **title** and **description** for
+confirmation so the user can correct them in the same turn. Capture the
+returned issue **identifier** and **url**.
 
 ### 4. Move the issue Todo → In Progress
 
@@ -111,3 +121,5 @@ that the branch was not created and which branch you're on.
 - Committing the staged changes — this workflow only stages/moves them.
 - Bloating the description: listing touched files, retelling the diff hunk by
   hunk, or adding Problem/Fix/Files headings for a small change. Keep it brief.
+- Skipping the `Data-issue` label when the diff touches analytics events, a
+  collector/probe, or makes a significant UI change with tracking impact.

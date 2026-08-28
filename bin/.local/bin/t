@@ -1,0 +1,190 @@
+#!/usr/bin/env bash
+# t - tmux session picker with worktree-aware session names.
+#
+# Replaces 27medkamal/tmux-session-wizard's bin/t. That plugin names sessions
+# with session_name() in src/helpers.sh, which offers three fixed modes and no
+# hook for a custom one. None of them work for a worktree layout:
+#
+#   directory   sources                          <- collides across worktrees
+#   short-path  ~/wo/sd/s-/sources               <- also collides
+#   full-path   ~/workspaces/sdp-feature-per-842-chameleon-poc-unified-widget-
+#               system-slot-tree-reco-module-catalog-seed/s-analytics/sources
+#
+# Strategy here reads the path as <repo>[.<branch>]/<project...> and names the
+# session <repo>/<project>@<branch-tag>:
+#
+#   ~/workspaces/sdp/s-analytics/sources                      sdp/s-analytics
+#   ~/workspaces/sdp.feature-PER-842-chameleon-.../s-a../src   sdp/s-analytics@per-842
+#   ~/workspaces/sdp.feature-newgen-widget/s-analytics/sources sdp/s-analytics@newgen-widget
+#   ~/workspaces/sdp.feature-PER-499-.../perselio-console      sdp/perselio-console@per-499
+#   ~/workspaces/sdp/perselio-console                          sdp/perselio-console
+#   ~/dotfiles                                                 dotfiles
+#
+# Leaf directories that carry no meaning on their own (sources, src, packages,
+# ...) are skipped in favour of their parent, which is what makes
+# s-analytics/sources read as "s-analytics".
+
+set -uo pipefail
+
+WORKSPACES="${T_WORKSPACES:-$HOME/workspaces}"
+# leaf names that identify nothing, so the parent directory is the real project
+GENERIC_LEAVES=" sources source src app apps packages pkg lib main dist repo "
+# branch prefixes stripped before slugging a ticket-less branch
+BRANCH_PREFIXES="feature|feat|bugfix|fix|hotfix|chore|refactor"
+# how many words of a ticket-less branch name to keep
+BRANCH_WORDS=3
+
+normalize() { tr ' .:' '---' | tr '[:upper:]' '[:lower:]' | sed 's/-\{2,\}/-/g; s/^-//; s/-$//'; }
+
+is_generic() { [[ $GENERIC_LEAVES == *" ${1#.} "* ]]; }
+
+# The project: first segment that means something.
+# "s-analytics/sources" -> "s-analytics", "packages/ui" -> "ui".
+first_meaningful() {
+  local sub="$1" seg rest="$1"
+  while [[ -n $rest ]]; do
+    seg=${rest%%/*}
+    is_generic "$seg" || { printf '%s\n' "$seg"; return 0; }
+    [[ $rest != */* ]] && break
+    rest=${rest#*/}
+  done
+  printf '%s\n' "${sub%%/*}"
+}
+
+# The leaf: deepest segment that means something, so trailing sources/, src/,
+# apps/ resolve to whatever contains them.
+last_meaningful() {
+  local sub="$1" seg rest="$1"
+  while [[ -n $rest ]]; do
+    seg=${rest##*/}
+    is_generic "$seg" || { printf '%s\n' "$seg"; return 0; }
+    [[ $rest != */* ]] && break
+    rest=${rest%/*}
+  done
+  printf '%s\n' "${sub##*/}"
+}
+
+# Short tag for a worktree branch: prefer its ticket id, else the first few
+# words after the branch-type prefix.
+branch_tag() {
+  local branch="$1"
+  [[ -z $branch ]] && return 0
+  if [[ $branch =~ ([A-Za-z]{2,}-[0-9]+) ]]; then
+    printf '%s\n' "${BASH_REMATCH[1]}" | normalize
+    return 0
+  fi
+  branch=$(printf '%s' "$branch" | sed -E "s#^($BRANCH_PREFIXES)[-/]##")
+  printf '%s\n' "$branch" | cut -d- -f1-"$BRANCH_WORDS" | normalize
+}
+
+session_name_for() {
+  local dir="${1%/}" rest root repo branch sub project leaf tag parent name
+
+  if [[ $dir == "$WORKSPACES"/* ]]; then
+    rest=${dir#"$WORKSPACES"/}
+    root=${rest%%/*}
+    # <repo>.<branch> is only a worktree if <repo> is really checked out next
+    # to it, otherwise the dot just belongs to the name (param.macro)
+    if [[ $root == *.* && -d "$WORKSPACES/${root%%.*}" ]]; then
+      repo=${root%%.*}
+      branch=${root#*.}
+    else
+      repo=$root
+      branch=""
+    fi
+    sub=${rest#"$root"}; sub=${sub#/}       # s-analytics/sources or empty
+  else
+    parent=$(dirname -- "$dir")
+    branch=""
+    sub=$(basename -- "$dir")
+    if [[ $parent == "$HOME" || $parent == "/" ]]; then
+      repo=""
+    else
+      repo=$(basename -- "$parent")
+    fi
+  fi
+
+  repo=$(printf '%s' "$repo" | normalize)
+  sub=${sub:-$repo}
+  project=$(first_meaningful "$sub" | normalize)
+  leaf=$(last_meaningful "$sub" | normalize)
+  tag=$(branch_tag "$branch")
+
+  name="$project"
+  [[ -n $leaf && $leaf != "$project" ]] && name="$name/$leaf"
+  [[ -n $repo && $repo != "$project" ]] && name="$repo/$name"
+  [[ -n $tag ]] && name="$name@$tag"
+  printf '%s\n' "$name"
+}
+
+path_of_session() {
+  tmux list-sessions -F '#{session_name}	#{session_path}' 2>/dev/null |
+    awk -F'\t' -v n="$1" '$1 == n { print $2; exit }'
+}
+
+# First candidate that is free or already belongs to $dir, so a naming clash
+# can never silently hand you somebody else's session. Nested paths under one
+# project (s-analytics, s-analytics/sources, .../sources/apps) count as the
+# same session; unrelated directories get a numeric suffix instead.
+unique_session_name() {
+  local dir="${1%/}" name candidate existing i=1
+  name=$(session_name_for "$dir")
+  candidate="$name"
+  while :; do
+    existing=$(path_of_session "$candidate")
+    existing=${existing%/}
+    if [[ -z $existing || $existing == "$dir" || $dir == "$existing"/* || $existing == "$dir"/* ]]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+    i=$((i + 1))
+    candidate="$name-$i"
+  done
+}
+
+# --dry-run <path>... prints the names without touching tmux
+if [[ ${1:-} == --dry-run ]]; then
+  shift
+  for p in "$@"; do printf '%-72s -> %s\n' "$p" "$(session_name_for "${p/#\~/$HOME}")"; done
+  exit 0
+fi
+
+if [[ $# -gt 0 ]]; then
+  eval "$(zoxide init bash)"
+  RESULT=$(z "$@" && pwd) || exit 0
+else
+  sessions=$(tmux list-sessions -F '#{session_last_attached} #{session_name}: #{session_windows} window(s)#{?session_attached, (attached),}' 2>/dev/null |
+    sort -r |
+    { [[ -n ${TMUX:-} ]] && grep -v " $(tmux display-message -p '#S'):" || cat; } |
+    cut -d' ' -f2-)
+  preview=$(command -v t-preview || echo "$HOME/.local/bin/t-preview")
+  RESULT=$( (
+    printf '%s\n' "$sessions"
+    zoxide query -l | sed -e "s|^$HOME|~|"
+  ) | grep -v '^$' | fzf --reverse --print-query --tiebreak=index --ansi \
+    --preview "$preview {}" \
+    --preview-window "${T_PREVIEW_WINDOW:-right:55%:wrap}" \
+    --bind 'ctrl-/:toggle-preview' | tail -n 1)
+fi
+
+[[ -z ${RESULT:-} ]] && exit 0
+
+if [[ $RESULT == *": "*"window(s)"* ]]; then
+  SESSION=${RESULT%%:*}
+else
+  DIR=${RESULT/#\~/$HOME}
+  [[ -d $DIR ]] || exit 0
+  DIR=$(cd "$DIR" && pwd) || exit 0
+
+  zoxide add "$DIR"
+  tmux info &>/dev/null || tmux start-server
+
+  SESSION=$(unique_session_name "$DIR")
+  tmux has-session -t="$SESSION" 2>/dev/null || tmux new-session -d -s "$SESSION" -c "$DIR"
+fi
+
+if [[ -z ${TMUX:-} ]]; then
+  tmux attach -t "=$SESSION"
+else
+  tmux switch-client -t "=$SESSION"
+fi

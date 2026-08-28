@@ -27,11 +27,29 @@ Do not create the issue until all four fields are known.
 ## Intake Rules
 
 1. Parse the user's request and extract any of the required fields already present.
-2. If one or more required fields are missing, ask exactly one follow-up question that lists only the missing fields.
-3. Do not ask about fields that are already provided.
-4. Before creating the issue, autocorrect obvious typos in user-provided text fields (especially the title and description) while preserving intent.
-5. Once all required fields are available, create the issue using the Linear MCP tool.
-6. Confirm success with issue identifier and URL.
+2. Apply the **Team & Project Selection** rule below to derive `team` (and,
+   when possible, `project`) before asking the user anything.
+3. If one or more required fields are still missing after derivation, ask
+   exactly one follow-up question that lists only the missing fields.
+4. Do not ask about fields that are already provided or already derived.
+5. Before creating the issue, autocorrect obvious typos in user-provided text fields (especially the title and description) while preserving intent.
+6. Once all required fields are available, create the issue using the Linear MCP tool.
+7. Confirm success with issue identifier and URL.
+
+## Team & Project Selection
+
+`team` is derived from tenant scope, not asked for blindly:
+
+- **Single-tenant impact** — the change affects exactly one tenant/customer:
+  `team` = **CUS** (customer success), `project` = the project named after
+  that tenant.
+- **Multi-tenant or general product impact** — the change is not scoped to
+  one specific tenant (affects the product broadly, multiple tenants, or
+  internal tooling): `team` = **PER** (dev).
+
+If the tenant scope isn't clear from the request/diff, ask the user which
+tenant it affects (or confirm it's general) as part of the missing-fields
+question rather than asking for `team` directly.
 
 ## Field Mapping
 
@@ -81,3 +99,5 @@ After creating the issue, respond with:
 - Asking for a field the user already provided.
 - Creating an issue before `team`, `project`, `title`, `description`, `cycle` and `assignee` are all known.
 - Creating an issue without first **correcting obvious typos** in user-provided text.
+- Asking the user for `team` directly instead of applying the **Team & Project
+  Selection** rule (single-tenant → CUS + tenant project, else → PER).

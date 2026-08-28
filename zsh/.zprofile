@@ -38,7 +38,11 @@ alias killonport='f() { sudo lsof -ti tcp:$1 | sudo xargs kill };f'
 
 bindkey -s ^f "tmux-sessionizer\n"
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
+export HOMEBREW_PREFIX="/opt/homebrew"
+export HOMEBREW_CELLAR="/opt/homebrew/Cellar"
+export HOMEBREW_REPOSITORY="/opt/homebrew"
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}"
 #https://unix.stackexchange.com/questions/222901/caret-square-bracket-square-bracket-a-a-what-does-it-mean
 # https://github.com/jinzhu/configure/blob/master/.shell/zsh/bindkey
 user-complete(){
@@ -55,5 +59,4 @@ user-complete(){
 }
 zle -N user-complete
 bindkey "\t" user-complete
-
 

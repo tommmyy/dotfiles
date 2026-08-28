@@ -1,0 +1,238 @@
+ffmpeg version 7.1.1 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 17.0.0 (clang-1700.0.13.3)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/7.1.1_3 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags='-Wl,-ld_classic' --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      59. 39.100 / 59. 39.100
+  libavcodec     61. 19.101 / 61. 19.101
+  libavformat    61.  7.100 / 61.  7.100
+  libavdevice    61.  3.100 / 61.  3.100
+  libavfilter    10.  4.100 / 10.  4.100
+  libswscale      8.  3.100 /  8.  3.100
+  libswresample   5.  3.100 /  5.  3.100
+  libpostproc    58.  3.100 / 58.  3.100
+Input #0, matroska,webm, from '/Users/tommmyy/Downloads/Masters.of.the.Universe.2026.1080p.AMZN.WEB-DL.DDP5.1.H264-TreZzoR/Masters.of.the.Universe.2026.1080p.AMZN.WEB-DL.DDP5.1.H264-TreZzoR.mkv':
+  Metadata:
+    title           : Master of the Universe (2026)
+    encoder         : libebml v1.4.5 + libmatroska v1.7.1
+  Duration: 02:23:54.59, start: 0.000000, bitrate: 10690 kb/s
+  Chapters:
+    Chapter #0:0: start 8419.000000, end 8634.592000
+      Metadata:
+        title           : Credits
+  Stream #0:0: Video: h264 (High), yuv420p(tv, bt709, progressive), 1920x800 [SAR 1:1 DAR 12:5], 24 fps, 24 tbr, 1k tbn (default)
+      Metadata:
+        title           : TreZzoR
+        BPS             : 8767678
+        DURATION        : 02:23:54.584000000
+        NUMBER_OF_FRAMES: 207230
+        NUMBER_OF_BYTES : 9463156564
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+  Stream #0:1(cze): Audio: eac3, 48000 Hz, 5.1(side), fltp, 640 kb/s (default)
+      Metadata:
+        title           : Czech E-AC3 5.1 @ 640kbps
+        BPS             : 640000
+        DURATION        : 02:23:54.592000000
+        NUMBER_OF_FRAMES: 269831
+        NUMBER_OF_BYTES : 690767360
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+  Stream #0:2(slo): Audio: eac3, 48000 Hz, 5.1(side), fltp, 640 kb/s
+      Metadata:
+        title           : Slovak E-AC3 5.1 @ 640kbps
+        BPS             : 640000
+        DURATION        : 02:23:54.592000000
+        NUMBER_OF_FRAMES: 269831
+        NUMBER_OF_BYTES : 690767360
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+  Stream #0:3(eng): Audio: eac3, 48000 Hz, 5.1(side), fltp, 640 kb/s
+      Metadata:
+        title           : English E-AC3 5.1 @ 640kbps
+        BPS             : 640000
+        DURATION        : 02:23:54.592000000
+        NUMBER_OF_FRAMES: 269831
+        NUMBER_OF_BYTES : 690767360
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+  Stream #0:4(cze): Subtitle: subrip (srt) (default) (forced)
+      Metadata:
+        title           : Czech Forced
+        BPS             : 0
+        DURATION        : 01:48:28.416000000
+        NUMBER_OF_FRAMES: 9
+        NUMBER_OF_BYTES : 195
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+  Stream #0:5(slo): Subtitle: subrip (srt) (forced)
+      Metadata:
+        title           : Slovak Forced
+        BPS             : 0
+        DURATION        : 01:48:37.125000000
+        NUMBER_OF_FRAMES: 17
+        NUMBER_OF_BYTES : 467
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+  Stream #0:6(cze): Subtitle: subrip (srt)
+      Metadata:
+        title           : Czech Full
+        BPS             : 36
+        DURATION        : 02:19:28.291000000
+        NUMBER_OF_FRAMES: 1477
+        NUMBER_OF_BYTES : 38484
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+  Stream #0:7(slo): Subtitle: subrip (srt)
+      Metadata:
+        title           : Slovak Full
+        BPS             : 38
+        DURATION        : 02:19:28.250000000
+        NUMBER_OF_FRAMES: 1487
+        NUMBER_OF_BYTES : 40485
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+  Stream #0:8(eng): Subtitle: subrip (srt)
+      Metadata:
+        title           : English SDH
+        BPS             : 58
+        DURATION        : 02:20:04.834000000
+        NUMBER_OF_FRAMES: 2428
+        NUMBER_OF_BYTES : 61453
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+[aost#0:1/ac3 @ 0x138f06b10] Multiple -disposition options specified for stream 1, only the last option '-disposition:a:0 default' will be used.
+Stream mapping:
+  Stream #0:0 -> #0:0 (copy)
+  Stream #0:1 -> #0:1 (eac3 (native) -> ac3 (native))
+  Stream #0:2 -> #0:2 (eac3 (native) -> ac3 (native))
+  Stream #0:3 -> #0:3 (eac3 (native) -> ac3 (native))
+  Stream #0:4 -> #0:4 (subrip (srt) -> mov_text (native))
+  Stream #0:5 -> #0:5 (subrip (srt) -> mov_text (native))
+  Stream #0:6 -> #0:6 (subrip (srt) -> mov_text (native))
+  Stream #0:7 -> #0:7 (subrip (srt) -> mov_text (native))
+  Stream #0:8 -> #0:8 (subrip (srt) -> mov_text (native))
+Press [q] to stop, [?] for help
+Output #0, mp4, to '/Users/tommmyy/Downloads/Masters_of_the_Universe_2026_PS4.mp4':
+  Metadata:
+    genre           : Action, Adventure, Fantasy, Sci-Fi
+    title           : Masters of the Universe
+    year            : 2026
+    date            : 2026
+    encoder         : Lavf61.7.100
+  Chapters:
+    Chapter #0:0: start 8419.000000, end 8634.592000
+      Metadata:
+        title           : Credits
+  Stream #0:0: Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1920x800 [SAR 1:1 DAR 12:5], q=2-31, 24 fps, 24 tbr, 16k tbn (default)
+      Metadata:
+        title           : TreZzoR
+        BPS             : 8767678
+        DURATION        : 02:23:54.584000000
+        NUMBER_OF_FRAMES: 207230
+        NUMBER_OF_BYTES : 9463156564
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+  Stream #0:1(ces): Audio: ac3 (ac-3 / 0x332D6361), 48000 Hz, 5.1(side), fltp, 640 kb/s (default)
+      Metadata:
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+        BPS             : 640000
+        DURATION        : 02:23:54.592000000
+        NUMBER_OF_FRAMES: 269831
+        NUMBER_OF_BYTES : 690767360
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        title           : Czech 5.1
+        encoder         : Lavc61.19.101 ac3
+  Stream #0:2(slk): Audio: ac3 (ac-3 / 0x332D6361), 48000 Hz, 5.1(side), fltp, 640 kb/s
+      Metadata:
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+        BPS             : 640000
+        DURATION        : 02:23:54.592000000
+        NUMBER_OF_FRAMES: 269831
+        NUMBER_OF_BYTES : 690767360
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        title           : Slovak 5.1
+        encoder         : Lavc61.19.101 ac3
+  Stream #0:3(eng): Audio: ac3 (ac-3 / 0x332D6361), 48000 Hz, 5.1(side), fltp, 640 kb/s
+      Metadata:
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+        BPS             : 640000
+        DURATION        : 02:23:54.592000000
+        NUMBER_OF_FRAMES: 269831
+        NUMBER_OF_BYTES : 690767360
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        title           : English 5.1
+        encoder         : Lavc61.19.101 ac3
+  Stream #0:4(ces): Subtitle: mov_text (tx3g / 0x67337874)
+      Metadata:
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+        BPS             : 0
+        DURATION        : 01:48:28.416000000
+        NUMBER_OF_FRAMES: 9
+        NUMBER_OF_BYTES : 195
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        title           : Czech Forced
+        encoder         : Lavc61.19.101 mov_text
+  Stream #0:5(slk): Subtitle: mov_text (tx3g / 0x67337874)
+      Metadata:
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+        BPS             : 0
+        DURATION        : 01:48:37.125000000
+        NUMBER_OF_FRAMES: 17
+        NUMBER_OF_BYTES : 467
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        title           : Slovak Forced
+        encoder         : Lavc61.19.101 mov_text
+  Stream #0:6(ces): Subtitle: mov_text (tx3g / 0x67337874)
+      Metadata:
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+        BPS             : 36
+        DURATION        : 02:19:28.291000000
+        NUMBER_OF_FRAMES: 1477
+        NUMBER_OF_BYTES : 38484
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        title           : Czech Full
+        encoder         : Lavc61.19.101 mov_text
+  Stream #0:7(slk): Subtitle: mov_text (tx3g / 0x67337874)
+      Metadata:
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+        BPS             : 38
+        DURATION        : 02:19:28.250000000
+        NUMBER_OF_FRAMES: 1487
+        NUMBER_OF_BYTES : 40485
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        title           : Slovak Full
+        encoder         : Lavc61.19.101 mov_text
+  Stream #0:8(eng): Subtitle: mov_text (tx3g / 0x67337874)
+      Metadata:
+        _STATISTICS_TAGS: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES
+        BPS             : 58
+        DURATION        : 02:20:04.834000000
+        NUMBER_OF_FRAMES: 2428
+        NUMBER_OF_BYTES : 61453
+        _STATISTICS_WRITING_APP: mkvmerge v83.0 ('Circle Of Friends') 64-bit
+        title           : English SDH
+        encoder         : Lavc61.19.101 mov_text
+frame= 1416 fps=0.0 q=-1.0 size=   54528KiB time=N/A bitrate=N/A speed=N/A    frame= 2636 fps=2615 q=-1.0 size=  109568KiB time=N/A bitrate=N/A speed=N/A    frame= 3876 fps=2562 q=-1.0 size=  178944KiB time=N/A bitrate=N/A speed=N/A    frame= 5310 fps=2638 q=-1.0 size=  260096KiB time=N/A bitrate=N/A speed=N/A    frame= 6651 fps=2645 q=-1.0 size=  340992KiB time=N/A bitrate=N/A speed=N/A    frame= 7930 fps=2626 q=-1.0 size=  417536KiB time=N/A bitrate=N/A speed=N/A    frame= 9250 fps=2626 q=-1.0 size=  497664KiB time=N/A bitrate=N/A speed=N/A    frame=10661 fps=2647 q=-1.0 size=  580352KiB time=N/A bitrate=N/A speed=N/A    frame=12001 fps=2649 q=-1.0 size=  660480KiB time=N/A bitrate=N/A speed=N/A    frame=13397 fps=2663 q=-1.0 size=  729600KiB time=N/A bitrate=N/A speed=N/A    frame=14605 fps=2638 q=-1.0 size=  802816KiB time=N/A bitrate=N/A speed=N/A    frame=15762 fps=2611 q=-1.0 size=  870144KiB time=N/A bitrate=N/A speed=N/A    frame=16945 fps=2590 q=-1.0 size=  941312KiB time=N/A bitrate=N/A speed=N/A    frame=18085 fps=2566 q=-1.0 size= 1010176KiB time=N/A bitrate=N/A speed=N/A    frame=19297 fps=2556 q=-1.0 size= 1083136KiB time=N/A bitrate=N/A speed=N/A    frame=20489 fps=2544 q=-1.0 size= 1154560KiB time=N/A bitrate=N/A speed=N/A    frame=21775 fps=2544 q=-1.0 size= 1228544KiB time=N/A bitrate=N/A speed=N/A    frame=23093 fps=2548 q=-1.0 size= 1309184KiB time=N/A bitrate=N/A speed=N/A    frame=24385 fps=2549 q=-1.0 size= 1385984KiB time=N/A bitrate=N/A speed=N/A    frame=25405 fps=2522 q=-1.0 size= 1445888KiB time=N/A bitrate=N/A speed=N/A    frame=26752 fps=2530 q=-1.0 size= 1527552KiB time=N/A bitrate=N/A speed=N/A    frame=27923 fps=2520 q=-1.0 size= 1598464KiB time=N/A bitrate=N/A speed=N/A    frame=29189 fps=2519 q=-1.0 size= 1673728KiB time=N/A bitrate=N/A speed=N/A    frame=30541 fps=2526 q=-1.0 size= 1746432KiB time=N/A bitrate=N/A speed=N/A    frame=32125 fps=2551 q=-1.0 size= 1838080KiB time=N/A bitrate=N/A speed=N/A    frame=33756 fps=2577 q=-1.0 size= 1915136KiB time=N/A bitrate=N/A speed=N/A    frame=35281 fps=2594 q=-1.0 size= 1990144KiB time=N/A bitrate=N/A speed=N/A    frame=36504 fps=2588 q=-1.0 size= 2052352KiB time=N/A bitrate=N/A speed=N/A    frame=37649 fps=2577 q=-1.0 size= 2105600KiB time=00:25:59.79 bitrate=11058.6kbits/s speed= 107x    frame=38869 fps=2572 q=-1.0 size= 2169856KiB time=00:25:59.79 bitrate=11396.1kbits/s speed= 103x    frame=40073 fps=2566 q=-1.0 size= 2230272KiB time=00:27:25.08 bitrate=11106.1kbits/s speed= 105x    frame=41462 fps=2572 q=-1.0 size= 2291712KiB time=00:27:25.08 bitrate=11412.0kbits/s speed= 102x    frame=42964 fps=2584 q=-1.0 size= 2357760KiB time=00:29:04.75 bitrate=11070.2kbits/s speed= 105x    frame=44182 fps=2579 q=-1.0 size= 2416384KiB time=00:30:17.41 bitrate=10891.8kbits/s speed= 106x    frame=45545 fps=2583 q=-1.0 size= 2482176KiB time=00:30:17.41 bitrate=11188.4kbits/s speed= 103x    frame=46791 fps=2579 q=-1.0 size= 2552832KiB time=00:30:17.41 bitrate=11506.9kbits/s speed= 100x    frame=47941 fps=2572 q=-1.0 size= 2618368KiB time=00:30:17.41 bitrate=11802.3kbits/s speed=97.5x    frame=48904 fps=2555 q=-1.0 size= 2671616KiB time=00:30:17.41 bitrate=12042.3kbits/s speed=94.9x    frame=50205 fps=2555 q=-1.0 size= 2745344KiB time=00:30:17.41 bitrate=12374.6kbits/s speed=92.5x    frame=51570 fps=2559 q=-1.0 size= 2822656KiB time=00:35:41.58 bitrate=10797.2kbits/s speed= 106x    frame=52956 fps=2564 q=-1.0 size= 2889216KiB time=00:35:41.58 bitrate=11051.9kbits/s speed= 104x    frame=54136 fps=2559 q=-1.0 size= 2959616KiB time=00:35:41.58 bitrate=11321.1kbits/s speed= 101x    frame=55358 fps=2556 q=-1.0 size= 3030784KiB time=00:35:41.58 bitrate=11593.4kbits/s speed=98.9x    frame=56656 fps=2557 q=-1.0 size= 3095552KiB time=00:35:41.58 bitrate=11841.1kbits/s speed=96.6x    frame=57889 fps=2554 q=-1.0 size= 3164672KiB time=00:35:41.58 bitrate=12105.5kbits/s speed=94.5x    frame=59056 fps=2549 q=-1.0 size= 3229184KiB time=00:35:41.58 bitrate=12352.3kbits/s speed=92.4x    frame=60289 fps=2547 q=-1.0 size= 3301888KiB time=00:35:41.58 bitrate=12630.4kbits/s speed=90.5x    frame=61426 fps=2541 q=-1.0 size= 3369216KiB time=00:35:41.58 bitrate=12888.0kbits/s speed=88.6x    frame=62812 fps=2545 q=-1.0 size= 3453184KiB time=00:35:41.58 bitrate=13209.1kbits/s speed=86.8x    frame=64031 fps=2542 q=-1.0 size= 3517184KiB time=00:35:41.58 bitrate=13454.0kbits/s speed=  85x    frame=65263 fps=2540 q=-1.0 size= 3578624KiB time=00:35:41.58 bitrate=13689.0kbits/s speed=83.4x    frame=66448 fps=2537 q=-1.0 size= 3643136KiB time=00:35:41.58 bitrate=13935.8kbits/s speed=81.8x    frame=67753 fps=2538 q=-1.0 size= 3721984KiB time=00:35:41.58 bitrate=14237.4kbits/s speed=80.2x    frame=69025 fps=2537 q=-1.0 size= 3798528KiB time=00:35:41.58 bitrate=14530.2kbits/s speed=78.7x    frame=70356 fps=2539 q=-1.0 size= 3875328KiB time=00:35:41.58 bitrate=14823.9kbits/s speed=77.3x    frame=71640 fps=2540 q=-1.0 size= 3952384KiB time=00:35:41.58 bitrate=15118.7kbits/s speed=75.9x    frame=72920 fps=2540 q=-1.0 size= 4028160KiB time=00:35:41.58 bitrate=15408.5kbits/s speed=74.6x    frame=74187 fps=2539 q=-1.0 size= 4104704KiB time=00:35:41.58 bitrate=15701.3kbits/s speed=73.3x    frame=75724 fps=2548 q=-1.0 size= 4183808KiB time=00:35:41.58 bitrate=16003.9kbits/s speed=72.1x    frame=77106 fps=2551 q=-1.0 size= 4262144KiB time=00:35:41.58 bitrate=16303.6kbits/s speed=70.9x    frame=78375 fps=2550 q=-1.0 size= 4329472KiB time=00:35:41.58 bitrate=16561.1kbits/s speed=69.7x    frame=79898 fps=2558 q=-1.0 size= 4401408KiB time=00:35:41.58 bitrate=16836.3kbits/s speed=68.6x    frame=81305 fps=2562 q=-1.0 size= 4470272KiB time=00:35:41.58 bitrate=17099.7kbits/s speed=67.5x    frame=82536 fps=2560 q=-1.0 size= 4542976KiB time=00:35:41.58 bitrate=17377.8kbits/s speed=66.4x    frame=83708 fps=2556 q=-1.0 size= 4612608KiB time=00:35:41.58 bitrate=17644.2kbits/s speed=65.4x    frame=85048 fps=2558 q=-1.0 size= 4692480KiB time=00:35:41.58 bitrate=17949.7kbits/s speed=64.4x    frame=86309 fps=2557 q=-1.0 size= 4768512KiB time=00:35:41.58 bitrate=18240.5kbits/s speed=63.4x    frame=87411 fps=2551 q=-1.0 size= 4833792KiB time=00:35:41.58 bitrate=18490.3kbits/s speed=62.5x    frame=88661 fps=2550 q=-1.0 size= 4909056KiB time=00:35:41.58 bitrate=18778.2kbits/s speed=61.6x    frame=89872 fps=2548 q=-1.0 size= 4980480KiB time=00:35:41.58 bitrate=19051.4kbits/s speed=60.7x    frame=91117 fps=2547 q=-1.0 size= 5054976KiB time=00:35:41.58 bitrate=19336.3kbits/s speed=59.9x    frame=92305 fps=2544 q=-1.0 size= 5126144KiB time=00:35:41.58 bitrate=19608.6kbits/s speed=  59x    frame=93537 fps=2543 q=-1.0 size= 5196032KiB time=00:35:41.58 bitrate=19875.9kbits/s speed=58.2x    frame=94786 fps=2542 q=-1.0 size= 5267968KiB time=00:35:41.58 bitrate=20151.1kbits/s speed=57.4x    frame=96011 fps=2540 q=-1.0 size= 5338624KiB time=00:35:41.66 bitrate=20420.6kbits/s speed=56.7x    frame=97216 fps=2538 q=-1.0 size= 5410304KiB time=00:35:41.66 bitrate=20694.7kbits/s speed=55.9x    frame=98413 fps=2536 q=-1.0 size= 5481728KiB time=00:35:41.66 bitrate=20967.9kbits/s speed=55.2x    frame=99246 fps=2525 q=-1.0 size= 5531136KiB time=00:35:41.66 bitrate=21156.9kbits/s speed=54.5x    frame=100113 fps=2515 q=-1.0 size= 5580544KiB time=00:35:41.66 bitrate=21345.9kbits/s speed=53.8x    frame=101185 fps=2510 q=-1.0 size= 5646336KiB time=00:35:41.66 bitrate=21597.6kbits/s speed=53.1x    frame=102366 fps=2508 q=-1.0 size= 5717248KiB time=00:35:41.66 bitrate=21868.8kbits/s speed=52.5x    frame=103633 fps=2508 q=-1.0 size= 5790208KiB time=00:35:41.66 bitrate=22147.9kbits/s speed=51.8x    frame=104968 fps=2509 q=-1.0 size= 5870592KiB time=00:35:41.66 bitrate=22455.4kbits/s speed=51.2x    frame=106193 fps=2509 q=-1.0 size= 5943040KiB time=00:35:41.66 bitrate=22732.5kbits/s speed=50.6x    [mp4 @ 0x138f09ae0] Packet duration: 2305709000 / dts: 4447458000 is out of range
+[mp4 @ 0x138f09ae0] pts has no value
+frame=107505 fps=2510 q=-1.0 size= 6018304KiB time=01:14:09.87 bitrate=11079.4kbits/s speed= 104x    frame=108760 fps=2509 q=-1.0 size= 6093824KiB time=01:14:09.87 bitrate=11218.4kbits/s speed= 103x    frame=109985 fps=2508 q=-1.0 size= 6166272KiB time=01:14:09.87 bitrate=11351.8kbits/s speed= 101x    frame=111229 fps=2508 q=-1.0 size= 6241280KiB time=01:14:09.87 bitrate=11489.9kbits/s speed= 100x    frame=112345 fps=2504 q=-1.0 size= 6308608KiB time=01:14:09.87 bitrate=11613.8kbits/s speed=99.2x    frame=113570 fps=2504 q=-1.0 size= 6382080KiB time=01:14:09.87 bitrate=11749.1kbits/s speed=98.1x    frame=114835 fps=2504 q=-1.0 size= 6458112KiB time=01:14:09.87 bitrate=11889.1kbits/s speed=  97x    frame=116135 fps=2504 q=-1.0 size= 6537728KiB time=01:14:09.87 bitrate=12035.6kbits/s speed=  96x    frame=117446 fps=2506 q=-1.0 size= 6612224KiB time=01:14:09.87 bitrate=12172.8kbits/s speed=94.9x    frame=118732 fps=2506 q=-1.0 size= 6689280KiB time=01:14:09.87 bitrate=12314.6kbits/s speed=93.9x    frame=120101 fps=2508 q=-1.0 size= 6769920KiB time=01:14:09.87 bitrate=12463.1kbits/s speed=92.9x    frame=121345 fps=2508 q=-1.0 size= 6844672KiB time=01:14:09.87 bitrate=12600.7kbits/s speed=  92x    frame=122576 fps=2507 q=-1.0 size= 6918144KiB time=01:14:09.87 bitrate=12736.0kbits/s speed=  91x    frame=123933 fps=2509 q=-1.0 size= 6998784KiB time=01:14:09.87 bitrate=12884.4kbits/s speed=90.1x    frame=125306 fps=2511 q=-1.0 size= 7081728KiB time=01:14:09.87 bitrate=13037.1kbits/s speed=89.2x    frame=126384 fps=2508 q=-1.0 size= 7147520KiB time=01:14:09.87 bitrate=13158.2kbits/s speed=88.3x    frame=127589 fps=2506 q=-1.0 size= 7219968KiB time=01:14:09.87 bitrate=13291.6kbits/s speed=87.4x    frame=128774 fps=2505 q=-1.0 size= 7291392KiB time=01:14:09.87 bitrate=13423.1kbits/s speed=86.6x    frame=130008 fps=2504 q=-1.0 size= 7365120KiB time=01:14:09.87 bitrate=13558.8kbits/s speed=85.7x    frame=131424 fps=2507 q=-1.0 size= 7448576KiB time=01:14:09.87 bitrate=13712.5kbits/s speed=84.9x    frame=132762 fps=2509 q=-1.0 size= 7528448KiB time=01:14:09.87 bitrate=13859.5kbits/s speed=84.1x    frame=134298 fps=2514 q=-1.0 size= 7618816KiB time=01:14:09.87 bitrate=14025.9kbits/s speed=83.3x    frame=135867 fps=2519 q=-1.0 size= 7713536KiB time=01:14:09.87 bitrate=14200.2kbits/s speed=82.5x    frame=137327 fps=2523 q=-1.0 size= 7797504KiB time=01:14:09.87 bitrate=14354.8kbits/s speed=81.8x    frame=138839 fps=2527 q=-1.0 size= 7888640KiB time=01:14:09.87 bitrate=14522.6kbits/s speed=  81x    frame=140341 fps=2531 q=-1.0 size= 7976704KiB time=01:14:09.87 bitrate=14684.7kbits/s speed=80.3x    frame=141985 fps=2538 q=-1.0 size= 8075520KiB time=01:14:09.87 bitrate=14866.6kbits/s speed=79.5x    frame=143522 fps=2542 q=-1.0 size= 8166912KiB time=01:14:09.87 bitrate=15034.9kbits/s speed=78.8x    frame=144946 fps=2545 q=-1.0 size= 8251392KiB time=01:14:09.87 bitrate=15190.4kbits/s speed=78.1x    frame=146416 fps=2548 q=-1.0 size= 8340992KiB time=01:14:09.87 bitrate=15355.4kbits/s speed=77.4x    frame=147889 fps=2551 q=-1.0 size= 8429056KiB time=01:14:09.87 bitrate=15517.5kbits/s speed=76.8x    frame=149099 fps=2550 q=-1.0 size= 8500224KiB time=01:14:09.87 bitrate=15648.5kbits/s speed=76.1x    frame=150583 fps=2553 q=-1.0 size= 8582912KiB time=01:14:09.87 bitrate=15800.7kbits/s speed=75.4x    frame=151649 fps=2549 q=-1.0 size= 8645888KiB time=01:14:09.87 bitrate=15916.7kbits/s speed=74.8x    frame=152827 fps=2548 q=-1.0 size= 8717824KiB time=01:14:09.87 bitrate=16049.1kbits/s speed=74.2x    frame=154037 fps=2546 q=-1.0 size= 8788480KiB time=01:14:09.87 bitrate=16179.2kbits/s speed=73.6x    frame=155521 fps=2550 q=-1.0 size= 8875776KiB time=01:14:09.87 bitrate=16339.9kbits/s speed=  73x    frame=156804 fps=2550 q=-1.0 size= 8952064KiB time=01:14:09.87 bitrate=16480.3kbits/s speed=72.4x    frame=157973 fps=2548 q=-1.0 size= 9019136KiB time=01:14:09.87 bitrate=16603.8kbits/s speed=71.8x    frame=159214 fps=2547 q=-1.0 size= 9094656KiB time=01:14:09.87 bitrate=16742.8kbits/s speed=71.2x    frame=160349 fps=2545 q=-1.0 size= 9160192KiB time=01:14:09.87 bitrate=16863.5kbits/s speed=70.6x    frame=161549 fps=2544 q=-1.0 size= 9232128KiB time=01:14:09.87 bitrate=16995.9kbits/s speed=70.1x    frame=162803 fps=2543 q=-1.0 size= 9306112KiB time=01:14:09.87 bitrate=17132.1kbits/s speed=69.5x    frame=164141 fps=2544 q=-1.0 size= 9383168KiB time=01:14:09.87 bitrate=17273.9kbits/s speed=  69x    frame=165494 fps=2545 q=-1.0 size= 9463552KiB time=01:14:09.87 bitrate=17421.9kbits/s speed=68.4x    frame=166885 fps=2547 q=-1.0 size= 9537024KiB time=01:14:09.87 bitrate=17557.2kbits/s speed=67.9x    frame=168289 fps=2549 q=-1.0 size= 9598720KiB time=01:14:09.87 bitrate=17670.8kbits/s speed=67.4x    frame=169573 fps=2549 q=-1.0 size= 9667584KiB time=01:14:09.87 bitrate=17797.5kbits/s speed=66.9x    frame=171053 fps=2552 q=-1.0 size= 9736192KiB time=01:14:09.87 bitrate=17923.8kbits/s speed=66.4x    frame=172541 fps=2555 q=-1.0 size= 9790976KiB time=01:14:09.87 bitrate=18024.7kbits/s speed=65.9x    frame=173905 fps=2556 q=-1.0 size= 9857792KiB time=01:14:09.87 bitrate=18147.7kbits/s speed=65.4x    frame=175142 fps=2555 q=-1.0 size= 9930240KiB time=01:14:09.87 bitrate=18281.1kbits/s speed=64.9x    frame=176333 fps=2554 q=-1.0 size=10001152KiB time=01:14:09.87 bitrate=18411.6kbits/s speed=64.5x    frame=177598 fps=2554 q=-1.0 size=10075648KiB time=01:14:09.87 bitrate=18548.8kbits/s speed=  64x    frame=178811 fps=2553 q=-1.0 size=10149888KiB time=01:14:09.87 bitrate=18685.4kbits/s speed=63.5x    frame=180001 fps=2551 q=-1.0 size=10219776KiB time=01:14:09.87 bitrate=18814.1kbits/s speed=63.1x    frame=181249 fps=2551 q=-1.0 size=10293760KiB time=01:14:09.87 bitrate=18950.3kbits/s speed=62.6x    frame=182597 fps=2551 q=-1.0 size=10374400KiB time=01:14:09.87 bitrate=19098.8kbits/s speed=62.2x    [mp4 @ 0x138f09ae0] Packet duration: 3188708000 / dts: 7638999000 is out of range
+[mp4 @ 0x138f09ae0] pts has no value
+[mp4 @ 0x138f09ae0] Packet duration: 5494874999 / dts: 7639124000 is out of range
+[mp4 @ 0x138f09ae0] pts has no value
+frame=183781 fps=2550 q=-1.0 size=10444288KiB time=02:07:17.58 bitrate=11202.4kbits/s speed= 106x    frame=185164 fps=2551 q=-1.0 size=10526208KiB time=02:07:22.37 bitrate=11283.2kbits/s speed= 105x    frame=186594 fps=2553 q=-1.0 size=10603520KiB time=02:07:22.37 bitrate=11366.1kbits/s speed= 105x    frame=187924 fps=2554 q=-1.0 size=10675968KiB time=02:07:22.37 bitrate=11443.8kbits/s speed= 104x    frame=189180 fps=2553 q=-1.0 size=10747392KiB time=02:07:22.37 bitrate=11520.3kbits/s speed= 103x    [mp4 @ 0x138f09ae0] Packet duration: 5752916998 / dts: 7900666000 is out of range
+[mp4 @ 0x138f09ae0] pts has no value
+[mp4 @ 0x138f09ae0] Packet duration: 3446915999 / dts: 7900666000 is out of range
+[mp4 @ 0x138f09ae0] pts has no value
+frame=190356 fps=2552 q=-1.0 size=10814208KiB time=02:11:46.41 bitrate=11204.8kbits/s speed= 106x    [mp4 @ 0x138f09ae0] Packet duration: 3478540998 / dts: 7938124000 is out of range
+[mp4 @ 0x138f09ae0] pts has no value
+[mp4 @ 0x138f09ae0] Packet duration: 3478541997 / dts: 7939791000 is out of range
+[mp4 @ 0x138f09ae0] pts has no value
+[mp4 @ 0x138f09ae0] Packet duration: 3479249996 / dts: 7941874000 is out of range
+[mp4 @ 0x138f09ae0] pts has no value
+[mp4 @ 0x138f09ae0] Packet duration: 3499582995 / dts: 7966374000 is out of range
+[mp4 @ 0x138f09ae0] pts has no value
+frame=191616 fps=2552 q=-1.0 size=10887680KiB time=02:11:46.45 bitrate=11280.9kbits/s speed= 105x    frame=192806 fps=2550 q=-1.0 size=10959616KiB time=02:11:46.45 bitrate=11355.4kbits/s speed= 105x    [mp4 @ 0x138f09ae0] Packet duration: 3588373994 / dts: 8062124000 is out of range
+[mp4 @ 0x138f09ae0] pts has no value
+[mp4 @ 0x138f09ae0] Packet duration: 5908708997 / dts: 8062333000 is out of range
+[mp4 @ 0x138f09ae0] pts has no value
+frame=194117 fps=2551 q=-1.0 size=11035648KiB time=02:14:27.12 bitrate=11206.5kbits/s speed= 106x    frame=195413 fps=2551 q=-1.0 size=11094272KiB time=02:14:27.12 bitrate=11266.0kbits/s speed= 105x    frame=196741 fps=2551 q=-1.0 size=11110912KiB time=02:14:27.12 bitrate=11282.9kbits/s speed= 105x    frame=198016 fps=2551 q=-1.0 size=11126784KiB time=02:14:27.12 bitrate=11299.0kbits/s speed= 104x    frame=199267 fps=2551 q=-1.0 size=11143168KiB time=02:14:27.12 bitrate=11315.7kbits/s speed= 103x    frame=200605 fps=2551 q=-1.0 size=11162368KiB time=02:14:27.12 bitrate=11335.2kbits/s speed= 103x    frame=201889 fps=2551 q=-1.0 size=11192320KiB time=02:14:27.12 bitrate=11365.6kbits/s speed= 102x    frame=204066 fps=2563 q=-1.0 size=11225856KiB time=02:14:27.12 bitrate=11399.6kbits/s speed= 101x    frame=206294 fps=2574 q=-1.0 size=11251456KiB time=02:14:27.12 bitrate=11425.6kbits/s speed= 101x    [mp4 @ 0x138f09ae0] Starting second pass: moving the moov atom to the beginning of the file
+[out#0/mp4 @ 0x600000f3c000] video:9241364KiB audio:2023732KiB subtitle:150KiB other streams:0KiB global headers:0KiB muxing overhead: 0.103399%
+frame=207230 fps=2381 q=-1.0 Lsize=11276894KiB time=02:14:27.12 bitrate=11451.5kbits/s speed=92.7x    

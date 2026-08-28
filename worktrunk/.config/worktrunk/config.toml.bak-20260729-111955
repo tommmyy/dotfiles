@@ -1,0 +1,75 @@
+[projects."bitbucket.org/lundegaard/sdp".pre-start]
+prime_sdp_sources_node_modules = "[ \"$WT_SUBPROJECT\" = sdp ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && [ -d \"{{ primary_worktree_path }}/s-analytics/sources/node_modules\" ] && [ ! -e \"{{ worktree_path }}/s-analytics/sources/node_modules\" ] && cp -Rc \"{{ primary_worktree_path }}/s-analytics/sources/node_modules\" \"{{ worktree_path }}/s-analytics/sources/node_modules\" || true"
+prime_sdp_sources_env = "[ \"$WT_SUBPROJECT\" = sdp ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && for f in \"{{ primary_worktree_path }}/s-analytics/sources\"/.env \"{{ primary_worktree_path }}/s-analytics/sources\"/.env.*; do [ -f \"$f\" ] || continue; dest=\"{{ worktree_path }}/s-analytics/sources/$(basename \"$f\")\"; [ -e \"$dest\" ] || cp -c \"$f\" \"$dest\"; done || true"
+setup_sdp_sources_dependencies = "[ \"$WT_SUBPROJECT\" = sdp ] && [ -f \"{{ worktree_path }}/s-analytics/sources/package.json\" ] && (cd \"{{ worktree_path }}/s-analytics/sources\" && yarn install && yarn setup-development-husky && yarn prepare-workspace) || true"
+prime_console_dependencies = "[ \"$WT_SUBPROJECT\" = console ] && [ -f \"{{ worktree_path }}/perselio-console/package.json\" ] && wt step copy-ignored || true"
+setup_console_dependencies = "[ \"$WT_SUBPROJECT\" = console ] && [ -f \"{{ worktree_path }}/perselio-console/package.json\" ] && (cd \"{{ worktree_path }}/perselio-console\" && yarn install) || true"
+
+[projects."bitbucket.org/lundegaard/sdp".pre-remove]
+cleanup_sdp_sources_node_modules = "[ -d \"{{ worktree_path }}/s-analytics/sources/node_modules\" ] && rm -rf \"{{ worktree_path }}/s-analytics/sources/node_modules\" || true"
+cleanup_console_node_modules = "[ -d \"{{ worktree_path }}/perselio-console/node_modules\" ] && rm -rf \"{{ worktree_path }}/perselio-console/node_modules\" || true"
+
+[commit.generation]
+command = "sh -lc 'prompt=$(cat); : \"${OPENAI_API_KEY:?OPENAI_API_KEY is required}\"; opencode run -m openai/gpt-5.4-mini-fast --format json \"$prompt\" | jq -r \"select(.type == \\\"text\\\") | .part.text\"'"
+
+[projects."bitbucket.org/lundegaard/sdp".commit.generation]
+template = """
+Write exactly one commit subject line and nothing else.
+
+Required format:
+<TICKET> <TYPE>(sa): <message>
+
+Rules:
+- Extract <TICKET> from the branch name as the first token matching [A-Z]+-[0-9]+. If no ticket is found, omit the <TICKET> prefix entirely.
+- The realm is always exactly (sa).
+- Map branch prefixes to <TYPE>:
+  - feature/* -> feat
+  - fix/*, bugfix/*, hotfix/* -> fix
+  - anything else -> chore
+- If the diff clearly contradicts the branch prefix, prefer the diff.
+- Keep the message concise, imperative, lowercase after the colon unless a proper noun requires otherwise.
+- Output only the final commit subject line, with no quotes, no code block, no explanation.
+
+Examples:
+- CUS-1 feat(sa): add campaign filter
+- PER-1 fix(sa): handle empty response
+- PER-12 chore(sa): update analytics deps
+- chore(sa): update ci config
+
+Context:
+Branch: {{ branch }}
+Diffstat:
+{{ git_diff_stat }}
+
+Diff:
+{{ git_diff }}
+"""
+
+squash-template = """
+Write exactly one commit subject line and nothing else.
+
+Required format:
+<TICKET> <TYPE>(sa): <message>
+
+Rules:
+- Extract <TICKET> from the branch name as the first token matching [A-Z]+-[0-9]+. If no ticket is found, omit the <TICKET> prefix entirely.
+- The realm is always exactly (sa).
+- Map branch prefixes to <TYPE>:
+  - feature/* -> feat
+  - fix/*, bugfix/*, hotfix/* -> fix
+  - anything else -> chore
+- If the combined diff clearly contradicts the branch prefix, prefer the diff.
+- Summarize the combined change set in one concise imperative line.
+- Output only the final commit subject line, with no quotes, no code block, no explanation.
+
+Existing commits:
+{% for commit in commits %}- {{ commit }}
+{% endfor %}
+
+Branch: {{ branch }}
+Diffstat:
+{{ git_diff_stat }}
+
+Diff:
+{{ git_diff }}
+"""
