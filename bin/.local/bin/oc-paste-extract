@@ -1,0 +1,165 @@
+#!/usr/bin/env python3
+"""Extract images pasted into an opencode session to real files on disk.
+
+opencode stores a pasted image as a `file` part whose `url` is a
+`data:image/...;base64,...` URL, in ~/.local/share/opencode/opencode.db.
+
+A model cannot reproduce those bytes from what it sees — a vision input is a
+decoded rendering, not the file — so anything that needs the actual image
+(uploading a screenshot to a Linear issue, say) has to read them back out of
+the database mechanically. That is all this does.
+
+    oc-paste-extract --list          # what pastes are available
+    oc-paste-extract                 # newest paste -> temp file
+    oc-paste-extract -n 2 -o bug.png # 2nd newest -> bug.png
+
+Prints path, dimensions, byte count and sha256. The sha256 is what
+Linear's prepare_attachment_upload verifies against, so pass it through
+rather than recomputing it somewhere else.
+"""
+
+from __future__ import annotations
+
+import argparse
+import base64
+import datetime
+import binascii
+import hashlib
+import json
+import os
+import pathlib
+import sqlite3
+import struct
+import sys
+
+DB = pathlib.Path.home() / ".local/share/opencode/opencode.db"
+EXT = {
+    "image/png": ".png",
+    "image/jpeg": ".jpg",
+    "image/webp": ".webp",
+    "image/gif": ".gif",
+}
+
+
+def die(msg: str) -> "None":
+    print(f"oc-paste-extract: {msg}", file=sys.stderr)
+    raise SystemExit(1)
+
+
+def when(ms: "int | None") -> str:
+    """`time_created` is epoch milliseconds; show it in local time."""
+    if not ms:
+        return "?"
+    return datetime.datetime.fromtimestamp(ms / 1000).strftime("%Y-%m-%d %H:%M")
+
+
+def dimensions(data: bytes, mime: str) -> str:
+    """Best-effort WxH. Only PNG is parsed; anything else reports unknown."""
+    if mime == "image/png" and len(data) >= 24 and data[12:16] == b"IHDR":
+        w, h = struct.unpack(">II", data[16:24])
+        return f"{w}x{h}"
+    return "?"
+
+
+def pastes(limit: int) -> list[dict]:
+    if not DB.exists():
+        die(f"no opencode database at {DB}")
+    # Read-only: opencode is normally running and holding this database open.
+    con = sqlite3.connect(f"file:{DB}?mode=ro", uri=True)
+    try:
+        # session_id / time_created are columns, not fields inside `data`.
+        rows = con.execute(
+            "select data, session_id, time_created from part"
+            " where data like '%\"type\":\"file\"%' and data like '%image/%'"
+            " order by time_created desc limit ?",
+            (max(limit * 8, 64),),
+        ).fetchall()
+    except sqlite3.DatabaseError as exc:
+        # The schema moved (an opencode upgrade) or the file is not a database.
+        die(f"cannot read {DB}: {exc}")
+    finally:
+        con.close()
+
+    found = []
+    for raw, session_id, created in rows:
+        try:
+            part = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        mime = part.get("mime", "")
+        url = part.get("url", "")
+        if part.get("type") != "file" or not mime.startswith("image/"):
+            continue
+        if not url.startswith("data:") or "," not in url:
+            continue
+        try:
+            data = base64.b64decode(url.split(",", 1)[1], validate=True)
+        except (binascii.Error, ValueError):
+            continue
+        if not data:
+            continue
+        found.append(
+            {
+                "filename": part.get("filename") or "paste",
+                "mime": mime,
+                "data": data,
+                "session": session_id or "",
+                "created": created,
+            }
+        )
+        if len(found) >= limit:
+            break
+    return found
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(
+        prog="oc-paste-extract",
+        description="Extract images pasted into opencode to files on disk.",
+    )
+    ap.add_argument("-n", "--index", type=int, default=1, metavar="N",
+                    help="which paste, 1 = most recent (default: 1)")
+    ap.add_argument("-o", "--out", metavar="PATH",
+                    help="write here (default: a file in $TMPDIR)")
+    ap.add_argument("-l", "--list", action="store_true",
+                    help="list recent pastes without writing anything")
+    args = ap.parse_args()
+
+    if args.index < 1:
+        die("--index is 1-based; 1 is the most recent paste")
+
+    items = pastes(20 if args.list else args.index)
+
+    if args.list:
+        if not items:
+            print("no pasted images found")
+            return 0
+        for i, it in enumerate(items, 1):
+            print(f"{i:>2}. {when(it['created']):<17} {it['mime']:<11}"
+                  f" {dimensions(it['data'], it['mime']):>10}"
+                  f" {len(it['data']):>9} B  {it['session']}")
+        return 0
+
+    if len(items) < args.index:
+        die(f"only {len(items)} pasted image(s) available, asked for #{args.index}")
+
+    item = items[args.index - 1]
+    if args.out:
+        out = pathlib.Path(args.out).expanduser()
+    else:
+        tmp = pathlib.Path(os.environ.get("TMPDIR", "/tmp"))
+        stem = pathlib.Path(item["filename"]).stem or "paste"
+        out = tmp / f"oc-paste-{stem}{EXT.get(item['mime'], '.bin')}"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_bytes(item["data"])
+
+    print(f"path   : {out}")
+    print(f"mime   : {item['mime']}")
+    print(f"dims   : {dimensions(item['data'], item['mime'])}")
+    print(f"bytes  : {len(item['data'])}")
+    print(f"sha256 : {hashlib.sha256(item['data']).hexdigest()}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
