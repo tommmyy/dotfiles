@@ -315,6 +315,7 @@ function spawnJob(repo, issue, { dryRun, progress, preset = {} }) {
 		log(`workmux add failed for ${issue.identifier}`);
 		return false;
 	}
+	if (!dryRun) tagWorktreeSessions(repo, preset.baseFolder || null);
 	if (!dryRun && progress) moveToInProgress(repo, issue.identifier);
 	log(`${dryRun ? "[dry-run] " : ""}${issue.identifier} -> ${branch} (handle ${handle})`);
 	return true;
@@ -323,6 +324,59 @@ function spawnJob(repo, issue, { dryRun, progress, preset = {} }) {
 // --- commands ------------------------------------------------------------
 
 const RANK = { waiting: 0, done: 1, working: 2 };
+
+// workmux starts its sidebar pane in the directory `workmux add` was invoked
+// from — the MAIN checkout — while giving the agent pane the worktree. A new
+// window opened while the sidebar has focus therefore inherits the main
+// checkout, and the agent that starts there is attributed to the default
+// branch's job instead of this one.
+//
+// tmux cannot ask another pane for its path from a format string, so record
+// the worktree once as a session option. `@cwd_path` in .tmux.conf prefers it
+// over session_path, which is likewise the invocation directory on some
+// sessions. Idempotent: only ever fills in a missing value.
+function tagWorktreeSessions(repo, baseFolder) {
+	// workmux knows each job's real worktree; pane paths do not. The sidebar
+	// pane starts in the invocation directory, so deriving the worktree from
+	// panes reproduces exactly the bug this works around.
+	let jobs;
+	try {
+		const r = sh("workmux", ["list", "--json"], { cwd: repo });
+		if (r.status !== 0) return;
+		jobs = JSON.parse(r.stdout || "[]");
+	} catch {
+		return; // no workmux, or an output format we do not recognise
+	}
+
+	const t = spawnSync(
+		"tmux",
+		["list-sessions", "-F", "#{session_id}\t#{session_name}\t#{@wm_worktree}"],
+		{ encoding: "utf8" },
+	);
+	if (t.status !== 0) return;
+
+	for (const line of (t.stdout || "").split("\n")) {
+		if (!line.trim()) continue;
+		const [sid, rawName, tagged] = line.split("\t");
+		if (tagged) continue; // never overwrite
+
+		// Session names carry a nerdfont glyph and padding; handles are lower
+		// case. A `wt` session is named after the branch slug, which is the
+		// tail of workmux's handle for the same worktree.
+		const name = (rawName || "").replace(/[^\x20-\x7e]/g, "").trim().toLowerCase();
+		if (!name) continue;
+		const job = jobs.find((j) => {
+			const h = (j.handle || "").toLowerCase();
+			return h === name || h.endsWith(name);
+		});
+		if (!job || !job.path) continue;
+
+		const sub = baseFolder ? join(job.path, baseFolder) : null;
+		const dir = sub && existsSync(sub) ? sub : job.path;
+		if (!existsSync(dir)) continue;
+		spawnSync("tmux", ["set-option", "-t", sid, "@wm_worktree", dir]);
+	}
+}
 
 function sessionIdForPane(paneId) {
 	if (!paneId) return null;
@@ -333,7 +387,8 @@ function sessionIdForPane(paneId) {
 	return r.status === 0 && out ? out : null;
 }
 
-function cmdStatus() {
+function cmdStatus(repo, preset) {
+	tagWorktreeSessions(repo, (preset && preset.baseFolder) || null);
 	const agents = workmuxAgents();
 	if (!agents.length) {
 		process.stdout.write("No workmux agents.\n");
@@ -458,7 +513,7 @@ function main() {
 	opts.repo = expandHome(opts.repo || opts.preset.repoPath || DEFAULT_REPO);
 
 	const cmd = rest.shift();
-	if (cmd === "status") return cmdStatus();
+	if (cmd === "status") return cmdStatus(opts.repo, opts.preset);
 	if (cmd === "list") return cmdList(opts.repo, opts.state);
 	if (cmd === "reap") return cmdReap(opts.repo, opts);
 
