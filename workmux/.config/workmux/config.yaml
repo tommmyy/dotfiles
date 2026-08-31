@@ -1,0 +1,21 @@
+# workmux global defaults.
+# Project overrides live in a `.workmux.yaml` inside the repo.
+
+agent: opencode
+
+# One tmux SESSION per job rather than a window in whatever session happens to
+# be focused. Keeps automated jobs from cluttering an interactive session, and
+# matches how `wt` / `linear-session` already name things.
+mode: session
+
+# Branch names are `{TASK-ID}/{stub}` (e.g. CUS-1038/show-the-assistant-...),
+# which `full` would flatten into a very long name. The feeder passes an
+# explicit `--name <TASK-ID>` per job; this is only the fallback.
+worktree_naming: basename
+
+panes:
+  - command: <agent>
+    focus: true
+  - split: horizontal
+    size: 15
+nerdfont: true

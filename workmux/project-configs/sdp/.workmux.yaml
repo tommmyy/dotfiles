@@ -1,0 +1,33 @@
+# workmux ROOT config for the sdp monorepo.
+#
+# This repo is polyglot (Java/Maven/Python at the root); the JS workspaces live
+# in subdirectories, each with its own nested `.workmux.yaml`:
+#   s-analytics/sources  -> subproject "sdp"     (Yarn 3)
+#   perselio-console     -> subproject "console" (Yarn workspaces)
+#
+# Prefer creating jobs FROM one of those directories, so the nested config is
+# used and the tmux window opens there. This root config is the fallback for a
+# job created at the repo root.
+#
+# Do NOT run `yarn install` here: the root resolves to Yarn 1 and does nothing
+# useful ("Already up-to-date" in 0.04s) while leaving the real workspace
+# uninstalled. And do NOT symlink node_modules — that shares one mutable install
+# across every worktree. worktrunk's hooks own dependency setup; they clone
+# node_modules with APFS clonefile(2), carry .yarn/install-state.gz and .env*,
+# and run the install in the right directory.
+
+main_branch: develop
+base_branch: develop
+
+post_create:
+  # `.wtconfig` in the primary worktree selects which subprojects to set up.
+  - wt hook pre-start -C "$WM_WORKTREE_PATH"
+
+pre_remove:
+  - wt hook pre-remove -C "$WM_WORKTREE_PATH" || true
+
+panes:
+  - command: <agent>
+    focus: true
+  - split: horizontal
+    size: 15

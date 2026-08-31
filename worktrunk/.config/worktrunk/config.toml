@@ -150,6 +150,32 @@ yarn install || exit 1
 """
 
 [projects."bitbucket.org/lundegaard/sdp".pre-remove]
+# Ownership guard. Worktrees under `<repo>__worktrees/` are created and tracked
+# by workmux, which also owns a tmux session and a status file
+# (~/.local/state/workmux/agents/...). Removing one with `wt remove` — or, more
+# likely, sweeping it up with `wt step prune`, which has no exclude flag — takes
+# the directory but orphans both.
+#
+# Declared FIRST so it aborts before the cleanup hooks below rm -rf anything.
+# A non-zero pre-remove hook aborts the removal (see the guard contract at the
+# top of this file).
+#
+# WM_WORKTREE_PATH is exported by workmux's own hooks, which call
+# `wt hook pre-remove -C "$WM_WORKTREE_PATH"`. Skipping the guard in that case
+# is what lets `workmux remove` still reuse worktrunk's cleanup hooks instead of
+# deadlocking against this check.
+guard_workmux_owned = """
+[ -n "${WM_WORKTREE_PATH:-}" ] && exit 0
+case "{{ worktree_path }}" in
+  *__worktrees/*)
+    echo "wt: refusing to remove {{ worktree_path }}" >&2
+    echo "wt: that worktree belongs to workmux; removing it here would orphan its tmux session and status file." >&2
+    echo "wt: use  workmux remove <handle>  (handles are lowercase), or  linear-workmux reap" >&2
+    exit 1
+    ;;
+esac
+exit 0
+"""
 cleanup_sdp_sources_node_modules = "[ -d \"{{ worktree_path }}/s-analytics/sources/node_modules\" ] && rm -rf \"{{ worktree_path }}/s-analytics/sources/node_modules\" || true"
 cleanup_console_node_modules = "[ -d \"{{ worktree_path }}/perselio-console/node_modules\" ] && rm -rf \"{{ worktree_path }}/perselio-console/node_modules\" || true"
 

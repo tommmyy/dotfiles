@@ -1,0 +1,29 @@
+# workmux nested config for the `sdp` subproject (s-analytics/sources).
+#
+# Nested configs REPLACE the root one, and make the tmux window open here inside
+# the new worktree — the equivalent of linear-session's `baseFolder`.
+#
+# Setup is delegated to worktrunk's hooks rather than reimplemented. They are the
+# tested path (`~/.config/worktrunk/config.toml`) and do things a `files.symlink`
+# cannot:
+#   - APFS clonefile(2) of node_modules: ~3.8s + 10.9s install, vs 2m01s cold
+#   - carries .yarn/install-state.gz, without which yarn re-runs every postinstall
+#   - copies .env / .env.development / .env_test
+#   - runs yarn install + setup-development-husky + prepare-workspace in THIS dir
+#
+# NEVER symlink node_modules here: every worktree would share one mutable install
+# (Yarn 3 + concurrent agents = corruption). worktrunk clones copy-on-write instead.
+
+agent: opencode
+
+post_create:
+  - WT_SUBPROJECT=sdp wt hook pre-start -C "$WM_WORKTREE_PATH"
+
+pre_remove:
+  - WT_SUBPROJECT=sdp wt hook pre-remove -C "$WM_WORKTREE_PATH" || true
+
+panes:
+  - command: <agent>
+    focus: true
+  - split: horizontal
+    size: 15

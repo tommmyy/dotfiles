@@ -1,0 +1,487 @@
+#!/usr/bin/env node
+
+// linear-workmux — feed Linear issues into workmux jobs, and show which jobs
+// are waiting on you.
+//
+// Deliberately SEPARATE from `linear-session` (which drives `wt` + tmux
+// directly). Both can coexist: `wt` worktrees live in the repo's own worktree
+// dir with `<repo>@<branch>` sessions, workmux worktrees live in
+// `<project>__worktrees/` with `wm-<name>` sessions.
+//
+// Linear is queried by shelling out to `opencode run` with the Linear MCP —
+// the same trick `linear-session` uses — so this needs no API token of its own.
+
+const { spawnSync } = require("child_process");
+const { existsSync, readFileSync } = require("fs");
+const { join } = require("path");
+
+const METADATA_MODEL = "openai/gpt-5.4-mini-fast";
+const DEFAULT_REPO = `${process.env.HOME}/workspaces/sdp`;
+const DEFAULT_PROJECT = "sdp";
+
+const expandHome = p => String(p || "").replace(/^~/, process.env.HOME);
+
+// Project presets are READ FROM `linear-session`'s config so the two tools can
+// never disagree about where a project lives:
+//   repoPath    repository root
+//   baseBranch  branch to base new work on
+//   baseFolder  subdirectory to work in (workmux picks up its nested
+//               .workmux.yaml there, so the tmux window opens in it)
+//   subproject  value for WT_SUBPROJECT, which selects worktrunk's setup hooks
+// A `~/.config/linear-workmux/config.json` with the same shape wins if present.
+function loadProjects() {
+	const xdg = process.env.XDG_CONFIG_HOME || join(process.env.HOME, ".config");
+	for (const p of [
+		join(xdg, "linear-workmux", "config.json"),
+		join(xdg, "linear-session", "config.json"),
+	]) {
+		if (!existsSync(p)) continue;
+		try {
+			return JSON.parse(readFileSync(p, "utf8")).projects || {};
+		} catch (e) {
+			log(`warning: cannot parse ${p}: ${e.message}`);
+		}
+	}
+	return {};
+}
+
+function resolvePreset(name) {
+	const projects = loadProjects();
+	if (!name) return {};
+	const preset = projects[name];
+	if (!preset) {
+		fail(
+			`unknown project preset: ${name} (known: ${Object.keys(projects).join(", ") || "none"})`,
+		);
+	}
+	return preset;
+}
+
+const log = m => process.stderr.write(`[linear-workmux] ${m}\n`);
+const fail = (m, detail) => {
+	log(m);
+	if (detail) process.stderr.write(`${String(detail).trim()}\n`);
+	process.exit(1);
+};
+
+function usage() {
+	process.stderr.write(`Usage: linear-workmux <command> [options]
+
+Commands:
+  status                 Show workmux agents, waiting ones first
+  list                   Show Linear issues eligible to become jobs
+  spawn <ID> [ID...]     Create a workmux job per issue (branch <ID>/<slug>)
+  auto                   Spawn jobs for every eligible issue with no session yet
+  reap                   Remove jobs whose branch is already merged into the base
+
+Options:
+  -P, --project <name>   Project preset from linear-session's config (default: ${DEFAULT_PROJECT})
+  -r, --repo <path>      Override the preset's repository path
+  -n, --dry-run          Print what would happen, change nothing
+  -s, --state <name>     Linear state to pull for list/auto (default: Todo)
+      --no-progress      Do not move spawned issues to In Progress
+  -h, --help             This help
+
+Examples:
+  linear-workmux status
+  linear-workmux list
+  linear-workmux spawn CUS-1038
+  linear-workmux auto --dry-run
+`);
+	process.exit(1);
+}
+
+function sh(cmd, args, opts = {}) {
+	const r = spawnSync(cmd, args, { encoding: "utf8", ...opts });
+	if (r.error) fail(`failed to run ${cmd}: ${r.error.message}`);
+	return r;
+}
+
+// --- Linear, via opencode + the Linear MCP -------------------------------
+
+function askLinear(prompt, repo) {
+	const r = sh(
+		"opencode",
+		["run", "-m", METADATA_MODEL, "--format", "json", "--dir", repo, prompt],
+		{ maxBuffer: 32 * 1024 * 1024 },
+	);
+	if (r.status !== 0) fail("opencode returned no final response", r.stderr || r.stdout);
+
+	// The text lives on `part.text`, not on the event itself, and there can be
+	// several text parts per run (intermediate reasoning then the answer) —
+	// only the LAST one is the final response.
+	const texts = [];
+	for (const line of (r.stdout || "").split("\n")) {
+		if (!line.trim()) continue;
+		try {
+			const ev = JSON.parse(line);
+			if (ev.type === "text" && ev.part && typeof ev.part.text === "string") {
+				texts.push(ev.part.text);
+			}
+		} catch {
+			/* non-JSON progress line */
+		}
+	}
+	const final = texts[texts.length - 1];
+	if (!final) fail("opencode did not return a final response", r.stdout);
+	return final.trim();
+}
+
+// Scan for the first BALANCED {...} / [...], string-aware so braces and quotes
+// inside an issue description cannot end the scan early.
+function extractBalanced(s) {
+	const start = s.search(/[[{]/);
+	if (start === -1) return null;
+	const open = s[start];
+	const close = open === "[" ? "]" : "}";
+	let depth = 0;
+	let inStr = false;
+	let esc = false;
+	for (let i = start; i < s.length; i++) {
+		const c = s[i];
+		if (inStr) {
+			if (esc) esc = false;
+			else if (c === "\\") esc = true;
+			else if (c === '"') inStr = false;
+			continue;
+		}
+		if (c === '"') inStr = true;
+		else if (c === open) depth++;
+		else if (c === close && --depth === 0) return s.slice(start, i + 1);
+	}
+	return null;
+}
+
+function parseJsonBlob(text, what) {
+	const t = String(text).trim();
+	const attempts = [t];
+
+	// Strip a fence ONLY when it wraps the WHOLE response. Issue descriptions
+	// routinely contain their own ```json5 / ```js blocks, and matching the
+	// first fence anywhere parses the issue's code sample instead of the
+	// payload (this cost us PER-1069).
+	if (t.startsWith("```")) {
+		attempts.push(
+			t
+				.replace(/^```[A-Za-z0-9]*[ \t]*\r?\n?/, "")
+				.replace(/\r?\n?```$/, "")
+				.trim(),
+		);
+	}
+
+	const balanced = extractBalanced(t);
+	if (balanced) attempts.push(balanced);
+
+	let lastErr;
+	for (const candidate of attempts) {
+		try {
+			return JSON.parse(candidate);
+		} catch (e) {
+			lastErr = e;
+		}
+	}
+	fail(`could not parse ${what} JSON: ${lastErr && lastErr.message}`, text);
+}
+
+function fetchCandidates(repo, state) {
+	// Be prescriptive about the tool call. An open-ended request ("issues in the
+	// current cycle, excluding containers") makes the small metadata model do
+	// extra lookups and silently give up with [].
+	const prompt = [
+		"Call the Linear MCP tool `list_issues` with exactly these arguments:",
+		`assignee="me", state="${state}", limit=50,`,
+		'fields=["id","title","url","team","status"].',
+		"Then return ONLY a JSON array of its results, no prose and no code fences,",
+		'each element {"identifier","title","url","team","state"} where identifier is',
+		'the issue key such as "CUS-123". Return [] if there are no results.',
+	].join(" ");
+	const out = parseJsonBlob(askLinear(prompt, repo), "issue list");
+	return Array.isArray(out) ? out : [];
+}
+
+function fetchIssue(repo, id) {
+	const prompt = [
+		"Use the Linear MCP tools.",
+		`Get issue ${id}.`,
+		"Return ONLY a JSON object, no prose and no code fences, with keys:",
+		'"identifier","title","description","url","team","state".',
+		'Use "" for a missing description.',
+	].join(" ");
+	const issue = parseJsonBlob(askLinear(prompt, repo), `issue ${id}`);
+	if (!issue || !issue.identifier) fail(`Linear returned no usable issue for ${id}`);
+	return issue;
+}
+
+function moveToInProgress(repo, id) {
+	askLinear(
+		`Use the Linear MCP tools. Update issue ${id} to state "In Progress". Reply with just OK.`,
+		repo,
+	);
+}
+
+// --- naming --------------------------------------------------------------
+
+// AGENTS.md: branch is `{TASK-ID}/{stub}`, stub copied verbatim from the issue
+// URL (linear.app/<org>/issue/<ID>/<stub>). Falls back to a slugified title.
+function branchFor(issue) {
+	const m = String(issue.url || "").match(/\/issue\/[A-Za-z]+-\d+\/([^/?#]+)/);
+	const stub =
+		(m && m[1]) ||
+		String(issue.title || "")
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, "-")
+			.replace(/^-+|-+$/g, "")
+			.slice(0, 60);
+	if (!stub) fail(`cannot derive a branch stub for ${issue.identifier}`);
+	return `${issue.identifier}/${stub}`;
+}
+
+// --- workmux -------------------------------------------------------------
+
+function workmuxAgents() {
+	const r = sh("workmux", ["status", "--json", "--all"]);
+	if (r.status !== 0) return [];
+	try {
+		return JSON.parse(r.stdout).agents || [];
+	} catch {
+		return [];
+	}
+}
+
+function existingHandles(repo) {
+	const handles = new Set();
+	for (const a of workmuxAgents()) if (a.worktree) handles.add(a.worktree.toLowerCase());
+	// A worktree can exist with no live agent (session killed, job not reaped).
+	const r = sh("git", ["-C", repo, "worktree", "list", "--porcelain"]);
+	for (const line of (r.stdout || "").split("\n")) {
+		if (!line.startsWith("worktree ")) continue;
+		handles.add(line.slice(9).split("/").pop().toLowerCase());
+	}
+	return handles;
+}
+
+function promptFor(issue, branch) {
+	return [
+		`Linear issue ${issue.identifier}: ${issue.title}`,
+		`URL: ${issue.url}`,
+		"",
+		String(issue.description || "").trim() || "(no description)",
+		"",
+		"---",
+		`You are on branch ${branch}, in a dedicated worktree.`,
+		"Follow the repo's AGENTS.md. In particular:",
+		`- commit message format: \`${issue.identifier} <type>(sa): <message>\``,
+		"- one commit per task",
+		"- run yarn typecheck and yarn test-stable before declaring done",
+		"- for any widget / tenant-config / render change, live-verify with `yarn try-tenant`;",
+		"  unit tests and typecheck do NOT prove a widget renders",
+		"Ask before doing anything destructive or out of scope.",
+	].join("\n");
+}
+
+function spawnJob(repo, issue, { dryRun, progress, preset = {} }) {
+	const branch = branchFor(issue);
+	const handle = issue.identifier.toLowerCase();
+	const args = [
+		"add",
+		branch,
+		"--name",
+		issue.identifier,
+		"-b",
+		"-p",
+		promptFor(issue, branch),
+	];
+	if (preset.baseBranch) args.push("--base", preset.baseBranch);
+	if (dryRun) args.push("--dry-run");
+
+	// Run FROM the subproject dir when the preset names one: workmux then uses
+	// that directory's nested .workmux.yaml, and the new worktree's tmux window
+	// opens there instead of at the polyglot repo root (linear-session's
+	// `baseFolder`). WT_SUBPROJECT selects which worktrunk setup hooks run.
+	const baseFolder = preset.baseFolder ? join(repo, preset.baseFolder) : null;
+	const cwd = baseFolder && existsSync(baseFolder) ? baseFolder : repo;
+	if (preset.baseFolder && cwd === repo) {
+		log(`warning: baseFolder ${preset.baseFolder} not found, using repo root`);
+	}
+
+	const r = sh("workmux", args, {
+		cwd,
+		env: preset.subproject
+			? { ...process.env, WT_SUBPROJECT: preset.subproject }
+			: process.env,
+		stdio: ["ignore", "inherit", "inherit"],
+	});
+	if (r.status !== 0) {
+		log(`workmux add failed for ${issue.identifier}`);
+		return false;
+	}
+	if (!dryRun && progress) moveToInProgress(repo, issue.identifier);
+	log(`${dryRun ? "[dry-run] " : ""}${issue.identifier} -> ${branch} (handle ${handle})`);
+	return true;
+}
+
+// --- commands ------------------------------------------------------------
+
+const RANK = { waiting: 0, done: 1, working: 2 };
+
+function sessionIdForPane(paneId) {
+	if (!paneId) return null;
+	const r = spawnSync("tmux", ["display-message", "-p", "-t", paneId, "#{session_id}"], {
+		encoding: "utf8",
+	});
+	const out = (r.stdout || "").trim();
+	return r.status === 0 && out ? out : null;
+}
+
+function cmdStatus() {
+	const agents = workmuxAgents();
+	if (!agents.length) {
+		process.stdout.write("No workmux agents.\n");
+		return;
+	}
+	agents.sort(
+		(a, b) =>
+			(RANK[a.status] ?? 9) - (RANK[b.status] ?? 9) ||
+			(b.elapsed_secs || 0) - (a.elapsed_secs || 0),
+	);
+	const icon = { waiting: "WAITING", done: "done   ", working: "working" };
+	for (const a of agents) {
+		const mins = Math.round((a.elapsed_secs || 0) / 60);
+		process.stdout.write(
+			`${icon[a.status] || a.status}  ${(a.worktree || "?").padEnd(18)} ` +
+				`${String(mins).padStart(3)}m  ${a.session || "?"}  ${a.title || ""}\n`,
+		);
+	}
+	const waiting = agents.filter(a => a.status === "waiting");
+	if (waiting.length) {
+		// Target the SESSION ID, not the name: with `nerdfont: true` workmux puts
+		// a private-use glyph inside the session name (e.g. "\uE418 per-1069"),
+		// so a name-based `switch-client -t` is unpastable and may not resolve.
+		const sid = sessionIdForPane(waiting[0].pane_id);
+		const target = sid || waiting[0].pane_id;
+		process.stdout.write(
+			`\n${waiting.length} waiting on you. Jump: tmux switch-client -t ${target}\n`,
+		);
+	}
+}
+
+function cmdList(repo, state) {
+	const issues = fetchCandidates(repo, state);
+	if (!issues.length) {
+		process.stdout.write(`No issues in ${state} assigned to you.\n`);
+		return;
+	}
+	const have = existingHandles(repo);
+	for (const i of issues) {
+		const mark = have.has(i.identifier.toLowerCase()) ? "[job]" : "[   ]";
+		process.stdout.write(`${mark} ${i.identifier.padEnd(10)} ${i.title}\n`);
+	}
+}
+
+// Close the loop: once a PR is merged upstream, the worktree, branch and tmux
+// session are dead weight. `workmux merge` is for merging LOCALLY; when the
+// merge happened in Bitbucket, `workmux remove` is the right verb.
+function cmdReap(repo, { dryRun }) {
+	sh("git", ["-C", repo, "fetch", "origin", "--quiet"]);
+	const base =
+		(sh("git", ["-C", repo, "rev-parse", "--abbrev-ref", "origin/HEAD"]).stdout || "")
+			.trim()
+			.replace(/^origin\//, "") || "develop";
+
+	const merged = new Set(
+		(sh("git", ["-C", repo, "branch", "--merged", `origin/${base}`]).stdout || "")
+			.split("\n")
+			.map(s => s.replace(/^[*+ ]+/, "").trim())
+			.filter(Boolean),
+	);
+
+	// Only consider worktrees workmux owns, so this can never touch a `wt`
+	// worktree or the main checkout.
+	const wtDir = `${repo}__worktrees/`;
+	const jobs = [];
+	let cur = null;
+	for (const line of (
+		sh("git", ["-C", repo, "worktree", "list", "--porcelain"]).stdout || ""
+	).split("\n")) {
+		if (line.startsWith("worktree ")) cur = { path: line.slice(9), branch: null };
+		else if (line.startsWith("branch ") && cur) {
+			cur.branch = line.slice(7).replace(/^refs\/heads\//, "");
+			if (cur.path.startsWith(wtDir)) jobs.push(cur);
+			cur = null;
+		}
+	}
+
+	const done = jobs.filter(j => j.branch && merged.has(j.branch) && j.branch !== base);
+	if (!done.length) {
+		log(`nothing to reap (base origin/${base})`);
+		return;
+	}
+	for (const j of done) {
+		const handle = j.path.split("/").pop();
+		if (dryRun) {
+			log(`[dry-run] would remove ${handle} (${j.branch}, merged into ${base})`);
+			continue;
+		}
+		const r = sh("workmux", ["remove", handle, "--force"], {
+			cwd: repo,
+			stdio: ["ignore", "inherit", "inherit"],
+		});
+		log(`${r.status === 0 ? "removed" : "FAILED to remove"} ${handle}`);
+	}
+}
+
+function main() {
+	const argv = process.argv.slice(2);
+	if (!argv.length) usage();
+
+	const opts = {
+		repo: null,
+		project: DEFAULT_PROJECT,
+		dryRun: false,
+		state: "Todo",
+		progress: true,
+	};
+	const rest = [];
+	for (let i = 0; i < argv.length; i++) {
+		const a = argv[i];
+		if (a === "-h" || a === "--help") usage();
+		else if (a === "-n" || a === "--dry-run") opts.dryRun = true;
+		else if (a === "--no-progress") opts.progress = false;
+		else if (a === "-r" || a === "--repo") opts.repo = argv[++i];
+		else if (a === "-P" || a === "--project") opts.project = argv[++i];
+		else if (a === "-s" || a === "--state") opts.state = argv[++i];
+		else rest.push(a);
+	}
+
+	opts.preset = opts.project ? resolvePreset(opts.project) : {};
+	// Explicit --repo wins, then the preset's repoPath, then the default.
+	opts.repo = expandHome(opts.repo || opts.preset.repoPath || DEFAULT_REPO);
+
+	const cmd = rest.shift();
+	if (cmd === "status") return cmdStatus();
+	if (cmd === "list") return cmdList(opts.repo, opts.state);
+	if (cmd === "reap") return cmdReap(opts.repo, opts);
+
+	if (cmd === "spawn") {
+		if (!rest.length) fail("spawn needs at least one issue id");
+		for (const id of rest) spawnJob(opts.repo, fetchIssue(opts.repo, id), opts);
+		return;
+	}
+
+	if (cmd === "auto") {
+		const have = existingHandles(opts.repo);
+		const todo = fetchCandidates(opts.repo, opts.state).filter(
+			i => !have.has(i.identifier.toLowerCase()),
+		);
+		if (!todo.length) {
+			log("nothing to spawn");
+			return;
+		}
+		for (const i of todo) spawnJob(opts.repo, fetchIssue(opts.repo, i.identifier), opts);
+		return;
+	}
+
+	usage();
+}
+
+main();
