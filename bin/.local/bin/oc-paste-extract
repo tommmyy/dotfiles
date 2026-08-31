@@ -61,19 +61,31 @@ def dimensions(data: bytes, mime: str) -> str:
     return "?"
 
 
-def pastes(limit: int) -> list[dict]:
+def pastes(limit: int, scope: "str | None") -> list[dict]:
     if not DB.exists():
         die(f"no opencode database at {DB}")
     # Read-only: opencode is normally running and holding this database open.
     con = sqlite3.connect(f"file:{DB}?mode=ro", uri=True)
     try:
         # session_id / time_created are columns, not fields inside `data`.
-        rows = con.execute(
-            "select data, session_id, time_created from part"
-            " where data like '%\"type\":\"file\"%' and data like '%image/%'"
-            " order by time_created desc limit ?",
-            (max(limit * 8, 64),),
-        ).fetchall()
+        # `scope` keeps a paste made in one session from being handed to an
+        # agent running somewhere else: opencode gives bash no session id, but
+        # every session records the directory it runs in, and concurrent jobs
+        # each live in their own worktree.
+        sql = (
+            "select p.data, p.session_id, p.time_created from part p"
+            " where p.data like '%\"type\":\"file\"%' and p.data like '%image/%'"
+        )
+        args: list = []
+        if scope is not None:
+            sql += (
+                " and p.session_id in"
+                " (select id from session where directory = ? or ? like directory || '/%')"
+            )
+            args += [scope, scope]
+        sql += " order by p.time_created desc limit ?"
+        args.append(max(limit * 8, 64))
+        rows = con.execute(sql, args).fetchall()
     except sqlite3.DatabaseError as exc:
         # The schema moved (an opencode upgrade) or the file is not a database.
         die(f"cannot read {DB}: {exc}")
@@ -123,16 +135,22 @@ def main() -> int:
                     help="write here (default: a file in $TMPDIR)")
     ap.add_argument("-l", "--list", action="store_true",
                     help="list recent pastes without writing anything")
+    ap.add_argument("-a", "--any", action="store_true",
+                    help="any session, not just ones rooted at the current directory")
     args = ap.parse_args()
+
+    scope = None if args.any else os.getcwd()
 
     if args.index < 1:
         die("--index is 1-based; 1 is the most recent paste")
 
-    items = pastes(20 if args.list else args.index)
+    items = pastes(20 if args.list else args.index, scope)
 
     if args.list:
         if not items:
-            print("no pasted images found")
+            where = "in a session rooted here" if scope else "at all"
+            print(f"no pasted images found {where}"
+                  + ("" if args.any else "; retry with --any"))
             return 0
         for i, it in enumerate(items, 1):
             print(f"{i:>2}. {when(it['created']):<17} {it['mime']:<11}"
@@ -141,7 +159,10 @@ def main() -> int:
         return 0
 
     if len(items) < args.index:
-        die(f"only {len(items)} pasted image(s) available, asked for #{args.index}")
+        die(f"only {len(items)} pasted image(s) "
+            + ("in a session rooted at this directory" if scope else "available")
+            + f", asked for #{args.index}"
+            + ("" if args.any else "; retry with --any to search every session"))
 
     item = items[args.index - 1]
     if args.out:
