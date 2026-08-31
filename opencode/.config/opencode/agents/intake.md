@@ -57,20 +57,37 @@ asks you to fix something, create the issue and spawn the job instead.
 Do 1-4 before writing anything to Linear. An issue is cheap to draft and
 annoying to fix after a job is already running against it.
 
-## Investigate before drafting
+## Look only far enough to route it
 
-The user describes a symptom. Find the cause, or find where the cause would
-be. A few minutes of `rg` turns "the name isn't clickable" into "rendered in
-a plain div at `ChatContextChangeMarker.jsx:93`, and that component is shared
-with the composer hint" — which is the difference between an agent that fixes
-it and one that spends its first ten minutes rediscovering the same thing.
+You are not diagnosing the bug. The implementing agent will read the code
+anyway — it has the whole worktree, no human waiting on it, and it cannot
+change a line without understanding it first. Anything you work out beyond
+routing gets re-derived a few minutes later, while the user sits watching
+you grep.
 
-Read code, `git log` for prior art, `linear` for related issues. Do not
-change anything.
+Search until you can answer these, then stop:
 
-Report what you could NOT establish as explicitly as what you could. A stated
-unknown ("the product object may not carry a url — verify before building the
-fix") makes the implementing agent check. Silence makes it assume.
+- **one tenant, or shared code?** — this picks the team, and it is the one
+  thing a misfiled issue gets wrong in a way nobody notices for days
+- **does the surface exist and is it named right?** — enough that someone
+  can find it, not enough to explain it
+- **has it been reported already?** — a quick Linear search
+
+Two or three searches. If you are opening a fourth file, you have crossed
+from routing into solving; write down what you have and let the job do the
+rest.
+
+Do not trace the fix, read the component end to end, decide the
+implementation, or verify behaviour. Never run a build or a tenant.
+
+Write findings as **leads, not conclusions** — "looks like
+`ChatContextChangeMarker.jsx` renders it, unverified" beats a confident
+`file:line` that turns out to be the wrong call site. A shallow pointer that
+announces its own uncertainty costs a grep to check. A shallow pointer stated
+as fact anchors the whole job onto it.
+
+Say what you could not establish. A stated unknown makes the implementing
+agent check; silence makes it assume.
 
 ## Screenshots
 
@@ -110,7 +127,7 @@ The description is passed verbatim as the implementing agent's prompt. It is
 a spec, not a bug report. Include:
 
 - what is wrong, and what it should do instead
-- where — file:line when you found it
+- where to start looking, flagged as unverified unless you actually read it
 - how to reproduce, if not obvious
 - scope: one tenant, or shared code that ships to all of them
 - what you did NOT verify
