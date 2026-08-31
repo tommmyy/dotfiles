@@ -61,29 +61,42 @@ def dimensions(data: bytes, mime: str) -> str:
     return "?"
 
 
+def current_session(con: sqlite3.Connection) -> "str | None":
+    """The session this command was invoked from.
+
+    opencode exposes no session id to bash, and `session.directory` is a
+    project, not a job — 1200+ sessions can share one directory, so filtering
+    on it barely narrows anything in a main checkout.
+
+    Invoking a tool writes its part row before the command runs, so the
+    newest part in the database belongs to the caller.
+    """
+    row = con.execute(
+        "select session_id from part order by time_created desc limit 1"
+    ).fetchone()
+    return row[0] if row else None
+
+
 def pastes(limit: int, scope: "str | None") -> list[dict]:
     if not DB.exists():
         die(f"no opencode database at {DB}")
     # Read-only: opencode is normally running and holding this database open.
     con = sqlite3.connect(f"file:{DB}?mode=ro", uri=True)
     try:
+        if scope == "@current":
+            scope = current_session(con)
         # session_id / time_created are columns, not fields inside `data`.
-        # `scope` keeps a paste made in one session from being handed to an
-        # agent running somewhere else: opencode gives bash no session id, but
-        # every session records the directory it runs in, and concurrent jobs
-        # each live in their own worktree.
+        # Restricting to one session stops a screenshot pasted into one job
+        # from being handed to an agent in another.
         sql = (
-            "select p.data, p.session_id, p.time_created from part p"
-            " where p.data like '%\"type\":\"file\"%' and p.data like '%image/%'"
+            "select data, session_id, time_created from part"
+            " where data like '%\"type\":\"file\"%' and data like '%image/%'"
         )
         args: list = []
         if scope is not None:
-            sql += (
-                " and p.session_id in"
-                " (select id from session where directory = ? or ? like directory || '/%')"
-            )
-            args += [scope, scope]
-        sql += " order by p.time_created desc limit ?"
+            sql += " and session_id = ?"
+            args.append(scope)
+        sql += " order by time_created desc limit ?"
         args.append(max(limit * 8, 64))
         rows = con.execute(sql, args).fetchall()
     except sqlite3.DatabaseError as exc:
@@ -136,10 +149,10 @@ def main() -> int:
     ap.add_argument("-l", "--list", action="store_true",
                     help="list recent pastes without writing anything")
     ap.add_argument("-a", "--any", action="store_true",
-                    help="any session, not just ones rooted at the current directory")
+                    help="search every session, not just this one")
     args = ap.parse_args()
 
-    scope = None if args.any else os.getcwd()
+    scope = None if args.any else "@current"
 
     if args.index < 1:
         die("--index is 1-based; 1 is the most recent paste")
@@ -148,7 +161,7 @@ def main() -> int:
 
     if args.list:
         if not items:
-            where = "in a session rooted here" if scope else "at all"
+            where = "in this session" if scope else "at all"
             print(f"no pasted images found {where}"
                   + ("" if args.any else "; retry with --any"))
             return 0
@@ -160,7 +173,7 @@ def main() -> int:
 
     if len(items) < args.index:
         die(f"only {len(items)} pasted image(s) "
-            + ("in a session rooted at this directory" if scope else "available")
+            + ("in this session" if scope else "available")
             + f", asked for #{args.index}"
             + ("" if args.any else "; retry with --any to search every session"))
 

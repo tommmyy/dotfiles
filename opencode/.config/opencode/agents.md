@@ -10,10 +10,10 @@ The real bytes are in opencode's database. `oc-paste-extract` reads them out:
     oc-paste-extract                    # newest -> $TMPDIR, prints sha256
     oc-paste-extract -n 2 -o bug.png    # 2nd newest -> bug.png
 
-It only sees pastes from sessions rooted at the current directory, so a
-screenshot pasted into one job is never silently handed to another. If it
-reports nothing found, either you are in the wrong directory or the paste
-really was elsewhere — `--any` searches every session.
+It only sees pastes from the session it was called in, so a screenshot
+pasted into one job is never silently handed to another. If it reports
+nothing found, the paste was in a different session (a parent session, say,
+when you are a subagent) — `--any` searches all of them.
 
 Use that file wherever the actual image is needed: uploading to Linear
 (`prepare_attachment_upload` verifies exactly the sha256 it printed),
