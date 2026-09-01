@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.tommmyy.worklog-cycle</string>
+
+	<key>ProgramArguments</key>
+	<array>
+		<string>/Users/tommmyy/.local/bin/worklog-cycle</string>
+	</array>
+
+	<!-- Every Wednesday 12:30. Cycles are fortnightly and launchd cannot say
+	     "every other week", so the script asks Linear whether a cycle actually
+	     ended in the last few hours and exits silently on the off weeks. -->
+	<key>StartCalendarInterval</key>
+	<array>
+		<dict><key>Weekday</key><integer>3</integer><key>Hour</key><integer>12</integer><key>Minute</key><integer>30</integer></dict>
+	</array>
+
+	<key>WorkingDirectory</key>
+	<string>/Users/tommmyy/workspaces/sdp/s-analytics/sources</string>
+
+	<key>StandardOutPath</key>
+	<string>/Users/tommmyy/worklog/.log/cycle.log</string>
+	<key>StandardErrorPath</key>
+	<string>/Users/tommmyy/worklog/.log/cycle.log</string>
+
+	<key>ProcessType</key>
+	<string>Interactive</string>
+	<key>LowPriorityIO</key>
+	<false/>
+	<key>RunAtLoad</key>
+	<false/>
+</dict>
+</plist>

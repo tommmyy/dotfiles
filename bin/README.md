@@ -297,3 +297,92 @@ failure mode for a poller. Name the tool and its arguments explicitly.
 No unattended polling. `spawn` and `reap` are run by hand on purpose: an
 automated `auto` on a timer would spawn agents while you sleep, and that is only
 worth enabling once the manual loop has proven itself.
+
+---
+
+# worklog-standup / worklog-cycle
+
+Two scheduled report jobs over `~/workspaces/sdp/s-analytics/sources`. Both are
+read-only: they run an opencode skill headlessly and drop Markdown in
+`~/worklog/`. Neither writes to the repo — a report committed into the working
+tree would show up as uncommitted work in the next stand-up.
+
+| | schedule | skill | output |
+| --- | --- | --- | --- |
+| `worklog-standup` | Mon–Fri 13:00 | `personal-daily-standup` | `~/worklog/standup/YYYY-MM-DD.md` |
+| `worklog-cycle` | Wed 12:30, cycle-end only | `personal-linear-cycle-work-overview` | `~/worklog/cycles/<cycle>-<date>.md` |
+
+Both notify on completion and on failure. Logs (trimmed to the last 3000 lines)
+are in `~/worklog/.log/`.
+
+```sh
+worklog-standup --print          # run now, echo the note
+worklog-cycle --dry-run --force  # list the issues the summary would cover
+worklog-cycle --marp             # also emit a slide deck
+```
+
+Scheduling lives in the `launchd` stow package. `launchctl kickstart -p
+gui/$(id -u)/com.tommmyy.worklog-standup` runs a job in launchd's own
+environment, which is the only way to catch the failures that matter.
+
+## Why they are shaped this way
+
+**launchd, not cron.** A calendar job that came due while the Mac was asleep is
+re-fired on wake; cron simply drops it. A 13:00 job on a laptop needs that.
+
+**launchd hands a job almost nothing.** No shell rc files, and `PATH` is
+`/usr/bin:/bin:/usr/sbin:/sbin` — no `opencode`, `node` or `jq`. Everything is
+re-established in `lib/worklog-schedule.sh`, which is why both scripts source it
+before doing anything else.
+
+**`.zsh_secrets` is parsed, not sourced.** It allocates descriptors with
+`exec {var}<` (bash 4+ syntax; launchd gives you /bin/bash 3.2) and reads the
+login keychain, which a background agent should not touch. `wl_load_secret`
+lifts the one `export LINEAR_READ_KEY=` line it needs, and an already-exported
+value wins so interactive runs behave normally.
+
+**MCP servers are disabled for these runs.** Injected via
+`OPENCODE_CONFIG_CONTENT`, the same lever `worklog --enrich` uses. Several MCPs
+shell out to `npx -y` on a cold cache, and the Linear one wants a browser once
+its OAuth token lapses — every one of those is a way for an unattended job to
+hang. Facts come from git and from the Linear REST call the job makes itself.
+
+**The result is read from a file, never from stdout.** The transcript carries
+banners, tool traces and reasoning; scraping prose out of it is how a job starts
+producing quiet garbage. The prompt names an output path, and the run fails if
+that file is missing or empty.
+
+## Gotchas
+
+**Biweekly is not expressible in launchd**, so `worklog-cycle` fires every
+Wednesday and asks Linear whether a cycle actually ended in the last 30 hours,
+exiting silently otherwise. Self-correcting if the cycle schedule ever shifts,
+unlike a hardcoded 14-day anchor.
+
+**On a cycle-end Wednesday, `activeCycle` is the wrong cycle.** Cycles roll over
+at Wednesday 00:00 local (`endsAt` is 22:00Z the previous day), so by 12:30 the
+active cycle is the fresh one with half a day in it. The skill's default
+`linear_list_cycles(type="current")` would summarize twelve hours instead of two
+weeks. The script resolves the *most recently ended* cycle and passes that
+window to the agent explicitly.
+
+**The cycle job resolves and verifies issues itself**, in one filtered GraphQL
+call — Linear applies the assignee and `completedAt` filters server-side, so
+steps 1–3 of the skill (gather candidates, then validate each individually)
+collapse into something both faster and exact. The agent only enriches from git
+and writes prose. This is the same split as `worklog --enrich`: the LLM
+summarizes, it never fetches.
+
+**Monday's stand-up window reaches back to Friday noon**, not Sunday noon.
+The skill's window is "previous day's lunch → now"; taken literally on a Monday
+it silently drops every Friday afternoon, which no stand-up would ever report.
+
+**A watchdog must not hold the caller's stdout.** The timeout helper counts in
+one-second steps with its stdio redirected to `/dev/null`. A single long `sleep`
+survives the kill that ends its subshell, and the orphan keeps the pipe open —
+the job finishes in a minute and anything reading its output blocks for the full
+timeout anyway.
+
+**Log trimming truncates the inode, never replaces the file.** launchd holds an
+open descriptor on `StandardOutPath`; writing a fresh file would send the rest
+of the run into the unlinked old one.

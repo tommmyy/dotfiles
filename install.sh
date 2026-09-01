@@ -1,4 +1,11 @@
-stow bin bash zsh opencode tmux editorconfig ack nvim worktrunk linear-session finicky
+stow bin bash zsh opencode tmux editorconfig ack nvim worktrunk linear-session finicky launchd
+
+# launchd only reads ~/Library/LaunchAgents at login, so stowing a plist is not
+# enough on a machine that is already running.
+for label in com.tommmyy.worklog-standup com.tommmyy.worklog-cycle; do
+	launchctl bootout "gui/$(id -u)/$label" 2>/dev/null
+	launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/$label.plist"
+done
 # stow bin bash zsh opencode vim tmux editorconfig ack skhd yabai nvim mcphub
 # touch $HOME/.zfunctions/prompt_pure_setup
 # touch $HOME/.zfunctions/async

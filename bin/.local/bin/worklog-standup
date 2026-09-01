@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+# worklog-standup — write today's Czech stand-up note, unattended.
+#
+# Drives the personal-daily-standup skill in a headless opencode session and
+# leaves the result at ~/worklog/standup/YYYY-MM-DD.md. Scheduled Mon-Fri 13:00
+# by com.tommmyy.worklog-standup; safe to run by hand any time.
+#
+#   worklog-standup            today, skipped on weekends
+#   worklog-standup --force    run anyway (weekend, or re-run after editing)
+#   worklog-standup --print    also print the note to stdout
+
+set -euo pipefail
+# shellcheck source=../lib/worklog-schedule.sh
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/worklog-schedule.sh"
+
+force=0
+print=0
+for arg in "$@"; do
+	case "$arg" in
+	--force) force=1 ;;
+	--print) print=1 ;;
+	-h | --help)
+		sed -n '2,12p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+		exit 0
+		;;
+	*)
+		echo "worklog-standup: unknown option '$arg'" >&2
+		exit 2
+		;;
+	esac
+done
+
+wl_trim_log standup
+
+# launchd's Weekday range already excludes the weekend; this only matters for a
+# job that fired late after a weekend wake, or a manual run.
+weekday=$(date '+%u')
+if [ "$force" -eq 0 ] && [ "$weekday" -gt 5 ]; then
+	wl_log "weekend (day $weekday); nothing to report"
+	exit 0
+fi
+
+# Stand-up covers work since the previous working day's lunch. On a Monday that
+# is Friday noon, not Sunday noon — otherwise every Friday afternoon falls
+# through the gap between two windows and is never reported at all.
+if [ "$weekday" -eq 1 ]; then
+	since=$(date -v-3d '+%Y-%m-%d 12:00:00')
+else
+	since=$(date -v-1d '+%Y-%m-%d 12:00:00')
+fi
+
+today=$(date '+%Y-%m-%d')
+out="$WL_OUT_ROOT/standup/$today.md"
+skill="$WL_HOME/.config/opencode/skills/personal-daily-standup"
+
+[ -d "$WL_REPO" ] || wl_die "repo not found: $WL_REPO"
+[ -d "$skill" ] || wl_die "skill not found: $skill"
+
+wl_lock standup
+wl_log "standup for $today (window since '$since')"
+
+read -r -d '' prompt <<EOF || true
+Use the personal-daily-standup skill to write today's stand-up note.
+
+Collect the raw material with:
+  bash $skill/scripts/collect-standup.sh '$since'
+
+The window has already been chosen for you — it reaches back to the previous
+working day's lunch — so pass exactly that value and do not widen it.
+
+Write the finished note as Markdown to $out and nothing else to disk. The file
+must contain only the note itself, in Czech, in the skill's format: the
+"**Standup – D. M.**" heading, one bullet per project, and the closing line
+about push state and blockers. No preamble, no commentary, no code fences.
+
+If the window turns up no work at all, still write the file, with the heading
+and a single line saying there is nothing to report.
+EOF
+
+wl_opencode "$out" "$prompt" "$(wl_config "$WL_OUT_ROOT")"
+
+# First bullet, trimmed, as the notification body — enough to tell at a glance
+# whether the run understood the day.
+preview=$(grep -m1 '^-' "$out" | sed -e 's/^- *//' -e 's/\*\*//g' | cut -c1-160)
+wl_notify "Standup $today" "${preview:-ready in ~/worklog/standup/$today.md}"
+
+[ "$print" -eq 1 ] && cat "$out"
+exit 0

@@ -12,6 +12,12 @@ Append-only. See `SKILL.md` for the rules.
   list under a `@tom <tenant-shorthand> <topic>` header (e.g. `@tom kzd asistent`).
   His messages are the primary input for `personal-slack-feedback-intake`.
   <!-- learned 2026-08-28 -->
+- **Martin Bartoš** — also owns the **backend / ingest** side, not only
+  product/QA. Data-pipeline problems (feed → `items-search__<alias>` and the
+  other Typesense collections) are handed off to him. He also ships code in
+  this repo (e.g. branch `martinbartos/alk_discount_label`). Confirmed by the
+  user when handing over CUS-1048 (pft feed rows never ingested).
+  <!-- learned 2026-08-31 -->
 
 ## Tenants
 
@@ -21,7 +27,7 @@ means "tenant kzd, topic: copilot".
 
 | Shorthand | Package | Domain |
 |---|---|---|
-| `pft` | `packages/tenant-pft` | — |
+| `pft` | `packages/tenant-pft` | perfetto.sk (SK domain only) |
 | `kzd` | `packages/tenant-kzd` | knihykazda.cz |
 | `sps` | `packages/tenant-sps` | — (multi-domain: cz/sk/hu/ro) |
 

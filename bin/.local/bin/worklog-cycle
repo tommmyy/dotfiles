@@ -1,0 +1,210 @@
+#!/usr/bin/env bash
+# worklog-cycle — write the end-of-cycle work overview, unattended.
+#
+# Scheduled every Wednesday 12:30 by com.tommmyy.worklog-cycle, but cycles are
+# two weeks long, so most Wednesdays it exits silently. The gate is Linear
+# itself: the job runs only when a cycle ended in the last few hours.
+#
+#   worklog-cycle             summarize a cycle that just ended, else exit 0
+#   worklog-cycle --force     summarize the most recently ended cycle regardless
+#   worklog-cycle --marp      also emit a Marp slide deck
+#   worklog-cycle --dry-run   report which cycle would be summarized, write nothing
+#
+# Needs LINEAR_READ_KEY (read-only personal API key), taken from the environment
+# or from ~/dotfiles/zsh/.zsh_secrets.
+
+set -euo pipefail
+# shellcheck source=../lib/worklog-schedule.sh
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/worklog-schedule.sh"
+
+force=0
+marp=0
+dry=0
+for arg in "$@"; do
+	case "$arg" in
+	--force) force=1 ;;
+	--marp) marp=1 ;;
+	--dry-run) dry=1 ;;
+	-h | --help)
+		sed -n '2,16p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+		exit 0
+		;;
+	*)
+		echo "worklog-cycle: unknown option '$arg'" >&2
+		exit 2
+		;;
+	esac
+done
+
+wl_trim_log cycle
+
+TEAMS='["CUS","PER"]'
+# How recently a cycle must have ended for this to count as its wrap-up run.
+# A cycle rolls over at Wednesday 00:00 local and the job fires at 12:30, so the
+# real gap is ~12h; 30h leaves room for a late wake or a shifted cycle without
+# ever reaching back to the cycle before last.
+MAX_AGE_HOURS="${WORKLOG_CYCLE_MAX_AGE_HOURS:-30}"
+
+wl_load_secret LINEAR_READ_KEY ||
+	wl_die "LINEAR_READ_KEY not set and not found in $WL_SECRETS"
+
+# POST a GraphQL document; fail loudly on a transport or GraphQL-level error
+# rather than letting an empty result read as "you finished nothing".
+wl_linear() {
+	local query="$1" variables="${2:-{\}}"
+	local body response
+	body=$(jq -n --arg q "$query" --argjson v "$variables" '{query:$q, variables:$v}')
+	response=$(curl -sS --max-time 30 -X POST https://api.linear.app/graphql \
+		-H 'Content-Type: application/json' \
+		-H "Authorization: $LINEAR_READ_KEY" \
+		-d "$body") || wl_die "Linear request failed"
+	if [ "$(jq -r 'has("errors")' <<<"$response")" = "true" ]; then
+		wl_die "Linear: $(jq -c '.errors' <<<"$response")"
+	fi
+	printf '%s' "$response"
+}
+
+# --- which cycle just ended? -------------------------------------------------
+#
+# Not the active one. A cycle ends at 00:00 on the Wednesday this job runs, so
+# by 12:30 Linear's `activeCycle` is already the fresh one with half a day in
+# it. Asking for "the current cycle" here summarizes the wrong two weeks.
+
+cycles_json=$(wl_linear 'query($teams:[String!]){
+  teams(filter:{key:{in:$teams}}) {
+    nodes { key cycles(first:30) { nodes { number startsAt endsAt } } }
+  }
+}' "{\"teams\":$TEAMS}")
+
+selection=$(jq -c --argjson now "$(date +%s)" '
+  def epoch: sub("\\.[0-9]+Z$";"Z") | fromdateiso8601;
+  [ .data.teams.nodes[] as $t
+    | $t.cycles.nodes[]
+    | select(.endsAt != null)
+    | {team:$t.key, number, startsAt, endsAt, ends:(.endsAt|epoch)}
+  ]
+  | map(select(.ends <= $now))
+  | if length == 0 then null else
+      (map(.ends) | max) as $last
+      | map(select(.ends == $last)) as $winners
+      | { startsAt: ($winners | map(.startsAt) | min),
+          endsAt:   ($winners[0].endsAt),
+          ageHours: (($now - $last) / 3600 | floor),
+          teams:    ($winners | map({key:.team, number:.number}) | sort_by(.key)) }
+    end
+' <<<"$cycles_json")
+
+[ "$selection" = "null" ] && wl_die "Linear returned no finished cycle for teams $TEAMS"
+
+age=$(jq -r '.ageHours' <<<"$selection")
+starts=$(jq -r '.startsAt' <<<"$selection")
+ends=$(jq -r '.endsAt' <<<"$selection")
+label=$(jq -r '.teams | map("\(.key|ascii_downcase)-cycle-\(.number)") | join("-")' <<<"$selection")
+title=$(jq -r '.teams | map("\(.key) cycle \(.number)") | join(" / ")' <<<"$selection")
+end_day=$(date -u -j -f '%Y-%m-%dT%H:%M:%S' "${ends%.*}" '+%Y-%m-%d' 2>/dev/null || echo unknown)
+
+wl_log "most recent finished cycle: $title ($starts -> $ends, ${age}h ago)"
+
+if [ "$force" -eq 0 ] && [ "$age" -gt "$MAX_AGE_HOURS" ]; then
+	wl_log "ended ${age}h ago, over the ${MAX_AGE_HOURS}h threshold; not a cycle-end day"
+	exit 0
+fi
+
+# --- what did I finish in it? ------------------------------------------------
+#
+# One filtered query does the whole of the skill's "gather candidates, then
+# validate each one" dance, and does it exactly: Linear applies the assignee and
+# completedAt filters server-side, so nothing is missed and nothing unverified
+# slips in. The agent is then only asked to write prose about these facts.
+
+issues_json=$(wl_linear 'query($teams:[String!], $start:DateTimeOrDuration!, $end:DateTimeOrDuration!){
+  viewer { id name }
+  issues(first:250, filter:{
+    assignee:{isMe:{eq:true}},
+    completedAt:{gte:$start, lt:$end},
+    team:{key:{in:$teams}}
+  }) {
+    nodes {
+      identifier title description url branchName completedAt
+      team { key } project { name } state { name }
+      labels { nodes { name } }
+      estimate priorityLabel
+    }
+  }
+}' "$(jq -n --argjson t "$TEAMS" --arg s "$starts" --arg e "$ends" \
+	'{teams:$t, start:$s, end:$e}')")
+
+count=$(jq -r '.data.issues.nodes | length' <<<"$issues_json")
+wl_log "verified $count completed issue(s) assigned to $(jq -r '.data.viewer.name' <<<"$issues_json")"
+
+if [ "$dry" -eq 1 ]; then
+	jq -r '.data.issues.nodes[] | "\(.identifier)  \(.completedAt[0:10])  \(.title)"' <<<"$issues_json"
+	exit 0
+fi
+
+out_dir="$WL_OUT_ROOT/cycles"
+out="$out_dir/$label-$end_day.md"
+deck="$out_dir/$label-$end_day.marp.md"
+facts="$out_dir/.$label-facts.json"
+
+wl_lock cycle
+mkdir -p "$out_dir"
+
+if [ "$count" -eq 0 ]; then
+	# Still leave a file. A silent absence is indistinguishable from a broken job.
+	{
+		echo "# $title — work overview"
+		echo
+		echo "Window: $starts → $ends"
+		echo
+		echo "No issues assigned to you were completed inside this cycle window."
+	} >"$out"
+	wl_notify "Cycle overview: $title" "No completed issues in the window."
+	wl_log "wrote $out (empty cycle)"
+	exit 0
+fi
+
+jq --arg title "$title" --arg s "$starts" --arg e "$ends" '{
+  cycle: $title, window: {startsAt:$s, endsAt:$e},
+  issues: [ .data.issues.nodes[] | {
+    id: .identifier, title, url, branchName,
+    completedAt, team: .team.key, project: .project.name, state: .state.name,
+    labels: [.labels.nodes[].name], estimate, priority: .priorityLabel,
+    description: (.description // "" | .[0:1500])
+  } ]
+}' <<<"$issues_json" >"$facts"
+
+marp_clause="Do not produce a slide deck."
+[ "$marp" -eq 1 ] && marp_clause="Also write a Marp deck to $deck, following the skill's deck requirements: Marp frontmatter, '---' separators, one theme per slide, slides short enough to fit."
+
+read -r -d '' prompt <<EOF || true
+Use the personal-linear-cycle-work-overview skill to write the technical work
+overview for $title.
+
+The issue set is already resolved and verified. Read it from $facts — every
+issue in that file is assigned to the user, completed, and its completedAt falls
+inside the cycle window $starts to $ends. Steps 1 to 3 of the skill (resolving
+the cycle, gathering candidates, validating them individually) are therefore
+done; skip them.
+
+Do not query Linear. No Linear MCP tools are available in this session, and the
+facts file is authoritative.
+
+Do enrich the issues from local git in $WL_REPO, as the skill's enrichment
+section describes: merged pull-request markers, commits and branches naming each
+issue id. Follow its enrichment rules — prefer a visible merged PR number, fall
+back to branch commit evidence, and describe an item at a high level rather than
+inventing specifics when the evidence is ambiguous.
+
+Write the technical summary to $out: the scope used, the verified count per
+team, work grouped by theme, per-issue notes with PR references where known, and
+a caveats section. $marp_clause
+
+Write nothing else to disk, and do not touch the git repository's contents.
+EOF
+
+wl_opencode "$out" "$prompt" "$(wl_config "$WL_OUT_ROOT")"
+rm -f "$facts"
+
+wl_notify "Cycle overview: $title" "$count completed issue(s). ~/worklog/cycles/$(basename "$out")"
+exit 0

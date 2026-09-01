@@ -12,9 +12,13 @@ permission:
   list: allow
   webfetch: allow
   websearch: allow
-  # oc-paste-extract reads opencode's own database and writes $TMPDIR, both
-  # outside the worktree; without this every screenshot costs a prompt.
-  external_directory: allow
+  # Reading is never gated. The agent inspects repos it does not live in
+  # (worktrees, other tenants) and oc-paste-extract reads opencode's own
+  # database and writes $TMPDIR; an ask here is a prompt per investigation.
+  # Must be a map, not the "allow" shorthand: the shorthand loses to the
+  # global external_directory object, leaving opencode's default `*: ask`.
+  external_directory:
+    "*": allow
   bash:
     # Allow by default. Patterns match the whole command string, so prefix
     # rules miss the `cd x && ...` form agents actually write — an ask-first
