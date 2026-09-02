@@ -84,3 +84,8 @@ means "tenant kzd, topic: copilot".
   requires exactly one `type` param value, and kzd titles have two (Tištěná
   kniha / E-kniha). Blocks verification of PER-1063. <!-- learned 2026-08-28 -->
 
+- **`@tom` as the AUTHOR line of a pasted screenshot = the user himself**, not a
+  colleague writing to him. Distinguish from Martin's header form `@tom <tenant>
+  <topic>`, where `@tom` is the *addressee*. Author line → treat the text as the
+  user's own report. Confirmed by the user 2026-09-02.
+  <!-- learned 2026-09-02 -->

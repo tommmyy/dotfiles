@@ -96,6 +96,36 @@
       "enabled": true,
       "timeout": 30000,
     },
+    "playwright-tenant": {
+      "type": "local",
+      "command": [
+        "npx",
+        "@playwright/mcp@latest",
+        "--cdp-endpoint",
+        "http://localhost:9222",
+      ],
+      "enabled": true,
+      "timeout": 30000,
+    },
+    // Secrets live in the macOS keychain and are exported from ~/.zsh_secrets:
+    //   idoklad-client-id, idoklad-client-secret  (Nastavení > Aplikace a API)
+    //   idoklad-email, idoklad-password           (web login, VAT filings only)
+    "idoklad": {
+      "type": "local",
+      "command": [
+        "node",
+        "/Users/tommmyy/.config/opencode/mcp/idoklad/index.js",
+      ],
+      "environment": {
+        "IDOKLAD_CLIENT_ID": "{env:IDOKLAD_CLIENT_ID}",
+        "IDOKLAD_CLIENT_SECRET": "{env:IDOKLAD_CLIENT_SECRET}",
+        "IDOKLAD_EMAIL": "{env:IDOKLAD_EMAIL}",
+        "IDOKLAD_PASSWORD": "{env:IDOKLAD_PASSWORD}",
+      },
+      "enabled": true,
+      // Generating VAT filings drives a browser, so allow more than the usual 30s.
+      "timeout": 180000,
+    },
     "prometheus": {
       "type": "local",
       "command": [
