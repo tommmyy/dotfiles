@@ -318,6 +318,22 @@ function spawnJob(repo, issue, { dryRun, progress, preset = {} }) {
 	if (!dryRun) tagWorktreeSessions(repo, preset.baseFolder || null);
 	if (!dryRun && progress) moveToInProgress(repo, issue.identifier);
 	log(`${dryRun ? "[dry-run] " : ""}${issue.identifier} -> ${branch} (handle ${handle})`);
+	if (!dryRun) {
+		// The handle alone is not a tmux target. With `nerdfont: true` workmux
+		// names the session "<glyph> <handle>", and tmux resolves -t by exact
+		// name, then prefix, then fnmatch — the leading glyph defeats the first
+		// two. Match it with a wildcard rather than spelling the glyph out: it
+		// changes with agent state (starting vs reporting).
+		//
+		// `sessionIdForPane` would give an exact target, but it needs a pane_id
+		// from `workmux status`, and the agent is not registered there yet.
+		log(`attach: tmux attach -t '*${handle}'`);
+		// workmux has already printed its own success line above. The job is not
+		// in `workmux status` or the sidebar until opencode boots and reports a
+		// title, so without this the obvious check — spawn, look at the sidebar —
+		// reads as a failed spawn.
+		log("appears in the sidebar once opencode boots (~1 min)");
+	}
 	return true;
 }
 
