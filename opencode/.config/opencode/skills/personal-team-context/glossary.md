@@ -19,6 +19,17 @@ Append-only. See `SKILL.md` for the rules.
   user when handing over CUS-1048 (pft feed rows never ingested).
   <!-- learned 2026-08-31 -->
 
+- **Tomáš Hauk** — colleague, **not** the user. The `perselio-com` GitHub org
+  keeps per-person agent repos (`tomas-hauk-ai-agents`, `milan-hruban-agents`,
+  `lukas-matejka-agents`), so a repo/branch carrying a person's name is *theirs*,
+  never automatically the user's. Because two Tomášes exist here, a bare
+  "Tomáš" needs a surname before you attribute anything. Confirmed by the user
+  2026-09-08 after I misread `tomas-hauk-ai-agents` as his own repo.
+  <!-- learned 2026-09-08 -->
+- **Milan Hruban**, **Lukáš Matějka** — colleagues (inferred from the per-person
+  agent-repo pattern above; roles unconfirmed).
+  <!-- learned 2026-09-08 -->
+
 ## Tenants
 
 Shorthands used in chat map to `packages/tenant-<code>/` in

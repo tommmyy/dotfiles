@@ -1,0 +1,30 @@
+# workmux nested config for the `console` subproject (perselio-console).
+#
+# Nested configs REPLACE the root one, and make the tmux window open here inside
+# the new worktree — the equivalent of linear-workmux's `baseFolder`. Without
+# this file workmux walks up to the repo root config, and a console job opens at
+# the polyglot root with the analytics workspace set up instead.
+#
+# Setup is delegated to worktrunk's hooks (`~/.config/worktrunk/config.toml`),
+# which for console means prime_console_ignored + setup_console_dependencies:
+# they clone perselio-console's git-ignored entries with APFS clonefile(2) and
+# run the yarn workspaces install in THIS dir. Scoping the clone to
+# perselio-console skips s-analytics/sources/node_modules (1.0G / 143k files),
+# which console never uses.
+#
+# NEVER symlink node_modules here: every worktree would share one mutable
+# install across concurrent agents. worktrunk clones copy-on-write instead.
+
+agent: opencode
+
+post_create:
+  - WT_SUBPROJECT=console wt hook pre-start -C "$WM_WORKTREE_PATH"
+
+pre_remove:
+  - WT_SUBPROJECT=console wt hook pre-remove -C "$WM_WORKTREE_PATH" || true
+
+panes:
+  - command: <agent>
+    focus: true
+  - split: horizontal
+    size: 15

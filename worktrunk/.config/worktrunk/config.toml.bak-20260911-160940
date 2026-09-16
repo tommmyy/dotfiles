@@ -96,16 +96,9 @@ yarn prepare-workspace || exit 1
 # Same idea as prime_sdp_sources_node_modules, but console is a yarn workspaces
 # monorepo (nodeLinker: node-modules, enableGlobalCache: false), so the state that
 # must come across is spread over several ignored paths: the root node_modules, one
-# per workspace under packages/*, .yarn/cache, .yarn/install-state.gz, .env* and the
-# .turbo cache. Rather than hardcode that list (it drifts as workspaces are added),
-# ask git for the ignored entries under perselio-console and clone each.
-#
-# .next is the one exclusion, and it is not optional. Turbopack's persistent dev
-# cache keys on absolute paths, so a cache built in the primary worktree does not
-# describe this one. Next restores it regardless and its worker pool then respawns
-# node processes without bound -- measured at >1300 processes, which exhausts a
-# 16G machine and takes the desktop session with it. A cold first compile in the
-# new worktree is the cheap price.
+# per workspace under packages/*, .yarn/cache, .yarn/install-state.gz, .env*, and the
+# .turbo / .next build caches. Rather than hardcode that list (it drifts as workspaces
+# are added), ask git for the ignored entries under perselio-console and clone each.
 #
 # This is `wt step copy-ignored` scoped to one subtree. The unscoped version is
 # repo-wide, so a console worktree also cloned s-analytics/sources/node_modules
@@ -136,7 +129,6 @@ sys.exit(0 if lib.clonefile(sys.argv[1].encode(), sys.argv[2].encode(), 0) == 0 
 git -C "$SRC" -c core.quotePath=false status --porcelain --ignored=matching -uall -- perselio-console 2>/dev/null \\
   | sed -n 's|^!! ||p' | sed 's|/$||' | while IFS= read -r rel; do
   [ -n "$rel" ] || continue
-  case "$rel" in */.next|*/.next/*) continue ;; esac
   [ -e "$SRC/$rel" ] || continue
   [ -e "$DST/$rel" ] && continue
   mkdir -p "$(dirname "$DST/$rel")" || continue

@@ -16,6 +16,9 @@ worktree_naming: basename
 panes:
   - command: <agent>
     focus: true
-  - split: horizontal
+  # `horizontal` in workmux means "split along the horizontal axis" -> tmux
+  # `split-window -h`, i.e. a pane on the RIGHT, and `size` then counts columns.
+  # `vertical` is the one that puts a 15-LINE shell under the agent.
+  - split: vertical
     size: 15
 nerdfont: true

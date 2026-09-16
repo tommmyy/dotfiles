@@ -19,6 +19,15 @@ Drive iDoklad from opencode for the two recurring jobs: issuing an invoice by
 copying the previous one, and producing the monthly Czech VAT filings that get
 uploaded to the state portal by hand.
 
+## The server is disabled by default
+
+`idoklad` is set to `"enabled": false` in `opencode.jsonc`, because invoicing
+comes up a few times a month and the tools are not worth their context cost the
+rest of the time. If none of the `idoklad_*` tools are available, stop and tell
+the user to flip that flag and restart opencode — do not try to work around it
+with `curl` or the browser, and do not report the task as blocked for any other
+reason.
+
 ## What the MCP server can and cannot do
 
 The `idoklad` MCP server has two halves, and they behave very differently.
@@ -34,6 +43,10 @@ the numbers. That means it is slower, needs `IDOKLAD_EMAIL` /
 filing was produced unless the tool returned real file paths.
 
 ## Workflow A: new invoice by copying the last one
+
+For the recurring monthly Aguan s.r.o. invoice, use
+**`personal-monthly-invoice-aguan`** instead. It owns the arithmetic that turns
+worked hours into the invoice base, which this generic workflow would get wrong.
 
 ### 1. Find the source invoice
 
@@ -61,6 +74,12 @@ do not set it yourself.
 Typical edits: `DateOfIssue`, `DateOfTaxing`, `DateOfMaturity`, `Description`,
 `Items[].Amount`, `Items[].UnitPrice`, `Items[].Name`, `PartnerId`.
 
+A copy also carries the source invoice's free-text fields — `ItemsTextPrefix`,
+`ItemsTextSuffix` and `Note`. These often name the billing period or another
+date and print on the PDF, but never show up in the totals, so a stale one
+survives every check that only looks at money. Read them on the copy and
+rewrite any that refer to the old period.
+
 Dates are ISO (`2026-09-30`). Resolve a partner by name with `contact_list`,
 never by guessing an id. Resolve VAT rates, currencies, payment options and
 numeric sequences with `codebook` when a change needs an id.
@@ -68,8 +87,9 @@ numeric sequences with `codebook` when a change needs an id.
 ### 3. Confirm before saving
 
 Show the user the resulting draft: document number, dates, partner, line items,
-and the recounted total. **Wait for explicit confirmation** — this creates a
-real accounting document. Do not chain straight from request to saved invoice.
+any free-text fields that mention a period, and the recounted total. **Wait for
+explicit confirmation** — this creates a real accounting document. Do not chain
+straight from request to saved invoice.
 
 ### 4. Save
 
@@ -141,6 +161,8 @@ the filings, and do not attempt to open the portal.
 - Saving an invoice without showing the draft and getting confirmation first.
 - Computing VAT or totals manually instead of letting `recount` do it.
 - Sending a partial `Items` array and silently dropping the other lines.
+- Leaving a copied `ItemsTextSuffix` / `ItemsTextPrefix` / `Note` pointing at
+  the source invoice's period. Totals look right, so nothing catches it.
 - Guessing a `PartnerId`, `VatRateType` or `PaymentOptionId` instead of looking
   it up with `contact_list` / `codebook`.
 - Claiming the VAT filings were generated when the tool errored — there is no

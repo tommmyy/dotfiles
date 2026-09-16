@@ -1,4 +1,4 @@
-stow bin bash zsh opencode tmux editorconfig ack nvim worktrunk linear-session finicky launchd
+stow bin bash zsh opencode tmux editorconfig ack nvim worktrunk linear-session linear-workmux finicky launchd
 
 # launchd only reads ~/Library/LaunchAgents at login, so stowing a plist is not
 # enough on a machine that is already running.

@@ -1,0 +1,16 @@
+#!/bin/sh
+# tt — draft the timesheet from git, sync it to Everhour, verify the two agree.
+#
+# Rebuilds when any source file is newer than the build output, so editing the
+# project never leaves a stale binary behind the command.
+set -e
+
+root="$HOME/workspaces/tt"
+out="$root/dist/index.js"
+
+if [ ! -f "$out" ] || [ -n "$(find "$root/src" -name '*.ts' -newer "$out" -print -quit)" ]; then
+	printf 'tt: rebuilding…\n' >&2
+	(cd "$root" && yarn --silent build)
+fi
+
+exec node "$out" "$@"

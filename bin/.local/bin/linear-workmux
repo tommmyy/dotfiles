@@ -3,13 +3,12 @@
 // linear-workmux — feed Linear issues into workmux jobs, and show which jobs
 // are waiting on you.
 //
-// Deliberately SEPARATE from `linear-session` (which drives `wt` + tmux
-// directly). Both can coexist: `wt` worktrees live in the repo's own worktree
-// dir with `<repo>@<branch>` sessions, workmux worktrees live in
-// `<project>__worktrees/` with `wm-<name>` sessions.
+// Worktrees live in `<project>__worktrees/`, one `wm-<name>` tmux session each.
+// The older `linear-session` (`wt` + tmux directly, `<repo>@<branch>` sessions)
+// still exists and can coexist, but this is the tool in use.
 //
-// Linear is queried by shelling out to `opencode run` with the Linear MCP —
-// the same trick `linear-session` uses — so this needs no API token of its own.
+// Linear is queried by shelling out to `opencode run` with the Linear MCP, so
+// this needs no API token of its own.
 
 const { spawnSync } = require("child_process");
 const { existsSync, readFileSync } = require("fs");
@@ -17,30 +16,27 @@ const { join } = require("path");
 
 const METADATA_MODEL = "openai/gpt-5.6-terra-fast";
 const DEFAULT_REPO = `${process.env.HOME}/workspaces/sdp`;
-const DEFAULT_PROJECT = "sdp";
+// Last resort only: used when the cwd is outside every known preset and no -P
+// was given. A monorepo subproject is never guessable from the issue, so the
+// wrong guess here silently sets up the wrong workspace.
+const FALLBACK_PROJECT = "sdp";
 
 const expandHome = p => String(p || "").replace(/^~/, process.env.HOME);
 
-// Project presets are READ FROM `linear-session`'s config so the two tools can
-// never disagree about where a project lives:
+// Project presets, from `~/.config/linear-workmux/config.json`:
 //   repoPath    repository root
 //   baseBranch  branch to base new work on
 //   baseFolder  subdirectory to work in (workmux picks up its nested
 //               .workmux.yaml there, so the tmux window opens in it)
 //   subproject  value for WT_SUBPROJECT, which selects worktrunk's setup hooks
-// A `~/.config/linear-workmux/config.json` with the same shape wins if present.
 function loadProjects() {
 	const xdg = process.env.XDG_CONFIG_HOME || join(process.env.HOME, ".config");
-	for (const p of [
-		join(xdg, "linear-workmux", "config.json"),
-		join(xdg, "linear-session", "config.json"),
-	]) {
-		if (!existsSync(p)) continue;
-		try {
-			return JSON.parse(readFileSync(p, "utf8")).projects || {};
-		} catch (e) {
-			log(`warning: cannot parse ${p}: ${e.message}`);
-		}
+	const p = join(xdg, "linear-workmux", "config.json");
+	if (!existsSync(p)) return {};
+	try {
+		return JSON.parse(readFileSync(p, "utf8")).projects || {};
+	} catch (e) {
+		log(`warning: cannot parse ${p}: ${e.message}`);
 	}
 	return {};
 }
@@ -55,6 +51,29 @@ function resolvePreset(name) {
 		);
 	}
 	return preset;
+}
+
+// Which preset does the cwd sit in? Two presets can share a repoPath and differ
+// only by baseFolder (the sdp monorepo has one per JS workspace), so match on
+// `repoPath/baseFolder` and take the LONGEST match — otherwise a preset whose
+// baseFolder is "" would swallow every subdirectory.
+//
+// This is what makes a bare `spawn` correct: run it from perselio-console and
+// the job is set up for the console workspace, not whichever preset is listed
+// first. Without it every spawn inherited one hardcoded default, which quietly
+// gave console issues the analytics workspace and analytics' worktrunk hooks.
+function presetFromCwd(cwd) {
+	const inside = (dir, parent) =>
+		dir === parent || dir.startsWith(`${parent}/`);
+	let best = null;
+	for (const [name, preset] of Object.entries(loadProjects())) {
+		const root = expandHome(preset.repoPath || "");
+		if (!root || !inside(cwd, root)) continue;
+		const dir = preset.baseFolder ? join(root, preset.baseFolder) : root;
+		if (!inside(cwd, dir)) continue;
+		if (!best || dir.length > best.dir.length) best = { name, dir };
+	}
+	return best && best.name;
 }
 
 const log = m => process.stderr.write(`[linear-workmux] ${m}\n`);
@@ -75,17 +94,22 @@ Commands:
   reap                   Remove jobs whose branch is already merged into the base
 
 Options:
-  -P, --project <name>   Project preset from linear-session's config (default: ${DEFAULT_PROJECT})
+  -P, --project <name>   Project preset (default: the one the cwd sits in,
+                         else ${FALLBACK_PROJECT}). Known: ${Object.keys(loadProjects()).join(", ") || "none"}
   -r, --repo <path>      Override the preset's repository path
+      --base-folder <p>  Override the preset's baseFolder; "." means the repo root
   -n, --dry-run          Print what would happen, change nothing
   -s, --state <name>     Linear state to pull for list/auto (default: Todo)
       --no-progress      Do not move spawned issues to In Progress
+  -c, --context <text>   Extra instruction for the agent prompt only; the Linear
+                         issue is never modified. Repeatable.
   -h, --help             This help
 
 Examples:
   linear-workmux status
   linear-workmux list
   linear-workmux spawn CUS-1038
+  linear-workmux spawn PER-1227 -c "Use claude-design-mcp to design the UI"
   linear-workmux auto --dry-run
 `);
 	process.exit(1);
@@ -260,12 +284,29 @@ function existingHandles(repo) {
 	return handles;
 }
 
-function promptFor(issue, branch) {
-	return [
+// `context` is operator-supplied guidance for THIS run (-c/--context). It is
+// kept in its own section, clearly separated from the description, so the agent
+// cannot mistake it for issue text and try to reconcile it with Linear — the
+// issue itself is never touched.
+function promptFor(issue, branch, context = []) {
+	const lines = [
 		`Linear issue ${issue.identifier}: ${issue.title}`,
 		`URL: ${issue.url}`,
 		"",
 		String(issue.description || "").trim() || "(no description)",
+	];
+
+	if (context.length) {
+		lines.push(
+			"",
+			"---",
+			"Additional context from the operator (NOT part of the Linear issue;",
+			"do not write it back to Linear):",
+			...context.map(c => `- ${c}`),
+		);
+	}
+
+	lines.push(
 		"",
 		"---",
 		`You are on branch ${branch}, in a dedicated worktree.`,
@@ -276,10 +317,11 @@ function promptFor(issue, branch) {
 		"- for any widget / tenant-config / render change, live-verify with `yarn try-tenant`;",
 		"  unit tests and typecheck do NOT prove a widget renders",
 		"Ask before doing anything destructive or out of scope.",
-	].join("\n");
+	);
+	return lines.join("\n");
 }
 
-function spawnJob(repo, issue, { dryRun, progress, preset = {} }) {
+function spawnJob(repo, issue, { dryRun, progress, preset = {}, baseFolder, context = [] }) {
 	const branch = branchFor(issue);
 	const handle = issue.identifier.toLowerCase();
 	const args = [
@@ -289,20 +331,27 @@ function spawnJob(repo, issue, { dryRun, progress, preset = {} }) {
 		issue.identifier,
 		"-b",
 		"-p",
-		promptFor(issue, branch),
+		promptFor(issue, branch, context),
 	];
 	if (preset.baseBranch) args.push("--base", preset.baseBranch);
 	if (dryRun) args.push("--dry-run");
 
-	// Run FROM the subproject dir when the preset names one: workmux then uses
-	// that directory's nested .workmux.yaml, and the new worktree's tmux window
-	// opens there instead of at the polyglot repo root (linear-session's
-	// `baseFolder`). WT_SUBPROJECT selects which worktrunk setup hooks run.
-	const baseFolder = preset.baseFolder ? join(repo, preset.baseFolder) : null;
-	const cwd = baseFolder && existsSync(baseFolder) ? baseFolder : repo;
-	if (preset.baseFolder && cwd === repo) {
-		log(`warning: baseFolder ${preset.baseFolder} not found, using repo root`);
+	// Run FROM the subproject dir when one is named: workmux then uses that
+	// directory's nested .workmux.yaml, and the new worktree's tmux window opens
+	// there instead of at the polyglot repo root.
+	// `--base-folder` overrides the preset per spawn, because work that lives at
+	// the repo root (bin/, skills) needs the root rather than a JS workspace.
+	// WT_SUBPROJECT selects which worktrunk setup hooks run.
+	const wanted = baseFolder === undefined ? preset.baseFolder : baseFolder;
+	const wantedPath = wanted ? join(repo, wanted) : null;
+	const cwd = wantedPath && existsSync(wantedPath) ? wantedPath : repo;
+	if (wanted && cwd === repo) {
+		log(`warning: baseFolder ${wanted} not found, using repo root`);
 	}
+	// Print the workspace: it is the one setting a wrong -P corrupts, and the
+	// symptom otherwise only shows up minutes later as an agent sitting in the
+	// wrong directory with the wrong dependencies.
+	log(`workspace: ${wanted || "<repo root>"}${preset.subproject ? ` (WT_SUBPROJECT=${preset.subproject})` : ""}`);
 
 	const r = sh("workmux", args, {
 		cwd,
@@ -315,7 +364,7 @@ function spawnJob(repo, issue, { dryRun, progress, preset = {} }) {
 		log(`workmux add failed for ${issue.identifier}`);
 		return false;
 	}
-	if (!dryRun) tagWorktreeSessions(repo, preset.baseFolder || null);
+	if (!dryRun) tagWorktreeSessions(repo, wanted || null);
 	if (!dryRun && progress) moveToInProgress(repo, issue.identifier);
 	log(`${dryRun ? "[dry-run] " : ""}${issue.identifier} -> ${branch} (handle ${handle})`);
 	if (!dryRun) {
@@ -507,10 +556,11 @@ function main() {
 
 	const opts = {
 		repo: null,
-		project: DEFAULT_PROJECT,
+		project: null,
 		dryRun: false,
 		state: "Todo",
 		progress: true,
+		context: [],
 	};
 	const rest = [];
 	for (let i = 0; i < argv.length; i++) {
@@ -519,12 +569,31 @@ function main() {
 		else if (a === "-n" || a === "--dry-run") opts.dryRun = true;
 		else if (a === "--no-progress") opts.progress = false;
 		else if (a === "-r" || a === "--repo") opts.repo = argv[++i];
-		else if (a === "-P" || a === "--project") opts.project = argv[++i];
+		// "." is how you say "the repo root" without an empty shell argument.
+		else if (a === "--base-folder")
+			opts.baseFolder = (argv[++i] || "").replace(/^\.$/, "");
+		else if (a === "-c" || a === "--context") {
+			const v = (argv[++i] || "").trim();
+			if (!v) fail("--context needs a non-empty value");
+			opts.context.push(v);
+		} else if (a === "-P" || a === "--project") opts.project = argv[++i];
 		else if (a === "-s" || a === "--state") opts.state = argv[++i];
 		else rest.push(a);
 	}
 
-	opts.preset = opts.project ? resolvePreset(opts.project) : {};
+	// Explicit -P wins, then the workspace the command was run from, then the
+	// fallback. Announce an inferred preset: it decides which workspace the job
+	// is set up for, and a wrong one is only visible once the agent is running.
+	if (!opts.project) {
+		const fromCwd = presetFromCwd(process.cwd());
+		opts.project = fromCwd || FALLBACK_PROJECT;
+		log(
+			fromCwd
+				? `project: ${fromCwd} (from cwd; -P overrides)`
+				: `project: ${FALLBACK_PROJECT} (fallback — cwd is in no workspace; pass -P)`,
+		);
+	}
+	opts.preset = resolvePreset(opts.project);
 	// Explicit --repo wins, then the preset's repoPath, then the default.
 	opts.repo = expandHome(opts.repo || opts.preset.repoPath || DEFAULT_REPO);
 

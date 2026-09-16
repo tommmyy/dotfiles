@@ -90,12 +90,28 @@
     //   "enabled": true,
     //   "timeout": 30000,
     // },
+    // Default browser for agents: no window, fresh profile every run.
     "playwright": {
       "type": "local",
-      "command": ["npx", "-y", "@playwright/mcp@latest", "--headless"],
+      "command": [
+        "npx",
+        "-y",
+        "@playwright/mcp@latest",
+        "--headless",
+        "--isolated",
+      ],
       "enabled": true,
       "timeout": 30000,
     },
+    // Same tools, but in a visible Chrome window with the persistent profile —
+    // pick this when the run needs watching or a logged-in session.
+    "playwright-headed": {
+      "type": "local",
+      "command": ["npx", "-y", "@playwright/mcp@latest", "--browser", "chrome"],
+      "enabled": true,
+      "timeout": 30000,
+    },
+    // Attaches to a Chrome already started with --remote-debugging-port=9222.
     "playwright-tenant": {
       "type": "local",
       "command": [
@@ -122,7 +138,9 @@
         "IDOKLAD_EMAIL": "{env:IDOKLAD_EMAIL}",
         "IDOKLAD_PASSWORD": "{env:IDOKLAD_PASSWORD}",
       },
-      "enabled": true,
+      // Off by default: invoicing and VAT filings come up a few times a month,
+      // so the tools are not worth their context cost in every session.
+      "enabled": false,
       // Generating VAT filings drives a browser, so allow more than the usual 30s.
       "timeout": 180000,
     },
