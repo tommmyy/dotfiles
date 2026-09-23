@@ -320,19 +320,11 @@ Rules:
 - "moved" is true only if you actually changed the status.
 - Output JSON only. No markdown. No prose. Do not invent or shorten any value.`;
 
+	// `opencode run` takes no directory argument; it uses the process cwd.
 	const result = run(
 		"opencode",
-		[
-			"run",
-			"-m",
-			OPENCODE_METADATA_MODEL,
-			"--format",
-			"json",
-			"--dir",
-			repoPath,
-			prompt,
-		],
-		{ check: false },
+		["run", "-m", OPENCODE_METADATA_MODEL, "--format", "json", prompt],
+		{ check: false, cwd: repoPath },
 	);
 	if (result.status !== 0) {
 		fail(

@@ -1,0 +1,84 @@
+#!/usr/bin/env node
+// workmux pane command for OpenCode 2 jobs.
+//
+// workmux's built-in `opencode` agent appends `--prompt <text>`, which through
+// OpenCode 1 started the job. OpenCode 2 only fills the composer with it and
+// waits for a keypress, so a spawned job never runs. Rather than synthesising
+// an Enter, seed the session over the server API and attach a TUI to it: the
+// reply is already streaming by the time the pane opens.
+//
+// Pair this with `workmux add --prompt-file-only`, which writes
+// .workmux/PROMPT-<branch>.md without requiring a recognised agent in the pane
+// command. Without that flag workmux refuses to create the worktree at all:
+//   Prompt provided, but no pane is configured to run the agent 'opencode'.
+//
+// With no prompt file this is just `opencode`, so it stays usable as a plain
+// pane command.
+
+const { execFileSync, spawn, spawnSync } = require("child_process");
+const { readdirSync, readFileSync } = require("fs");
+const { join } = require("path");
+
+const dir = process.cwd();
+
+function readPrompt() {
+	try {
+		const d = join(dir, ".workmux");
+		const name = readdirSync(d)
+			.filter((n) => n.startsWith("PROMPT-") && n.endsWith(".md"))
+			.sort()[0];
+		if (!name) return null;
+		const text = readFileSync(join(d, name), "utf8").trim();
+		if (!text) return null;
+		// PROMPT-<branch>.md — the branch makes a far better session title than
+		// the first line of an issue description.
+		return { text, title: name.replace(/^PROMPT-/, "").replace(/\.md$/, "") };
+	} catch {
+		return null;
+	}
+}
+
+function attach(args) {
+	const r = spawnSync("opencode", args, { stdio: "inherit" });
+	process.exit(r.status === null ? 1 : r.status);
+}
+
+const prompt = readPrompt();
+if (!prompt) attach([]);
+
+let sessionID;
+try {
+	const out = execFileSync(
+		"opencode",
+		[
+			"api",
+			"session.create",
+			"-d",
+			JSON.stringify({ title: prompt.title, location: { directory: dir } }),
+		],
+		{ encoding: "utf8", maxBuffer: 32 * 1024 * 1024 },
+	);
+	sessionID = JSON.parse(out).data.id;
+} catch (e) {
+	process.stderr.write(
+		`[wm-opencode] could not create a session (${e.message}); opening with the prompt unsent\n`,
+	);
+	attach(["--prompt", prompt.text]);
+}
+
+// Detached: this call blocks for the whole turn, and the TUI below is what
+// renders it. Failures surface in the session itself, not here.
+spawn(
+	"opencode",
+	[
+		"api",
+		"session.prompt",
+		"--param",
+		`sessionID=${sessionID}`,
+		"-d",
+		JSON.stringify({ text: prompt.text }),
+	],
+	{ detached: true, stdio: "ignore" },
+).unref();
+
+attach(["--session", sessionID]);

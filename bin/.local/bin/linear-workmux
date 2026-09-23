@@ -124,10 +124,11 @@ function sh(cmd, args, opts = {}) {
 // --- Linear, via opencode + the Linear MCP -------------------------------
 
 function askLinear(prompt, repo) {
+	// `opencode run` takes no directory argument; it uses the process cwd.
 	const r = sh(
 		"opencode",
-		["run", "-m", METADATA_MODEL, "--format", "json", "--dir", repo, prompt],
-		{ maxBuffer: 32 * 1024 * 1024 },
+		["run", "-m", METADATA_MODEL, "--format", "json", prompt],
+		{ maxBuffer: 32 * 1024 * 1024, cwd: repo },
 	);
 	if (r.status !== 0) fail("opencode returned no final response", r.stderr || r.stdout);
 
@@ -332,6 +333,11 @@ function spawnJob(repo, issue, { dryRun, progress, preset = {}, baseFolder, cont
 		"-b",
 		"-p",
 		promptFor(issue, branch, context),
+		// The pane runs `wm-opencode`, which workmux does not recognise as an
+		// agent; without this it refuses the whole spawn ("no pane is configured
+		// to run the agent 'opencode'"). The prompt still lands in
+		// .workmux/PROMPT-<branch>.md, which is where the wrapper reads it.
+		"--prompt-file-only",
 	];
 	if (preset.baseBranch) args.push("--base", preset.baseBranch);
 	if (dryRun) args.push("--dry-run");

@@ -1,0 +1,56 @@
+#!/bin/sh
+# OpenCode launcher.
+set -e
+
+BIN="$HOME/.local/share/opencode-v2/bin/opencode"
+
+# OPENCODE_DB keeps OpenCode 2 on its own database instead of the 18 GB
+# opencode.db that OpenCode 1 wrote. V2 migrates its database in place and the
+# migration is one way, so leaving the V1 file untouched keeps
+# `brew install opencode` a working escape hatch while opencode-claude-auth-v2
+# is still a beta.
+export OPENCODE_DB="${OPENCODE_DB:-opencode-v2.db}"
+
+# opencode-claude-auth-v2 sends a hardcoded Claude Code version to Anthropic,
+# which then refuses any model released after it:
+#
+#   Claude Code 2.1.257 does not support this model; version 2.1.280 or newer
+#   is required.
+#
+# Claude Code updates itself, so report the installed version instead. The
+# background service inherits this from whichever client starts it. Never write
+# it with `service set env`: that stops a running service, so a second terminal
+# tab would kill the session in the first one.
+#
+# `claude --version` costs ~2s, so cache it for a day. A stale cache only means
+# the bump is picked up on the next day's first launch. A service already
+# running with an older value keeps it until something restarts it.
+claude_cli_version() {
+    stamp="$HOME/.cache/opencode/claude-cli-version"
+
+    if find "$stamp" -mtime -1 >/dev/null 2>&1 && [ -s "$stamp" ]; then
+        cat "$stamp"
+        return 0
+    fi
+    if ! command -v claude >/dev/null 2>&1; then
+        cat "$stamp" 2>/dev/null || true
+        return 0
+    fi
+
+    version=$(claude --version 2>/dev/null | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+' || true)
+    if [ -z "$version" ]; then
+        cat "$stamp" 2>/dev/null || true
+        return 0
+    fi
+
+    mkdir -p "$(dirname "$stamp")"
+    printf '%s' "$version" >"$stamp"
+    printf '%s' "$version"
+}
+
+if [ -z "$ANTHROPIC_CLI_VERSION" ]; then
+    ANTHROPIC_CLI_VERSION=$(claude_cli_version || true)
+    [ -n "$ANTHROPIC_CLI_VERSION" ] && export ANTHROPIC_CLI_VERSION
+fi
+
+exec "$BIN" "$@"

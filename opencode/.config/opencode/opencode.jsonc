@@ -4,10 +4,10 @@
   "autoupdate": true,
   "agent": {
     "build": {
-      "model": "anthropic/claude-opus-5",
+      "model": "anthropic/claude-opus-5-5",
     },
     "plan": {
-      "model": "anthropic/claude-opus-5",
+      "model": "anthropic/claude-opus-5-5",
     },
   },
   "command": {
@@ -23,11 +23,12 @@
       "variant": "high",
     },
   },
-  "plugin": [
-    "opencode-claude-auth@latest",
-    "opencode-openai-codex-auth",
-    // "@ex-machina/opencode-anthropic-auth@latest",
-  ],
+  // Anthropic auth comes from opencode-claude-auth-v2, which imports the Claude
+  // Code credentials out of the macOS keychain — reconnect with
+  // `opencode auth login anthropic --method claude-code` after a Claude Code
+  // re-login. ChatGPT Pro/Plus OAuth is built in, so it needs no plugin.
+  // Vim editing is a terminal-only plugin and lives in cli.json.
+  "plugins": ["opencode-claude-auth-v2@latest"],
   "mcp": {
     "linear": {
       "type": "local",
@@ -157,6 +158,31 @@
       },
       "enabled": true,
       "timeout": 30000,
+    },
+    // Read-only SQL access to the Perselio analytics DB via Superset SQL Lab.
+    // Secret lives in the macOS keychain as `superset-sdp` and is exported from
+    // ~/.zsh_secrets; the URL and service-account name are exported there too.
+    //
+    // The Superset connection this reaches has DML and CTAS enabled and runs as
+    // the Postgres role that owns the analytics tables, so read-only is enforced
+    // entirely by the server's own guard. See the server README before changing
+    // anything in src/readonly.js.
+    "superset": {
+      "type": "local",
+      "command": [
+        "node",
+        "/Users/tommmyy/.config/opencode/mcp/superset/index.js",
+      ],
+      "environment": {
+        "SUPERSET_URL": "{env:SUPERSET_URL}",
+        "SUPERSET_USER": "{env:SUPERSET_USER}",
+        "SUPERSET_PASSWORD": "{env:SUPERSET_PASSWORD}",
+      },
+      // Off by default: analytics questions come up occasionally, so the tools
+      // are not worth their context cost in every session.
+      "enabled": false,
+      // Aggregations over large tenants regularly run past a minute.
+      "timeout": 300000,
     },
   },
   "tool_output": {
