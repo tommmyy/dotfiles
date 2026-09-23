@@ -45,6 +45,7 @@ export OPENCODE_DISABLE_CLAUDE_CODE_SKILLS=1 # ignore ~/.claude/skills
 export OPENCODE_ENABLE_EXA=1
 # Source of truth for docs.perselio.com; read by the sa-perselio-docs skill.
 export PERSELIO_DOCS_REPO=$HOME/workspaces/docs-public
+export ANTHROPIC_CLI_VERSION=
 
 # eval "$(_PIPENV_COMPLETE=zsh_source pipenv)"
 

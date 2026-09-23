@@ -23,5 +23,12 @@ module.exports = {
 				profile: "Profile 3",
 			},
 		},
+		{
+			match: finicky.matchHostnames(["*.claude.ai", "claude.ai"]),
+			browser: {
+				name: "Google Chrome",
+				profile: "Default",
+			},
+		},
 	],
 };
