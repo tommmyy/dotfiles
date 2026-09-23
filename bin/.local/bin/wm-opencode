@@ -1,11 +1,22 @@
 #!/usr/bin/env node
 // workmux pane command for OpenCode 2 jobs.
 //
-// workmux's built-in `opencode` agent appends `--prompt <text>`, which through
-// OpenCode 1 started the job. OpenCode 2 only fills the composer with it and
-// waits for a keypress, so a spawned job never runs. Rather than synthesising
-// an Enter, seed the session over the server API and attach a TUI to it: the
-// reply is already streaming by the time the pane opens.
+// Does two things OpenCode 2 broke for workmux, both from inside the pane:
+//
+// 1. Starts the job. workmux's built-in `opencode` agent appends
+//    `--prompt <text>`, which through OpenCode 1 submitted the prompt. OpenCode
+//    2 only fills the composer with it and waits for a keypress, so a spawned
+//    job never ran. Instead of synthesising an Enter, seed the session over the
+//    server API and attach a TUI to it: the reply is already streaming by the
+//    time the pane opens.
+//
+// 2. Reports status to workmux. `workmux register-agent` and
+//    `set-window-status` identify their target from TMUX_PANE, and OpenCode 2
+//    serves every session from one shared daemon that inherited TMUX_PANE from
+//    whichever client started it first — so the bundled plugin reports every
+//    job against one unrelated pane, and jobs never appear in the sidebar.
+//    Watching the event stream from this process instead puts the reporting
+//    back in the pane it describes. See https://github.com/raine/workmux/issues/291.
 //
 // Pair this with `workmux add --prompt-file-only`, which writes
 // .workmux/PROMPT-<branch>.md without requiring a recognised agent in the pane
@@ -15,70 +26,217 @@
 // With no prompt file this is just `opencode`, so it stays usable as a plain
 // pane command.
 
-const { execFileSync, spawn, spawnSync } = require("child_process");
-const { readdirSync, readFileSync } = require("fs");
-const { join } = require("path");
+const { execFileSync, spawn } = require("child_process")
+const { readdirSync, readFileSync } = require("fs")
+const { join } = require("path")
 
-const dir = process.cwd();
+const dir = process.cwd()
 
 function readPrompt() {
 	try {
-		const d = join(dir, ".workmux");
+		const d = join(dir, ".workmux")
 		const name = readdirSync(d)
 			.filter((n) => n.startsWith("PROMPT-") && n.endsWith(".md"))
-			.sort()[0];
-		if (!name) return null;
-		const text = readFileSync(join(d, name), "utf8").trim();
-		if (!text) return null;
+			.sort()[0]
+		if (!name) return null
+		const text = readFileSync(join(d, name), "utf8").trim()
+		if (!text) return null
 		// PROMPT-<branch>.md — the branch makes a far better session title than
 		// the first line of an issue description.
-		return { text, title: name.replace(/^PROMPT-/, "").replace(/\.md$/, "") };
+		return { text, title: name.replace(/^PROMPT-/, "").replace(/\.md$/, "") }
 	} catch {
-		return null;
+		return null
 	}
 }
 
+// --- workmux status ---------------------------------------------------------
+
+function workmux(args) {
+	return new Promise((resolve) => {
+		const child = spawn("workmux", args, { stdio: "ignore" })
+		child.on("error", () => resolve())
+		child.on("exit", () => resolve())
+	})
+}
+
+function service() {
+	const url = execFileSync("opencode", ["service", "status"], {
+		encoding: "utf8",
+	}).trim()
+	const configDir =
+		process.env.XDG_CONFIG_HOME
+			? join(process.env.XDG_CONFIG_HOME, "opencode")
+			: join(process.env.HOME, ".config", "opencode")
+	const { password } = JSON.parse(
+		readFileSync(join(configDir, "service.json"), "utf8"),
+	)
+	return { url, password }
+}
+
+const DONE = new Set([
+	"session.execution.succeeded",
+	"session.execution.failed",
+	"session.execution.interrupted",
+	"session.idle",
+])
+const WORKING = new Set([
+	"permission.replied",
+	"form.replied",
+	"form.cancelled",
+])
+
+// A pane hosts a whole session family (the job plus its subagents) and the
+// window shows the most demanding one: `waiting` needs a human, and outranks
+// `working`, which outranks `done`.
+async function watchStatus(rootSessionID, signal) {
+	let conn
+	try {
+		conn = service()
+	} catch {
+		return
+	}
+
+	const family = new Set(rootSessionID ? [rootSessionID] : [])
+	const status = new Map()
+	let reported
+
+	async function report() {
+		const all = [...status.values()]
+		const next = all.includes("waiting")
+			? "waiting"
+			: all.includes("working")
+				? "working"
+				: "done"
+		if (reported === next) return
+		reported = next
+		await workmux(["set-window-status", next])
+	}
+
+	function set(sessionID, next) {
+		if (!sessionID || !family.has(sessionID)) return
+		// A session we never saw start has nothing to mark finished.
+		if (next === "done" && !status.has(sessionID)) return
+		if (status.get(sessionID) === next) return
+		status.set(sessionID, next)
+		return report()
+	}
+
+	const auth =
+		"Basic " + Buffer.from(`opencode:${conn.password}`).toString("base64")
+	const res = await fetch(`${conn.url}/api/event`, {
+		headers: { Authorization: auth, Accept: "text/event-stream" },
+		signal,
+	})
+	if (!res.ok || !res.body) return
+
+	let buffer = ""
+	for await (const chunk of res.body) {
+		buffer += Buffer.from(chunk).toString("utf8")
+		const lines = buffer.split("\n")
+		buffer = lines.pop() ?? ""
+
+		for (const line of lines) {
+			if (!line.startsWith("data: ")) continue
+			let event
+			try {
+				event = JSON.parse(line.slice(6))
+			} catch {
+				continue
+			}
+			const data = event.data ?? {}
+
+			if (event.type === "session.created") {
+				// Subagents, and — when no prompt seeded a root — whatever this
+				// pane's TUI creates in its own directory.
+				const adopt = rootSessionID
+					? data.parentID && family.has(data.parentID)
+					: data.location?.directory === dir
+				if (adopt) family.add(data.sessionID)
+				continue
+			}
+
+			if (event.type === "session.deleted") {
+				family.delete(data.sessionID)
+				if (status.delete(data.sessionID)) await report()
+				continue
+			}
+
+			if (event.type === "session.execution.started") {
+				await set(data.sessionID, "working")
+			} else if (DONE.has(event.type)) {
+				await set(data.sessionID, "done")
+			} else if (event.type === "permission.asked") {
+				await set(data.sessionID, "waiting")
+			} else if (event.type === "form.created") {
+				await set(data.form?.sessionID, "waiting")
+			} else if (WORKING.has(event.type)) {
+				await set(data.sessionID, "working")
+			}
+		}
+	}
+}
+
+// --- run --------------------------------------------------------------------
+
 function attach(args) {
-	const r = spawnSync("opencode", args, { stdio: "inherit" });
-	process.exit(r.status === null ? 1 : r.status);
+	const controller = new AbortController()
+
+	if (process.env.TMUX_PANE) {
+		// Registering is what puts the pane in `workmux status` and the sidebar
+		// at all; the v1 plugin did it on load.
+		void workmux(["register-agent"])
+		void watchStatus(args[0] === "--session" ? args[1] : undefined, controller.signal).catch(
+			() => {},
+		)
+	}
+
+	const tui = spawn("opencode", args, { stdio: "inherit" })
+	tui.on("error", () => process.exit(1))
+	tui.on("exit", (code, signal) => {
+		controller.abort()
+		process.exit(signal ? 1 : (code ?? 0))
+	})
 }
 
-const prompt = readPrompt();
-if (!prompt) attach([]);
+const prompt = readPrompt()
+if (!prompt) attach([])
+else {
+	let sessionID
+	try {
+		const out = execFileSync(
+			"opencode",
+			[
+				"api",
+				"session.create",
+				"-d",
+				JSON.stringify({ title: prompt.title, location: { directory: dir } }),
+			],
+			{ encoding: "utf8", maxBuffer: 32 * 1024 * 1024 },
+		)
+		sessionID = JSON.parse(out).data.id
+	} catch (e) {
+		process.stderr.write(
+			`[wm-opencode] could not create a session (${e.message}); opening with the prompt unsent\n`,
+		)
+		attach(["--prompt", prompt.text])
+	}
 
-let sessionID;
-try {
-	const out = execFileSync(
-		"opencode",
-		[
-			"api",
-			"session.create",
-			"-d",
-			JSON.stringify({ title: prompt.title, location: { directory: dir } }),
-		],
-		{ encoding: "utf8", maxBuffer: 32 * 1024 * 1024 },
-	);
-	sessionID = JSON.parse(out).data.id;
-} catch (e) {
-	process.stderr.write(
-		`[wm-opencode] could not create a session (${e.message}); opening with the prompt unsent\n`,
-	);
-	attach(["--prompt", prompt.text]);
+	if (sessionID) {
+		// Detached: this call blocks for the whole turn, and the TUI below is
+		// what renders it. Failures surface in the session itself, not here.
+		spawn(
+			"opencode",
+			[
+				"api",
+				"session.prompt",
+				"--param",
+				`sessionID=${sessionID}`,
+				"-d",
+				JSON.stringify({ text: prompt.text }),
+			],
+			{ detached: true, stdio: "ignore" },
+		).unref()
+
+		attach(["--session", sessionID])
+	}
 }
-
-// Detached: this call blocks for the whole turn, and the TUI below is what
-// renders it. Failures surface in the session itself, not here.
-spawn(
-	"opencode",
-	[
-		"api",
-		"session.prompt",
-		"--param",
-		`sessionID=${sessionID}`,
-		"-d",
-		JSON.stringify({ text: prompt.text }),
-	],
-	{ detached: true, stdio: "ignore" },
-).unref();
-
-attach(["--session", sessionID]);
