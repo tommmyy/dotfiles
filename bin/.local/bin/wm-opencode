@@ -27,14 +27,25 @@
 // pane command.
 
 const { execFileSync, spawn } = require("child_process")
-const { readdirSync, readFileSync } = require("fs")
-const { join } = require("path")
+const { existsSync, readdirSync, readFileSync } = require("fs")
+const { dirname, join } = require("path")
 
 const dir = process.cwd()
 
+// workmux writes the prompt to <worktree root>/.workmux, but a job spawned from
+// a monorepo subproject (s-analytics/sources, perselio-console) opens its pane
+// in that subdirectory, so look upwards until the worktree root.
+function promptDir() {
+	for (let d = dir; ; d = dirname(d)) {
+		if (existsSync(join(d, ".workmux"))) return join(d, ".workmux")
+		if (existsSync(join(d, ".git")) || dirname(d) === d) return null
+	}
+}
+
 function readPrompt() {
 	try {
-		const d = join(dir, ".workmux")
+		const d = promptDir()
+		if (!d) return null
 		const name = readdirSync(d)
 			.filter((n) => n.startsWith("PROMPT-") && n.endsWith(".md"))
 			.sort()[0]
