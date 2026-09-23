@@ -16,8 +16,9 @@ It is **not** a replacement for `linear-session`. The two coexist:
 | `linear-session` | `wt` worktree + session, optionally runs opencode | repo's own worktree dir | `<repo>@<branch>` |
 | `linear-workmux` | workmux job | `<repo>__worktrees/` | `wm-`-prefixed session |
 
-Both show up in `workmux status`, because workmux tracks *any opencode process
-in a pane*, not only worktrees it created.
+Both show up in `workmux status` and the sidebar, because every opencode TUI in
+tmux runs through `wm-opencode`, which registers its pane with workmux —
+whether or not workmux created the worktree.
 
 ## The three pieces
 
@@ -49,7 +50,7 @@ losing the status manager. Keep both.
 ### Ownership rule
 
 Both tools see the same git worktrees (`wt list` shows workmux's, and
-`workmux status` tracks any opencode process in a pane, including `wt` ones).
+`workmux status` tracks every registered opencode pane, including `wt` ones).
 Only the paths disambiguate them:
 
 | Created by | Directory | tmux session | Remove with |
@@ -81,12 +82,23 @@ still reuses worktrunk's cleanup hooks instead of deadlocking against the guard.
 
 ```sh
 brew install raine/workmux/workmux
-workmux setup --hooks      # installs ~/.config/opencode/plugins/workmux-status.ts
 ```
 
-`setup` also offers to hook Claude Code and Codex — decline those if you only
-want opencode. The plugin loads at opencode startup, so restart any running
-session before expecting status from it.
+Do **not** run `workmux setup --hooks`. Its opencode plugin runs inside
+OpenCode 2's shared daemon, which inherited `TMUX_PANE` from whichever client
+started it first, so it reports every session against one unrelated pane
+(raine/workmux#291). Status comes from `wm-opencode` instead, which runs in the
+pane it describes:
+
+- workmux jobs run it as their pane command (`.workmux.yaml`), where it also
+  seeds the session from `.workmux/PROMPT-<branch>.md`;
+- an interactive `opencode` / `o` in tmux runs it as `wm-opencode --plain` via
+  the `opencode()` wrapper in `zsh/.zshrc`, which only registers and reports.
+
+An opencode started any other way (outside the wrapper, or before a tmux server
+restart wiped `~/.local/state/workmux/agents/`) is invisible to the sidebar.
+Restart it from a tmux shell, or register it by hand with
+`TMUX_PANE=%<id> workmux register-agent` (status stays `-` that way).
 
 Linear is queried by shelling out to `opencode run` with the Linear MCP (the
 same trick `linear-session` uses), so no separate API token is needed.
@@ -220,11 +232,12 @@ icon is written per *window* (`set-window-status`). Consequences:
 - two agents in one window → dashboard is correct, the window icon is shared
 - switching opencode sessions inside one pane with `ctrl+x l` → **broken**
 
-The last one is an upstream bug: the plugin unions the status of every session
-the process has ever seen and only forgets one on `session.deleted`, so a
-session left on a question pins the pane to `waiting` forever. opencode emits
-`tui.session.select` (with `properties.sessionID`), which the plugin ignores.
-Give each agent its own window until that is fixed upstream.
+`wm-opencode` tracks a fixed set of sessions: the seeded job and its subagents,
+or in `--plain` mode every session created in the pane's directory. It unions
+their status and only forgets one on `session.deleted`, so a session left on a
+question pins the pane to `waiting`, and a session opened with `ctrl+x l` that
+was created elsewhere is not tracked at all. It ignores `tui.session.select`.
+Give each agent its own window.
 
 **Never let workmux set up `node_modules` itself — delegate to worktrunk.**
 This was got wrong first time and is worth spelling out. The naive

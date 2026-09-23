@@ -178,3 +178,14 @@ eval "$(zoxide init zsh)"
 # zprof
 
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
+
+# Inside tmux, run the opencode TUI through wm-opencode so the pane registers
+# with workmux and shows up in its sidebar. Subcommands (`opencode api`, `run`,
+# `service`, ...) go straight to the binary.
+opencode() {
+  if [[ -n $TMUX_PANE && ( $# -eq 0 || $1 == -* || -d $1 ) ]] && command -v wm-opencode >/dev/null 2>&1; then
+    wm-opencode --plain "$@"
+  else
+    command opencode "$@"
+  fi
+}

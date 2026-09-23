@@ -198,8 +198,14 @@ function attach(args) {
 	})
 }
 
-const prompt = readPrompt()
-if (!prompt) attach([])
+// `--plain [opencode args...]`: an interactive `opencode` started from a tmux
+// shell (see the zsh wrapper). Registers and reports status, but never seeds a
+// prompt: a job worktree keeps its PROMPT file, and re-opening opencode there
+// must not send the task a second time.
+const argv = process.argv.slice(2)
+const prompt = argv[0] === "--plain" ? null : readPrompt()
+if (argv[0] === "--plain") attach(argv.slice(1))
+else if (!prompt) attach([])
 else {
 	let sessionID
 	try {

@@ -23,7 +23,11 @@ pre_remove:
   - WT_SUBPROJECT=sdp wt hook pre-remove -C "$WM_WORKTREE_PATH" || true
 
 panes:
-  - command: <agent>
+  # `wm-opencode`, not `opencode`: OpenCode 2's --prompt only fills the composer
+  # instead of submitting it, so the wrapper seeds the session over the server
+  # API and attaches a TUI to it. Spawn with `workmux add --prompt-file-only`,
+  # which writes .workmux/PROMPT-<branch>.md for the wrapper to read.
+  - command: 'wm-opencode'
     focus: true
   - split: horizontal
     size: 15
