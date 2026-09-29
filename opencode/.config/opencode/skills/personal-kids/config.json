@@ -1,0 +1,31 @@
+{
+  "kids": {
+    "izabela": {
+      "name": "Izabela Konrady",
+      "aliases": ["izabela", "izabelka", "izabelce", "izabelku", "izabele", "izabelu", "izabelky", "iza", "ize", "izu", "bela"],
+      "facility": "MŠ Libčany",
+      "meals": {
+        "provider": "elistek",
+        "canteen_id": "5RA1336P865653676",
+        "code_env": "KIDS_IZABELA_ELISTEK_CODE"
+      }
+    },
+    "diana": {
+      "name": "Diana Konrady",
+      "aliases": ["diana", "dianka", "diance", "dianku", "dianě", "diane", "dianu", "dianky", "dia", "didi"],
+      "facility": "ZŠ Libčany",
+      "meals": {
+        "provider": "elistek",
+        "canteen_id": "5RA1336P865653676",
+        "code_env": "KIDS_DIANA_ELISTEK_CODE"
+      },
+      "judo": {
+        "provider": "judo-sheet",
+        "sheet_id": "1SGqpXYstv5qvBm_oM9T-2PqhIELCQJHz",
+        "group": "BABY JUDO",
+        "entry_name": "Diana Konrády",
+        "trainings": { "1": "15:30-16:30", "3": "16:00-17:00" }
+      }
+    }
+  }
+}
