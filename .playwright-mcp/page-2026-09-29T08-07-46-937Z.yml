@@ -1,0 +1,111 @@
+- generic [ref=f1e2]:
+  - table [ref=f1e3]:
+    - rowgroup [ref=f1e4]:
+      - row [ref=f1e5]:
+        - cell [ref=f1e6]:
+          - table [ref=f1e7]:
+            - rowgroup [ref=f1e8]:
+              - row [ref=f1e9]:
+                - cell [ref=f1e10]:
+                  - emphasis [ref=f1e11]:
+                    - strong [ref=f1e12]: "Strávník:"
+                - cell [ref=f1e13]:
+                  - link "Konrady Izabela (historie)" [ref=f1e15] [cursor=pointer]:
+                    - /url: 02IZAB1130_H.htm
+                - cell [ref=f1e16]
+              - row [ref=f1e17]:
+                - cell [ref=f1e18]:
+                  - strong [ref=f1e19]: "Zbývá kredit: 963 Kč"
+                - cell [ref=f1e20]
+                - cell [ref=f1e21]:
+                  - emphasis [ref=f1e23]:
+                    - strong [ref=f1e24]: "datum a čas vytvoření stránky:"
+                - cell [ref=f1e25]:
+                  - strong [ref=f1e27]: 28.09.2026 11:02:56 [AM]
+              - row [ref=f1e28]:
+                - cell [ref=f1e29]
+                - cell [ref=f1e30]
+                - cell [ref=f1e31]
+              - row [ref=f1e32]:
+                - cell [ref=f1e33]:
+                  - generic [ref=f1e35]:
+                    - strong [ref=f1e36]: Bez stisknutí tohoto tlačítka nebudou změny odeslány k vyřízení
+                    - text: ":"
+                    - button "Potvrdit a odeslat změny" [ref=f1e37]
+                - cell [ref=f1e38]:
+                  - button "Zrušit provedené změny" [ref=f1e40]
+      - row [ref=f1e41]:
+        - cell [ref=f1e42]:
+          - emphasis [ref=f1e43]:
+            - strong [ref=f1e44]: datum
+        - cell [ref=f1e45]:
+          - emphasis [ref=f1e46]:
+            - strong [ref=f1e47]: den
+        - cell [ref=f1e48]:
+          - emphasis [ref=f1e49]:
+            - strong [ref=f1e50]: jídlo
+        - cell [ref=f1e51]:
+          - emphasis [ref=f1e52]:
+            - strong [ref=f1e53]: volby
+      - row [ref=f1e54]:
+        - cell "30.09.2026" [ref=f1e55]
+        - cell "středa" [ref=f1e56]
+        - cell [ref=f1e57]:
+          - table [ref=f1e58]:
+            - rowgroup [ref=f1e59]:
+              - row [ref=f1e60]:
+                - 'cell "přesnídávka: amarantové kroužky s mlékem,jablko,čaj (seznam alergenů: 1a, 7)" [ref=f1e61]'
+              - row [ref=f1e62]:
+                - 'cell "oběd: polévka zeleninová s guineou (seznam alergenů: 1a, 6, 9), vepřový vrabec,kysané zelí,bramborový knedlík (seznam alergenů: 1a, 10)" [ref=f1e63]'
+              - row [ref=f1e64]:
+                - 'cell "svačina: chléb,rybičková pomazánka,salátová okurka,čaj (seznam alergenů: 1a, 1c, 4, 7)" [ref=f1e65]'
+        - cell [ref=f1e66]:
+          - table [ref=f1e67]:
+            - rowgroup [ref=f1e68]:
+              - row [ref=f1e69]:
+                - cell "přesnídávka a oběd" [ref=f1e70]:
+                  - radio [ref=f1e71]
+                  - text: přesnídávka a oběd
+              - row [ref=f1e72]:
+                - cell "celý den" [ref=f1e73]:
+                  - radio [checked] [ref=f1e74]
+                  - text: celý den
+              - row [ref=f1e75]:
+                - cell "odhlásit" [ref=f1e76]:
+                  - radio [ref=f1e77]
+                  - text: odhlásit
+      - row [ref=f1e78]:
+        - cell [ref=f1e79]:
+          - generic [ref=f1e81]:
+            - strong [ref=f1e82]: "Bez stisknutí tohoto tlačítka nebudou změny odeslány k vyřízení:"
+            - button "Potvrdit a odeslat změny" [ref=f1e83]
+        - cell [ref=f1e84]:
+          - button "Zrušit provedené změny" [ref=f1e86]
+  - paragraph [ref=f1e87]:
+    - strong [ref=f1e88]: Seznam alergenů
+  - paragraph [ref=f1e89]:
+    - text: "1. Obiloviny obsahující lepek, konkrétně: pšenice (například špalda a khorasan), žito, ječmen, oves nebo jejich hybridní odrůdy a výrobky z nich, kromě:"
+    - emphasis [ref=f1e90]: a) glukózových sirupů na bázi pšenice, včetně dextrózy (1) b) maltodextrinů na bázi pšenice (1) c) glukózových sirupů na bázi ječmene d) obilovin použitých k výrobě alkoholických destilátů, včetně ethanolu zemědělského původu.
+  - paragraph [ref=f1e91]: 2. Korýši a výrobky z nich
+  - paragraph [ref=f1e92]: 3. Vejce a výrobky z nich
+  - paragraph [ref=f1e93]:
+    - text: "4. Ryby a výrobky z nich, kromě:"
+    - emphasis [ref=f1e94]: a) rybí želatiny použité jako nosič vitaminových nebo karotenoidních přípravků b) rybí želatiny nebo vyziny použité jako čiřicí prostředek u piva a vína.
+  - paragraph [ref=f1e95]: 5. Jádra podzemnice olejné (arašídy) a výrobky z nich
+  - paragraph [ref=f1e96]:
+    - text: "6. Sójové boby a výrobky z nich, kromě:"
+    - emphasis [ref=f1e97]: a) zcela rafinovaného sójového oleje a tuku (1) b) přírodní směsi tokoferolů (E306), přírodního d–alfa tokoferolu, přírodního d–alfa–tokoferol–acetátu, přírodního d–alfa–tokoferol–sukcinátu ze sóji c) fytosterolů a esterů fytosterolů získaných z rostlinných olejů ze sóji d) esteru rostlinného stanolu vyrobeného ze sterolů z rostlinného oleje ze sóji
+  - paragraph [ref=f1e98]:
+    - text: "7. Mléko a výrobky z něj (včetně laktózy), kromě:"
+    - emphasis [ref=f1e99]: a) syrovátky použité k výrobě alkoholických destilátů, včetně ethanolu zemědělského původu b) laktitolu
+  - paragraph [ref=f1e100]: "8. Skořápkové plody, konkrétně: mandle (Amygdalus communis L.), lískové ořechy (Corylus avellana), vlašské ořechy (Juglans regia), kešu ořechy (Anacardium occidentale), pekanové ořechy (Carya illinoinensis (Wangenh.) K. Koch), para ořechy (Bertholletia excelsa), pistácie (Pistacia vera), makadamie (Macadamia ternifolia) a výrobky z nich, kromě ořechů použitých k výrobě alkoholických destilátů, včetně ethanolu zemědělského původu"
+  - paragraph [ref=f1e101]: 9. Celer a výrobky z něj
+  - paragraph [ref=f1e102]: 10. Hořčice a výrobky z ní
+  - paragraph [ref=f1e103]: 11. Sezamová semena a výrobky z nich
+  - paragraph [ref=f1e104]: 12. Oxid siřičitý a siřičitany v koncentracích vyšších než 10 mg/kg nebo 10 mg/l, vyjádřeno jako celkový SO2, které se propočítají pro výrobky určené k přímé spotřebě nebo ke spotřebě po rekonstituování podle pokynů výrobce
+  - paragraph [ref=f1e105]: 13. Vlčí bob (lupina) a výrobky z něj
+  - paragraph [ref=f1e106]: 14. Měkkýši a výrobky z nich
+  - paragraph [ref=f1e107]: (1) A výrobky z nich, pokud zpracování, kterým prošly, nezvyšuje úroveň alergenicity, kterou úřad stanovil pro příslušný základní produkt.
+  - paragraph [ref=f1e108]
+  - paragraph [ref=f1e109]: "eListek * rel.: 5.1.5. (c) Jan Bucek 2007-2026"
+  - paragraph [ref=f1e110]

@@ -1,8 +1,11 @@
 stow bin bash zsh opencode tmux editorconfig ack nvim worktrunk linear-session linear-workmux finicky launchd
+# Gitignored secrets package (Google service-account key for the personal-kids
+# skill); present only on machines where it was set up.
+[ -d personal-kids ] && stow personal-kids
 
 # launchd only reads ~/Library/LaunchAgents at login, so stowing a plist is not
 # enough on a machine that is already running.
-for label in com.tommmyy.worklog-standup com.tommmyy.worklog-cycle; do
+for label in com.tommmyy.worklog-standup com.tommmyy.worklog-cycle com.tommmyy.kids-meal-sync; do
 	launchctl bootout "gui/$(id -u)/$label" 2>/dev/null
 	launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/$label.plist"
 done

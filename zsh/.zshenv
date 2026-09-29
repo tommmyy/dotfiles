@@ -13,6 +13,12 @@ alias rmrf="rm -rf"
 # alias v="vim --servername VIM"
 alias v="nvim"
 alias o="opencode"
+
+# Claude Code version reported by @ex-machina/opencode-anthropic-auth. Anthropic
+# rejects newer models (Opus 5.5 needs >= 2.1.280) when the plugin's bundled
+# version is older. Set here so the opencode service, which inherits the env of
+# whichever shell starts it, always sees it.
+export ANTHROPIC_CLAUDE_CODE_VERSION=2.1.280
 alias fig="lein figwheel"
 alias gmu="git fetch upstream && git merge upstream/master"
 alias initGitignore="git ignore-io -r node vim sublimetext intellij visualstudiocode webstorm"

@@ -12,3 +12,5 @@
 2026-08-02T20:02:49Z	FAIL	/Volumes/tommmyy/Movies/Masters_of_the_Universe_2026_PS4.mp4	nonzero a:0 start_time=0.077000 -> needs bake-silence
 2026-08-02T20:14:16Z	COPIED	/Volumes/tommmyy/Movies/Masters_of_the_Universe_2026_PS4.mp4	cp finished
 2026-08-02T20:14:50Z	DONE	/Volumes/tommmyy/Movies/Masters_of_the_Universe_2026_PS4.mp4	verified on volume, size match 11547539458, decode ok
+2026-09-25T17:33:37Z	START	Jurassic_Park_1993_PS4.mp4	remux v copy, eac3->ac3 x2 (cze default), srt->mov_text x4
+2026-09-25T17:41:11Z	DONE	Jurassic_Park_1993_PS4.mp4	dur=7589.789000

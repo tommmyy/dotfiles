@@ -11,8 +11,8 @@ BIN="$HOME/.local/share/opencode-v2/bin/opencode"
 # is still a beta.
 export OPENCODE_DB="${OPENCODE_DB:-opencode-v2.db}"
 
-# opencode-claude-auth-v2 sends a hardcoded Claude Code version to Anthropic,
-# which then refuses any model released after it:
+# The Anthropic auth plugin reports a bundled Claude Code version to Anthropic,
+# which can refuse models released after it:
 #
 #   Claude Code 2.1.257 does not support this model; version 2.1.280 or newer
 #   is required.
@@ -51,6 +51,11 @@ claude_cli_version() {
 if [ -z "$ANTHROPIC_CLI_VERSION" ]; then
     ANTHROPIC_CLI_VERSION=$(claude_cli_version || true)
     [ -n "$ANTHROPIC_CLI_VERSION" ] && export ANTHROPIC_CLI_VERSION
+fi
+
+# @ex-machina/opencode-anthropic-auth reads this name, not ANTHROPIC_CLI_VERSION.
+if [ -z "$ANTHROPIC_CLAUDE_CODE_VERSION" ] && [ -n "$ANTHROPIC_CLI_VERSION" ]; then
+    export ANTHROPIC_CLAUDE_CODE_VERSION="$ANTHROPIC_CLI_VERSION"
 fi
 
 exec "$BIN" "$@"

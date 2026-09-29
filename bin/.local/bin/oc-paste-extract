@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Extract images pasted into an opencode session to real files on disk.
 
-opencode stores a pasted image as a `file` part whose `url` is a
-`data:image/...;base64,...` URL, in ~/.local/share/opencode/opencode.db.
+opencode v2 stores a pasted image inline in the user message row
+(`session_message.data -> $.files[]`, raw base64 in `data`), in the database
+named by $OPENCODE_DB (default opencode-v2.db) under ~/.local/share/opencode.
+The v1 database (opencode.db, `part` rows holding `data:` URLs) is no longer
+written but is still read, so pastes from before the migration stay reachable.
 
 A model cannot reproduce those bytes from what it sees — a vision input is a
 decoded rendering, not the file — so anything that needs the actual image
@@ -32,7 +35,8 @@ import sqlite3
 import struct
 import sys
 
-DB = pathlib.Path.home() / ".local/share/opencode/opencode.db"
+DATA = pathlib.Path.home() / ".local/share/opencode"
+LEGACY_DB = DATA / "opencode.db"
 EXT = {
     "image/png": ".png",
     "image/jpeg": ".jpg",
@@ -61,80 +65,155 @@ def dimensions(data: bytes, mime: str) -> str:
     return "?"
 
 
-def current_session(con: sqlite3.Connection) -> "str | None":
+def active_db() -> pathlib.Path:
+    """The database opencode is writing to now.
+
+    opencode exports OPENCODE_DB (a file name relative to its data dir, or an
+    absolute path) to the shells it spawns.
+    """
+    name = os.environ.get("OPENCODE_DB")
+    if name:
+        path = pathlib.Path(name).expanduser()
+        return path if path.is_absolute() else DATA / path
+    v2 = DATA / "opencode-v2.db"
+    return v2 if v2.exists() else LEGACY_DB
+
+
+def connect(db: pathlib.Path) -> sqlite3.Connection:
+    # Read-only: opencode is normally running and holding this database open.
+    return sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+
+
+def schema(con: sqlite3.Connection) -> "str | None":
+    tables = {r[0] for r in con.execute(
+        "select name from sqlite_master where type = 'table'")}
+    # v1 databases also carry a (differently shaped) session_message table,
+    # so `part` is the distinguishing one.
+    if "part" in tables:
+        return "v1"
+    if "session_message" in tables:
+        return "v2"
+    return None
+
+
+def current_session(con: sqlite3.Connection, kind: str) -> "str | None":
     """The session this command was invoked from.
 
-    opencode exposes no session id to bash, and `session.directory` is a
-    project, not a job — 1200+ sessions can share one directory, so filtering
-    on it barely narrows anything in a main checkout.
+    opencode exposes no session id to bash, and a session's directory is a
+    project, not a job — hundreds of sessions can share one directory, so
+    filtering on it barely narrows anything in a main checkout.
 
-    Invoking a tool writes its part row before the command runs, so the
-    newest part in the database belongs to the caller.
+    Invoking a tool writes the caller's message row before the command runs,
+    so the newest row in the database belongs to the caller.
     """
+    table = "session_message" if kind == "v2" else "part"
     row = con.execute(
-        "select session_id from part order by time_created desc limit 1"
+        f"select session_id from {table} order by time_created desc limit 1"
     ).fetchone()
     return row[0] if row else None
 
 
-def pastes(limit: int, scope: "str | None") -> list[dict]:
-    if not DB.exists():
-        die(f"no opencode database at {DB}")
-    # Read-only: opencode is normally running and holding this database open.
-    con = sqlite3.connect(f"file:{DB}?mode=ro", uri=True)
+def decode(b64: str) -> "bytes | None":
+    if b64.startswith("data:"):
+        if "," not in b64:
+            return None
+        b64 = b64.split(",", 1)[1]
     try:
-        if scope == "@current":
-            scope = current_session(con)
-        # session_id / time_created are columns, not fields inside `data`.
-        # Restricting to one session stops a screenshot pasted into one job
-        # from being handed to an agent in another.
-        sql = (
-            "select data, session_id, time_created from part"
-            " where data like '%\"type\":\"file\"%' and data like '%image/%'"
-        )
-        args: list = []
-        if scope is not None:
-            sql += " and session_id = ?"
-            args.append(scope)
-        sql += " order by time_created desc limit ?"
-        args.append(max(limit * 8, 64))
-        rows = con.execute(sql, args).fetchall()
-    except sqlite3.DatabaseError as exc:
-        # The schema moved (an opencode upgrade) or the file is not a database.
-        die(f"cannot read {DB}: {exc}")
-    finally:
-        con.close()
+        return base64.b64decode(b64, validate=True) or None
+    except (binascii.Error, ValueError):
+        return None
 
-    found = []
-    for raw, session_id, created in rows:
+
+def rows_v2(con, scope, cap) -> list[dict]:
+    # Each user message carries its attachments in `$.files`; a paste is an
+    # inline image there with raw base64 in `data`.
+    sql = (
+        "select m.session_id, m.time_created, f.value"
+        " from session_message m, json_each(m.data, '$.files') f"
+        " where m.type = 'user'"
+        " and json_extract(f.value, '$.mime') like 'image/%'"
+    )
+    args: list = []
+    if scope is not None:
+        sql += " and m.session_id = ?"
+        args.append(scope)
+    sql += " order by m.time_created desc, f.key desc limit ?"
+    args.append(cap)
+    out = []
+    for session_id, created, raw in con.execute(sql, args):
+        try:
+            f = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        data = decode(f.get("data") or f.get("url") or "")
+        if data:
+            out.append({"filename": f.get("name") or "paste",
+                        "mime": f.get("mime", ""), "data": data,
+                        "session": session_id or "", "created": created})
+    return out
+
+
+def rows_v1(con, scope, cap) -> list[dict]:
+    # session_id / time_created are columns, not fields inside `data`.
+    sql = (
+        "select data, session_id, time_created from part"
+        " where data like '%\"type\":\"file\"%' and data like '%image/%'"
+    )
+    args: list = []
+    if scope is not None:
+        sql += " and session_id = ?"
+        args.append(scope)
+    sql += " order by time_created desc limit ?"
+    args.append(cap)
+    out = []
+    for raw, session_id, created in con.execute(sql, args):
         try:
             part = json.loads(raw)
         except json.JSONDecodeError:
             continue
         mime = part.get("mime", "")
-        url = part.get("url", "")
         if part.get("type") != "file" or not mime.startswith("image/"):
             continue
-        if not url.startswith("data:") or "," not in url:
-            continue
+        url = part.get("url", "")
+        data = decode(url) if url.startswith("data:") else None
+        if data:
+            out.append({"filename": part.get("filename") or "paste",
+                        "mime": mime, "data": data,
+                        "session": session_id or "", "created": created})
+    return out
+
+
+def pastes(limit: int, scope: "str | None") -> list[dict]:
+    active = active_db()
+    if not active.exists():
+        die(f"no opencode database at {active}")
+    dbs = [active] + ([LEGACY_DB] if LEGACY_DB.exists()
+                      and LEGACY_DB != active else [])
+    cap = max(limit * 8, 64)
+    found: list[dict] = []
+    for i, db in enumerate(dbs):
+        con = connect(db)
         try:
-            data = base64.b64decode(url.split(",", 1)[1], validate=True)
-        except (binascii.Error, ValueError):
-            continue
-        if not data:
-            continue
-        found.append(
-            {
-                "filename": part.get("filename") or "paste",
-                "mime": mime,
-                "data": data,
-                "session": session_id or "",
-                "created": created,
-            }
-        )
-        if len(found) >= limit:
-            break
-    return found
+            kind = schema(con)
+            if kind is None:
+                if i == 0:
+                    die(f"unrecognised schema in {db} (opencode upgrade?)")
+                continue
+            # Restricting to one session stops a screenshot pasted into one
+            # job from being handed to an agent in another. The caller is
+            # always in the active database.
+            if scope == "@current":
+                scope = current_session(con, kind)
+                if scope is None:
+                    break
+            reader = rows_v2 if kind == "v2" else rows_v1
+            found += reader(con, scope, cap)
+        except sqlite3.DatabaseError as exc:
+            die(f"cannot read {db}: {exc}")
+        finally:
+            con.close()
+    found.sort(key=lambda it: it["created"] or 0, reverse=True)
+    return found[:limit]
 
 
 def main() -> int:

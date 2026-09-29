@@ -23,12 +23,15 @@
       "variant": "high",
     },
   },
-  // Anthropic auth comes from opencode-claude-auth-v2, which imports the Claude
-  // Code credentials out of the macOS keychain — reconnect with
-  // `opencode auth login anthropic --method claude-code` after a Claude Code
-  // re-login. ChatGPT Pro/Plus OAuth is built in, so it needs no plugin.
+  // Anthropic auth comes from @ex-machina/opencode-anthropic-auth (Claude
+  // Pro/Max OAuth; log in with `opencode auth login anthropic`). It hooks the
+  // built-in Anthropic provider, so opencode itself converts messages —
+  // opencode-claude-auth-v2 bundled its own @ai-sdk/anthropic, which silently
+  // dropped every image. Pinned: the v2 line is prerelease. The reported Claude
+  // Code version is set by ANTHROPIC_CLAUDE_CODE_VERSION in zsh/.zshenv.
+  // ChatGPT Pro/Plus OAuth is built in, so it needs no plugin.
   // Vim editing is a terminal-only plugin and lives in cli.json.
-  "plugins": ["opencode-claude-auth-v2@latest"],
+  "plugins": ["@ex-machina/opencode-anthropic-auth@2.0.0-next.2"],
   "mcp": {
     "linear": {
       "type": "local",

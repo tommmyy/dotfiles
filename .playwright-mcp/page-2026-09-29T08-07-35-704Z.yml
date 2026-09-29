@@ -1,0 +1,69 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - table [ref=e3]:
+      - rowgroup [ref=e4]:
+        - row [ref=e5]:
+          - cell [ref=e6]
+          - cell [ref=e8]:
+            - strong [ref=e11]: ZŠ a MŠ Libčany
+          - cell [ref=e12]
+    - paragraph [ref=e14]:
+      - strong [ref=e15]: Přihlašovací kód strávníka
+      - text: ":"
+      - textbox [ref=e16]
+      - button "Pokračovat na stránku jídelního lístku" [ref=e17]
+  - paragraph [ref=e18]
+  - paragraph [ref=e19]:
+    - strong [ref=e21]:
+      - text: Pokyny k provedení změn do objednávek dle
+      - link "jídelního lístku" [ref=e22] [cursor=pointer]:
+        - /url: users/JIDELNICEK.htm
+      - text: ":"
+  - list [ref=e23]:
+    - listitem [ref=e24]:
+      - generic [ref=e25]:
+        - text: vyplňte pozorně
+        - strong [ref=e26]: přihlašovací kód
+        - text: (přesně tak, jak Vám byl Vám přidělen při registraci strávníka) do políčka na začátku tohoto formuláře a stiskněte tlačítko
+        - strong [ref=e27]: "\"Pokračovat\""
+    - listitem [ref=e28]: je-li kód správný, vyvolá se další stránka, kde bude zobrazen jídelní lístek spolu s Vašimi dosud provedenými volbami z nabízených jídel.
+    - listitem [ref=e29]:
+      - generic [ref=e30]:
+        - text: pokud se zobrazí hlášení, že
+        - strong [ref=e31]: nebyla stránka nalezena
+        - text: ", nezadali jste správný kód (nesmí např. obsahovat mezeru, rozlišují se velká a malá písmena). Vraťte se o stránku zpět (tlačítko \"Zpět\" nebo \"Alt-levá_šipka\") a přihlášení zopakujte"
+    - listitem [ref=e32]:
+      - generic [ref=e33]:
+        - text: jestliže se Vám ani potom nepodaří přihlásit, je možné, že Vám byl kód změněn (např. při ztrátě čipu) nebo není počítač v jídelně on-line a Vaše stránka nebyla vygenerována a nahrána na web.
+        - strong [ref=e34]: Toto si ověřte v jídelně
+    - listitem [ref=e35]:
+      - generic [ref=e36]:
+        - text: na stránce jídelního lístku můžete pouze přihlašovat, měnit a odhlašovat jídla ve sloupci
+        - strong [ref=e37]: "\"Volby\""
+        - text: a to stisknutím tlačítka u příslušné možnosti
+    - listitem [ref=e38]:
+      - generic [ref=e39]:
+        - text: tlačítkem "
+        - strong [ref=e40]: Zrušit provedené změny"
+        - text: se stornují všechny změny, které jste od vyvolání stránky provedli a stránka objednávek se vrátí do výchozího stavu
+    - listitem [ref=e41]:
+      - generic [ref=e42]:
+        - text: po provedení všech změn stiskněte tlačítko "
+        - strong [ref=e43]: Potvrdit a odeslat změny
+        - text: "\" na konci formuláře. Tím se obsah formuláře předá internetovému serveru, který se postará o odeslání e-mailu se změnami na příslušnou adresu jídelny"
+    - listitem [ref=e44]:
+      - generic [ref=e45]:
+        - text: po stisknutí tlačítka "
+        - strong [ref=e46]: Potvrdit ..
+        - text: ." tj, odeslání zprávy můžete stránku jídelního lístku zavřít
+    - listitem [ref=e47]: pokud jste při registraci strávníka požádali o potvrzování provedených změn e-mailem, obdržíte zprávu o doručení a provedení/odmítnutí změn na Vámi zadanou e-mailovou adresu
+    - listitem [ref=e48]: pokud se změny z nějakého důvodu neprovedly (např. překročený kredit), budete o tom informováni v potvrzovacím e-mailu i na stránce Vašich objednávek
+    - listitem [ref=e49]: odezva provedení změn (tj. doba od odeslání Vašeho e-mailu se změnami do objevení se Vaší stránky s aktuálním stavem objednávek na webu) může být od několika minut až do několika desítek minut. Záleží to na vytížení internetových serverů, je-li spuštěn a připojen k internetu počítač v jídelně a jiných okolnostech mimo náš vliv
+    - listitem [ref=e50]: neprovádějte proto další změny do své objednávky, dokud jste neobdrželi potvrzení o zpracování změn předchozích. Pošlete-li dvě změny rychle po sobě, může být jako poslední (a tedy platná) zpracována změna odeslaná dříve
+    - listitem [ref=e51]:
+      - generic [ref=e52]:
+        - text: "v případě nejasností s obsluhou této stránky nás kontaktujte, pokusíme se Vám pomoci:"
+        - link "bucek.jan@elistek.cz" [ref=e53] [cursor=pointer]:
+          - /url: mailto:%20bucek.jan@elistek.cz
+        - text: ", 604 317 282, 499 392 412."
+        - strong [ref=e54]: Problémy, týkající se přímo přihlašovacího kódu, musíte řešit přímo s Vaší jídelnou.

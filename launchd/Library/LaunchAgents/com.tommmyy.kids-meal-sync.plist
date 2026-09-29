@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.tommmyy.kids-meal-sync</string>
+
+	<key>ProgramArguments</key>
+	<array>
+		<string>/Users/tommmyy/.local/bin/kids-meal-sync</string>
+	</array>
+
+	<!-- Mon-Fri 12:15, after the canteen regenerates eListek pages (~11:00).
+	     launchd re-fires a missed calendar slot on wake. -->
+	<key>StartCalendarInterval</key>
+	<array>
+		<dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>12</integer><key>Minute</key><integer>15</integer></dict>
+		<dict><key>Weekday</key><integer>2</integer><key>Hour</key><integer>12</integer><key>Minute</key><integer>15</integer></dict>
+		<dict><key>Weekday</key><integer>3</integer><key>Hour</key><integer>12</integer><key>Minute</key><integer>15</integer></dict>
+		<dict><key>Weekday</key><integer>4</integer><key>Hour</key><integer>12</integer><key>Minute</key><integer>15</integer></dict>
+		<dict><key>Weekday</key><integer>5</integer><key>Hour</key><integer>12</integer><key>Minute</key><integer>15</integer></dict>
+	</array>
+
+	<key>StandardOutPath</key>
+	<string>/Users/tommmyy/Library/Logs/kids-meal-sync.log</string>
+	<key>StandardErrorPath</key>
+	<string>/Users/tommmyy/Library/Logs/kids-meal-sync.log</string>
+
+	<key>RunAtLoad</key>
+	<false/>
+</dict>
+</plist>

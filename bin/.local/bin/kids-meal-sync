@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# kids-meal-sync — mirror "no meal ordered" school days from eListek into the
+# family Google Calendar (personal-kids skill, scripts/mealcal.mjs).
+#
+# Scheduled Mon-Fri 12:15 by com.tommmyy.kids-meal-sync, after the canteen PC
+# regenerates the eListek pages (around 11:00). Safe to run by hand any time.
+#
+#   kids-meal-sync              sync all kids
+#   kids-meal-sync --dry-run    show what would change
+
+set -euo pipefail
+
+HOME_DIR="${HOME:-/Users/$(id -un)}"
+SECRETS="$HOME_DIR/dotfiles/zsh/.zsh_secrets"
+SCRIPT="$HOME_DIR/.config/opencode/skills/personal-kids/scripts/mealcal.mjs"
+export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+log() { printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >&2; }
+
+# The secrets file is zsh-only and reads the keychain, so pull just the plain
+# `export NAME=...` lines this job needs. An already-exported value wins.
+load_secret() {
+	local name="$1" line
+	[ -n "${!name:-}" ] && return 0
+	line=$(grep -E "^[[:space:]]*export[[:space:]]+$name=" "$SECRETS" 2>/dev/null | tail -n 1) || return 1
+	eval "$line"
+}
+
+for name in KIDS_IZABELA_ELISTEK_CODE KIDS_DIANA_ELISTEK_CODE KIDS_GCAL_CREDENTIALS KIDS_GCAL_CALENDAR_ID; do
+	load_secret "$name" || true
+done
+
+if [ -z "${KIDS_GCAL_CREDENTIALS:-}" ] || [ -z "${KIDS_GCAL_CALENDAR_ID:-}" ]; then
+	log "calendar not configured (KIDS_GCAL_CREDENTIALS / KIDS_GCAL_CALENDAR_ID), skipping"
+	exit 0
+fi
+
+log "sync start"
+if ! output=$(node "$SCRIPT" sync "$@" 2>&1); then
+	log "$output"
+	osascript -e "display notification \"$(printf '%s' "$output" | tail -n 1 | sed 's/["\\]/ /g')\" with title \"kids-meal-sync failed\"" >/dev/null 2>&1 || true
+	exit 1
+fi
+log "$output"

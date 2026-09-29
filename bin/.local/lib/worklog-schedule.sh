@@ -152,8 +152,10 @@ wl_opencode() {
 
 	wl_log "opencode run (model=$model, dir=$WL_REPO, timeout=${limit}s)"
 	local status=0
-	OPENCODE_CONFIG_CONTENT="$config" wl_run_limited "$limit" \
-		opencode run --dir "$WL_REPO" --model "$model" "$prompt" || status=$?
+	# --standalone: the shared background server would not see this run's
+	# OPENCODE_CONFIG_CONTENT.
+	(cd "$WL_REPO" && OPENCODE_CONFIG_CONTENT="$config" wl_run_limited "$limit" \
+		opencode run --standalone --model "$model" "$prompt") || status=$?
 
 	if [ "$status" -ne 0 ]; then
 		wl_log "opencode exited $status"
