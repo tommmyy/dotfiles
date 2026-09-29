@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "anthropic/claude-sonnet-5",
+  "model": "anthropic/claude-sonnet-5-5",
   "autoupdate": true,
   "agent": {
     "build": {
@@ -16,10 +16,12 @@
       "description": "Summarize PR, comment on Linear task, mark task as done",
     },
     "refactor": {
-      "template": "Scope: `$ARGUMENTS` (default to `worktree` if empty; the only other recognized value is `branch`). Goal: improve code quality WITHOUT changing external behavior -- better naming, structure, and readability; remove duplication and dead code; align with the conventions already used in the surrounding files (read them first, including any AGENTS.md/README). SELECTING THE DIFF: if scope is `worktree` (default), run `git add -A` first, then work from the staged diff (`git diff --cached`). If scope is `branch`, also consider the whole branch: `base=$(git merge-base HEAD origin/develop)`, then `git diff $base..HEAD` (never diff directly against `origin/develop` -- it pulls in unrelated changes when the branch is not rebased), then `git add -A`. Consider EVERY changed file type, not just JS/TS: JSX, SCSS/CSS, config/JSON5, templates, docs and tests all count. HUNT FOR DUPLICATION deliberately across the whole diff -- repeated literals, logic blocks, JSX, CSS declarations/selectors, or copy-pasted sibling files -- and remove it with the DRY tool the language offers (a shared function/constant for JS, a mixin/placeholder/variable for SCSS), even when the copies live in different scopes or files (you do NOT have to merge selectors to dedupe them). Do NOT bail out with 'already clean' when the diff under review introduced duplication; if you judge a duplicate to be intentional/idiomatic, say so explicitly and why. Respect anti-churn rules: no reformatting untouched code, no speculative abstractions (YAGNI -- every new helper/param needs >=2 real callers), keep the diff minimal and scoped. STEPS: 1) Read each in-scope file before editing. 2) Make focused, behavior-preserving edits only. 3) VERIFY: run the project's typecheck + lint + tests + build gates and report which you ran and their result; for a pure output transform (e.g. extracting an SCSS mixin) PROVE the built artifact is byte-identical by compiling and diffing, do not just assume it. 4) Leave all changes staged (`git add -A`); do NOT commit or push. Report a short summary of what was refactored, what you deliberately left as-is and why, and how you verified it.",
+      "template": "Scope: `$ARGUMENTS`. Empty means `worktree`; the only other value is `branch`.\n\nImprove the quality of the code in scope without changing its external behavior: clearer naming and structure, less duplication, no dead code, and consistency with the conventions of the surrounding files. Read those files first, plus any AGENTS.md or README.\n\nSelecting the diff: for `worktree`, run `git add -A` and work from `git diff --cached`. For `branch`, also include the branch's commits: `base=$(git merge-base HEAD origin/develop)`, then `git diff $base..HEAD`, then `git add -A`. Don't diff straight against `origin/develop`, because it pulls in unrelated changes when the branch isn't rebased.\n\nEvery changed file type is in scope, not only JS/TS: JSX, SCSS/CSS, JSON5 config, templates, docs, and tests. Duplication is the thing most worth catching. Look across the whole diff for repeated literals, logic, JSX, or CSS declarations, and for copy-pasted sibling files. Remove it with the language's own tool (a shared function or constant in JS, a mixin, placeholder, or variable in SCSS), even when the copies sit in different files; selectors don't have to be merged to share a declaration block. If the diff introduced duplication, deal with it rather than calling the code clean. If you think a duplicate is intentional, say why.\n\nKeep the diff small. Don't reformat untouched code, and don't add abstractions ahead of need: a new helper or parameter should have at least two real callers.\n\nVerify by running the project's typecheck, lint, test, and build commands, and report which ones you ran and what they returned. When a change should leave build output identical (extracting an SCSS mixin, for example), compile before and after and diff the artifacts to show it.\n\nLeave everything staged with `git add -A`. Don't commit or push. Report what you refactored, what you deliberately left alone and why, and how you verified it.",
       "description": "Refactor worktree (default) or full branch for code quality; hunt duplication across all file types, verify gates, stage (no commit)",
       "agent": "build",
-      "model": "anthropic/claude-opus-4-8",
+      // Refactoring is scoped work. Stay at `high`: at `max`, Sonnet 5.5 tends to
+      // fan out to subagents and make edits beyond the task.
+      "model": "anthropic/claude-sonnet-5-5",
       "variant": "high",
     },
   },
@@ -31,6 +33,8 @@
   // Code version is set by ANTHROPIC_CLAUDE_CODE_VERSION in zsh/.zshenv.
   // ChatGPT Pro/Plus OAuth is built in, so it needs no plugin.
   // Vim editing is a terminal-only plugin and lives in cli.json.
+  // Claude thinking blocks are bound to the account that produced them, so
+  // switching Anthropic accounts mid-session breaks that session; start a new one.
   "plugins": ["@ex-machina/opencode-anthropic-auth@2.0.0-next.2"],
   "mcp": {
     "linear": {

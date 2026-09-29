@@ -26,12 +26,12 @@ load_secret() {
 	eval "$line"
 }
 
-for name in KIDS_IZABELA_ELISTEK_CODE KIDS_DIANA_ELISTEK_CODE KIDS_GCAL_CREDENTIALS KIDS_GCAL_CALENDAR_ID; do
+for name in KIDS_IZABELA_ELISTEK_CODE KIDS_DIANA_ELISTEK_CODE FAMILY_GCAL_CREDENTIALS FAMILY_GCAL_CALENDAR_ID; do
 	load_secret "$name" || true
 done
 
-if [ -z "${KIDS_GCAL_CREDENTIALS:-}" ] || [ -z "${KIDS_GCAL_CALENDAR_ID:-}" ]; then
-	log "calendar not configured (KIDS_GCAL_CREDENTIALS / KIDS_GCAL_CALENDAR_ID), skipping"
+if [ -z "${FAMILY_GCAL_CREDENTIALS:-}" ] || [ -z "${FAMILY_GCAL_CALENDAR_ID:-}" ]; then
+	log "calendar not configured (FAMILY_GCAL_CREDENTIALS / FAMILY_GCAL_CALENDAR_ID), skipping"
 	exit 0
 fi
 

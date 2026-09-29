@@ -125,8 +125,11 @@ Render the implementation at the same widths and save to `shots/impl/`. Then,
 per page and width, compare against the design screenshot and write
 `verify.md`: a table of diffs (region, expected, actual, severity). Use
 `scripts/diff.mjs` for a pixel-diff heatmap if both renders share the viewport;
-otherwise compare by eye and by measured rects. Fix `high` diffs, list the rest
-for the user. Re-render after fixes.
+otherwise compare by eye and by measured rects. With more than a couple of
+page/width pairs, give each pair to a `worker` subagent (Sonnet 5.5, which reads
+screenshots well and costs less) with both image paths and the `verify.md` row
+format, then merge the rows yourself. Fix `high` diffs, list the rest for the
+user. Re-render after fixes.
 
 ## Hard rules
 

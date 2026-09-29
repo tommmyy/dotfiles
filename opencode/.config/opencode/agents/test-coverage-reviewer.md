@@ -1,6 +1,7 @@
 ---
 description: Reviews changed code for missing tests and weak regression coverage
 mode: subagent
+model: anthropic/claude-sonnet-5-5#medium
 temperature: 0.1
 tools:
   write: false

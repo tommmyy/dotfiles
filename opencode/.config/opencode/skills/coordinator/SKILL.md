@@ -52,7 +52,7 @@ source files, edit code, or implement tasks yourself.
 **Spawning workflow: write ALL files first, THEN spawn ALL agents.**
 
 ```bash
-# Step 1: Write all prompt files (in parallel)
+# Step 1: Write all prompt files
 tmpfile_a=$(mktemp).md
 cat > "$tmpfile_a" << 'EOF'
 Implement auth module...
@@ -63,7 +63,7 @@ cat > "$tmpfile_b" << 'EOF'
 Write API tests...
 EOF
 
-# Step 2: Spawn all agents (in parallel, after ALL files exist)
+# Step 2: Spawn all agents, once every file exists
 workmux add auth-module -b -P "$tmpfile_a"
 workmux add api-tests -b -P "$tmpfile_b"
 ```

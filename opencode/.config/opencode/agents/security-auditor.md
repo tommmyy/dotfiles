@@ -1,6 +1,10 @@
 ---
 description: Reviews changed code for security vulnerabilities and unsafe assumptions
 mode: subagent
+# Sonnet 5.5 hands higher-risk cyber requests to Sonnet 5, visibly. Routine
+# review of our own code is unaffected; if audits come back degraded, switch
+# this to anthropic/claude-opus-5-5.
+model: anthropic/claude-sonnet-5-5#medium
 temperature: 0.1
 tools:
   write: false

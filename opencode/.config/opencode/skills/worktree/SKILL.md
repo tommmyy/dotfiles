@@ -146,7 +146,7 @@ must land in a specific session. For cross-project tasks, set the command workin
 directory to the target project and pass its session with `--parent-session` as
 described above.
 
-Step 1 - Write all prompt files (in parallel):
+Step 1 - Write all prompt files:
 
 ```bash
 tmpfile=$(mktemp).md
@@ -156,7 +156,7 @@ EOF
 echo "$tmpfile"  # Note the path for step 2
 ```
 
-Step 2 - After ALL files are written, run workmux commands (in parallel):
+Step 2 - Once every file is written, run the workmux commands:
 
 ```bash
 workmux add feature-x -b -P /tmp/tmp.abc123.md

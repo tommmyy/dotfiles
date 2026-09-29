@@ -1,7 +1,7 @@
 stow bin bash zsh opencode tmux editorconfig ack nvim worktrunk linear-session linear-workmux finicky launchd
-# Gitignored secrets package (Google service-account key for the personal-kids
-# skill); present only on machines where it was set up.
-[ -d personal-kids ] && stow personal-kids
+# Gitignored secrets package (Google service-account key for the
+# personal-family-calendar skill); present only on machines where it was set up.
+[ -d family-calendar ] && stow family-calendar
 
 # launchd only reads ~/Library/LaunchAgents at login, so stowing a plist is not
 # enough on a machine that is already running.
