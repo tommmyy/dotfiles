@@ -3,7 +3,7 @@
 // Env: FAMILY_GCAL_CREDENTIALS = path to the service-account JSON key
 //      FAMILY_GCAL_CALENDAR_ID = calendar ID shared with the service account ("Make changes to events")
 //
-// Other skills import this module to keep their own events in sync. Such events
+// Shared by home-family-calendar (cal.mjs) and home-kids (automatic events). Automatic events
 // carry private extended properties (tags) so each caller only touches its own.
 
 import { createHash, createSign } from "node:crypto";

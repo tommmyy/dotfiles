@@ -11,8 +11,8 @@
 // Writes only print a preview unless --submit is given.
 
 import { parseArgs } from "node:util";
-import { addDaysIso, instant, parseIso, resolveDate, resolveTime, todayIso } from "./dates.mjs";
-import { TIME_ZONE, assertConfigured, deleteEvent, getEvent, insertEvent, listEvents, patchEvent } from "./gcal.mjs";
+import { addDaysIso, instant, parseIso, resolveDate, resolveTime, todayIso } from "../../_lib/dates.mjs";
+import { TIME_ZONE, assertConfigured, deleteEvent, getEvent, insertEvent, listEvents, patchEvent } from "../../_lib/gcal.mjs";
 
 const SOURCE = "personal-family-calendar";
 const WEEKDAY = ["ne", "po", "út", "st", "čt", "pá", "so"];

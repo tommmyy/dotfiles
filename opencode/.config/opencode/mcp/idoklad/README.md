@@ -1,7 +1,7 @@
 # iDoklad MCP server
 
 Invoicing and Czech VAT filings for [iDoklad](https://www.idoklad.cz), exposed
-to opencode as the `idoklad` MCP server. Paired with the `personal-idoklad`
+to opencode as the `idoklad` MCP server. Paired with the `home-idoklad`
 skill, which describes the workflows.
 
 ## Two halves, two mechanisms

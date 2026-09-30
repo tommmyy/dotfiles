@@ -1,5 +1,5 @@
 ---
-name: personal-monthly-invoice-aguan
+name: home-monthly-invoice-aguan
 description: >
   Use this skill to issue the recurring monthly invoice for Aguan s.r.o. in
   iDoklad by copying the previous month's invoice. Trigger on requests like
@@ -20,7 +20,7 @@ vícepráce amount. Everything else — partner, popis, číselná řada, VAT se
 carries over from the copy.
 
 Mechanics of the MCP server (tools, merge semantics, the fact that it is
-disabled by default) live in **`personal-idoklad`**; follow that skill for those
+disabled by default) live in **`home-idoklad`**; follow that skill for those
 and do not restate them here.
 
 ## The one thing that is easy to get wrong
@@ -105,7 +105,7 @@ Then `invoice_create_from_copy` with the same arguments, and `invoice_pdf` to
 `Rounding` line iDoklad added, so the total is traceable.
 
 If the user also wants the VAT filings for that month, hand over to
-`personal-idoklad` workflow B — and note the filing is only complete once this
+`home-idoklad` workflow B — and note the filing is only complete once this
 invoice exists, since it is what puts the month's DUZP on record.
 
 ## Common mistakes

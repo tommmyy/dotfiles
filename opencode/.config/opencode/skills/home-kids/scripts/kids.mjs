@@ -1,8 +1,9 @@
 // Shared helpers: kid lookup from config.json, secrets, school days.
-// Date parsing comes from the personal-family-calendar skill.
+// Date parsing and the calendar client live in ../../_lib (shared with home-family-calendar).
 
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { fold, isoDate, parseIso, resolveDate as parseDate, todayIso } from "../../personal-family-calendar/scripts/dates.mjs";
+import { fold, isoDate, parseIso, resolveDate as parseDate, todayIso } from "../../_lib/dates.mjs";
 
 export { fold, todayIso };
 
@@ -40,6 +41,27 @@ export function secret(envName) {
   const value = (process.env[envName] ?? "").trim();
   if (!value) die(`env var ${envName} is not set; export it in ~/dotfiles/zsh/.zsh_secrets and open a new shell`);
   return value;
+}
+
+/**
+ * {account, password} of a macOS Keychain generic password, looked up by service name.
+ * Read through `security` so the password never goes through env vars or argv.
+ */
+export function keychainSecret(service) {
+  const run = (...extra) =>
+    execFileSync("security", ["find-generic-password", "-s", service, ...extra], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  let attributes;
+  try {
+    attributes = run();
+  } catch {
+    die(`Keychain item '${service}' not found; add it with: security add-generic-password -U -s ${service} -a LOGIN -w`);
+  }
+  const account = attributes.match(/"acct"<blob>="([^"]*)"/)?.[1];
+  if (!account) die(`Keychain item '${service}' has no account name; re-add it with -a LOGIN`);
+  return { account, password: run("-w").replace(/\n$/, "") };
 }
 
 /** Czech public holidays (státní svátky) of a year, as YYYY-MM-DD. */

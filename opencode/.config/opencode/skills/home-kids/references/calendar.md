@@ -4,10 +4,11 @@ Days when a kid has no meal ordered in eListek appear in the family calendar
 "Rodina Konrády" as an all-day, non-blocking event **"<Name> nemá oběd"**,
 so whoever is on duty knows to pack food or pick the kid up before lunch.
 
-Calendar access comes from the **personal-family-calendar** skill:
-`scripts/mealcal.mjs` imports its `gcal.mjs`. Auth, setup, and error
-meanings are in that skill's `references/setup.md`. These writes happen in
-the background, because confirming the meal change already covers them.
+Calendar access comes from the shared package `skills/_lib/gcal.mjs`, which
+`scripts/mealcal.mjs` and `scripts/judo.mjs` import. Auth, setup, and error
+meanings are in `home-family-calendar/references/setup.md`. These writes
+happen in the background, because confirming the meal or judo change already
+covers them.
 
 ## How the events are maintained
 

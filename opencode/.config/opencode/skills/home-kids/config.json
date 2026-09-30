@@ -19,6 +19,11 @@
         "canteen_id": "5RA1336P865653676",
         "code_env": "KIDS_DIANA_ELISTEK_CODE"
       },
+      "school": {
+        "provider": "bakalari",
+        "url": "https://zslibcany.bakalari.cz",
+        "keychain_service": "kids-diana-bakalari"
+      },
       "judo": {
         "provider": "judo-sheet",
         "sheet_id": "1SGqpXYstv5qvBm_oM9T-2PqhIELCQJHz",

@@ -16,8 +16,8 @@ import {
   eventId,
   listEvents,
   upsertEvent,
-} from "../../personal-family-calendar/scripts/gcal.mjs";
-import { instant } from "../../personal-family-calendar/scripts/dates.mjs";
+} from "../../_lib/gcal.mjs";
+import { instant } from "../../_lib/dates.mjs";
 import { die, findKid, isSchoolDay, loadConfig, todayIso } from "./kids.mjs";
 
 export { calendarConfigured };
@@ -106,7 +106,7 @@ if (import.meta.main) {
   });
   const [cmd, ...names] = positionals;
   if (cmd !== "sync") die("usage: mealcal.mjs sync [KID ...] [--dry-run]");
-  if (!calendarConfigured()) die("set FAMILY_GCAL_CREDENTIALS and FAMILY_GCAL_CALENDAR_ID (see personal-family-calendar skill)");
+  if (!calendarConfigured()) die("set FAMILY_GCAL_CREDENTIALS and FAMILY_GCAL_CALENDAR_ID (see home-family-calendar skill)");
   const kids = names.length
     ? names.map((n) => findKid(n))
     : Object.entries(loadConfig().kids).filter(([, k]) => k.meals?.provider === "elistek");

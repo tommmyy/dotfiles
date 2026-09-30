@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # kids-meal-sync — mirror "no meal ordered" school days from eListek into the
-# family Google Calendar (personal-kids skill, scripts/mealcal.mjs).
+# family Google Calendar (home-kids skill, scripts/mealcal.mjs).
 #
 # Scheduled Mon-Fri 12:15 by com.tommmyy.kids-meal-sync, after the canteen PC
 # regenerates the eListek pages (around 11:00). Safe to run by hand any time.
@@ -12,7 +12,7 @@ set -euo pipefail
 
 HOME_DIR="${HOME:-/Users/$(id -un)}"
 SECRETS="$HOME_DIR/dotfiles/zsh/.zsh_secrets"
-SCRIPT="$HOME_DIR/.config/opencode/skills/personal-kids/scripts/mealcal.mjs"
+SCRIPT="$HOME_DIR/.config/opencode/skills/home-kids/scripts/mealcal.mjs"
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
 log() { printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >&2; }

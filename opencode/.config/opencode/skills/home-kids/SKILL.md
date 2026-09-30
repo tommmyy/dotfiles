@@ -1,18 +1,13 @@
 ---
-name: personal-kids
+name: home-kids
 description: >
-  Manage Tomáš's children's everyday logistics: school/kindergarten meal
-  orders (odhlašování/přihlašování obědů, svačin) in eListek, judo absences
-  (omluvenky) in the club's Google Sheet, and their activities (kroužky,
-  tréninky, schedule, contacts, prices). Use this skill whenever the user
-  mentions Izabela/Izabelka/Iza or Diana/Dianka/Didi in any Czech form
-  (Izabelce, Diance, Dianě...), or says things like "omluv z juda",
-  "nepůjde na judo", "odhlaš oběd",
-  "odhlaš stravu", "přihlaš oběd", "odhlaš svačinu", "jde po obědě domů",
-  "je nemocná, odhlaš ji", "co mají zítra k obědu", "kolik mají kreditu",
-  "jídelna", "školka", "MŠ", "ZŠ Libčany", "eListek", "kroužek", "kdy má
-  trénink", or asks to add or change anything about the kids' school,
-  kindergarten, meals, or activities.
+  Tomáš's kids Izabela (Iza, kindergarten) and Diana (Dianka, Didi, ZŠ
+  Libčany): lunches in eListek, school in Bakaláři (timetable, homework,
+  marks, messages, omluvenky), judo absences, and kroužky. Use whenever
+  either girl is mentioned in any Czech form, or for obědy, jídelna, školka,
+  škola, omluvenka, úkoly, trénink, or kroužek.
+metadata:
+  opencode/autoinvoke: false
 ---
 
 # Kids: meals, school, activities
@@ -37,7 +32,8 @@ script says a variable is unset, tell the user which one and stop.
 | Area | How | Details |
 | --- | --- | --- |
 | Meals | `scripts/elistek.mjs` | `references/elistek.md` |
-| Family calendar ("nemá oběd" days) | `scripts/mealcal.mjs` on top of the personal-family-calendar skill, daily `kids-meal-sync` | `references/calendar.md` |
+| Family calendar ("nemá oběd", "nemá judo") | `scripts/mealcal.mjs` (daily `kids-meal-sync`), `judo.mjs verify` | `references/calendar.md` |
+| School: timetable, homework, messages, marks, events, omluvenka (Diana) | `scripts/bakalari.mjs` | `references/bakalari.md` |
 | Judo absences (Diana) | `scripts/judo.mjs` + Playwright MCP | `references/judo.md` |
 | Activities | edit `activities.md` directly | the file itself |
 
@@ -46,13 +42,25 @@ a block to the kid in `config.json` (`"school": {"provider": ..., "..._env": ...
 a `references/<provider>.md`, and a `scripts/<provider>.mjs` that imports
 `kids.mjs` for kid lookup, secrets, and date parsing. Then add a row above.
 
+## Dependencies
+
+- **Code:** date parsing and the Google Calendar client come from the shared
+  package `~/.config/opencode/skills/_lib/` (`dates.mjs`, `gcal.mjs`, rules in
+  its `README.md`). The scripts write automatic events ("nemá oběd", "nemá
+  judo") themselves. The user's confirmation of the meal or judo change covers
+  them.
+- **Manual calendar work:** when the user wants a calendar event outside those
+  automatic ones (e.g. "přidej Mažoretky do kalendáře"), load the
+  `home-family-calendar` skill by ID and follow its preview → confirm flow.
+  Don't call `_lib/gcal.mjs` directly for that.
+
 ## Meals workflow (preview, confirm, submit, verify)
 
 The user wants to see what will change before anything is sent, because a wrong
 submission costs money or leaves a child without lunch, and changes go to
 the canteen by email and cannot be taken back.
 
-Scripts are at `~/.config/opencode/skills/personal-kids/scripts/`.
+Scripts are at `~/.config/opencode/skills/home-kids/scripts/`.
 
 1. **Translate the request** into kid + CHOICE + dates. Read
    `references/elistek.md` for how Czech phrasing maps to options. It is
@@ -83,6 +91,15 @@ byla přihlášená minulý týden") use `status` or `history` and need no
 confirmation.
 
 Answer in Czech when the user writes in Czech.
+
+## School absence (omluvenka)
+
+"Didi je nemocná" usually means three things: an omluvenka in Bakaláři
+(`references/bakalari.md`), a lunch cancel in eListek, and a judo absence if
+it falls on Monday or Wednesday. Ask whether she misses all of them, then
+show one preview covering all of them and get one confirmation. The
+omluvenka goes through `bakalari.mjs excuse` and follows the same preview →
+confirm → `--submit` flow.
 
 ## Judo absence workflow (preview, confirm, write, verify)
 

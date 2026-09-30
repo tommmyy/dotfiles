@@ -16,8 +16,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { setTimeout as sleep } from "node:timers/promises";
-import { calendarConfigured, eventId, upsertEvent } from "../../personal-family-calendar/scripts/gcal.mjs";
-import { addDaysIso, parseIso } from "../../personal-family-calendar/scripts/dates.mjs";
+import { calendarConfigured, eventId, upsertEvent } from "../../_lib/gcal.mjs";
+import { addDaysIso, parseIso } from "../../_lib/dates.mjs";
 import { die, findKid, fold, resolveDate, todayIso } from "./kids.mjs";
 
 const SOURCE = "personal-kids-judo";

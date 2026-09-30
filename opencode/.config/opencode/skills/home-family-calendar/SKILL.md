@@ -1,15 +1,10 @@
 ---
-name: personal-family-calendar
+name: home-family-calendar
 description: >
-  Read and edit the Konrády family Google Calendar "Rodina Konrády". Use this
-  skill whenever the user asks what's on the family calendar or wants to
-  add, move, change, or delete a family event. Trigger on things like "co
-  máme v sobotu", "co je tento týden v kalendáři", "kdy je zubař", "přidej do
-  kalendáře", "zapiš do rodinného kalendáře", "přesuň schůzku", "smaž
-  událost", "máme něco ve čtvrtek odpoledne", "rodinný kalendář", "Rodina
-  Konrády", and the same in English (family calendar, add an event, what's
-  on this weekend). Other skills (personal-kids) use its library for
-  automatic events; that path does not go through this workflow.
+  Read and edit the Konrády family Google Calendar "Rodina Konrády": what's
+  on, add, move, change, or delete a family event.
+metadata:
+  opencode/autoinvoke: false
 ---
 
 # Family calendar: Rodina Konrády
@@ -27,7 +22,7 @@ affects everyone. That is why user-requested writes follow preview → confirm
 
 ## Commands
 
-Scripts are in `~/.config/opencode/skills/personal-family-calendar/scripts/`.
+Scripts are in `~/.config/opencode/skills/home-family-calendar/scripts/`.
 
 ```bash
 node cal.mjs list   [FROM] [TO] [--json]      # default: today .. +6 days, TO inclusive
@@ -63,27 +58,21 @@ language, grouped by day. Don't dump the raw output.
 3. To update or delete, get the `id` from `list` or `search` first. If
    more than one event matches, ask which one.
 
-Events marked `auto: …` belong to another skill's sync. `auto:
-personal-kids-meal` is the "nemá oběd" entries, which follow the eListek
-canteen. Don't edit or delete them by hand, because the next sync would
-put them back. Change the underlying thing instead, e.g. re-order the meal
-via personal-kids.
+Events marked `auto: …` are written by home-kids code: `auto:
+personal-kids-meal` is "nemá oběd" (follows the eListek canteen) and `auto:
+personal-kids-judo` is "nemá judo". Don't edit or delete them by hand, because
+the next sync would put them back. Change the underlying thing instead, e.g.
+re-order the meal via home-kids.
 
 Events created by family members can be edited or deleted only when the user
 asks for that specific event.
 
 Answer in Czech when the user writes in Czech.
 
-## Library for other skills
+## Code
 
-`scripts/gcal.mjs` exports `listEvents({timeMin, timeMax, q, tags})`,
-`getEvent`, `insertEvent`, `patchEvent`, `deleteEvent`, `upsertEvent(id,
-event)`, `eventId(key)`, and `calendarConfigured()`. `scripts/dates.mjs`
-has the date parsing. An automated caller must:
-
-- tag its events with `extendedProperties.private.source = "<caller>"` and
-  only ever list or modify events with that tag;
-- use stable IDs (`eventId("<caller>:<key>")`) so reruns stay idempotent.
-
-The caller's own confirmation covers these writes, so this skill's
-preview step does not apply. personal-kids does this for its meal events.
+`cal.mjs` is a thin CLI over the shared calendar client in
+`~/.config/opencode/skills/_lib/` (`gcal.mjs`, `dates.mjs`). home-kids uses
+the same client for its automatic events, following the rules in
+`_lib/README.md`. Those writes are covered by the confirmation in
+home-kids, so this skill's preview step doesn't apply to them.

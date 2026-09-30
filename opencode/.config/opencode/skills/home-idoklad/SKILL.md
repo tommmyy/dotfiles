@@ -1,5 +1,5 @@
 ---
-name: personal-idoklad
+name: home-idoklad
 description: >
   Use this skill for invoicing and Czech VAT paperwork in iDoklad (idoklad.cz)
   through the `idoklad` MCP server. Trigger on requests like "vystav fakturu",
@@ -45,7 +45,7 @@ filing was produced unless the tool returned real file paths.
 ## Workflow A: new invoice by copying the last one
 
 For the recurring monthly Aguan s.r.o. invoice, use
-**`personal-monthly-invoice-aguan`** instead. It owns the arithmetic that turns
+**`home-monthly-invoice-aguan`** instead. It owns the arithmetic that turns
 worked hours into the invoice base, which this generic workflow would get wrong.
 
 ### 1. Find the source invoice

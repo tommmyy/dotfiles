@@ -20,7 +20,7 @@ import { die, findKid, fold, resolveDate, secret } from "./kids.mjs";
 const BASE = "http://www.elistek.cz/elistek";
 const ENCODING = "windows-1250";
 const DEADLINE_HOUR = 11;
-const UA = "Mozilla/5.0 personal-kids";
+const UA = "Mozilla/5.0 home-kids";
 
 const decoder = new TextDecoder(ENCODING);
 // The form is windows-1250, so the POST body must be too; build the reverse map from the decoder.
