@@ -57,7 +57,7 @@ fi
 echo
 echo "=== WORKING TREES (all, incl. worktrunk/spawned ones) ==="
 # `git status` only ever sees the CURRENT worktree. With one worktree per task
-# (worktrunk / spawn-feature-env), most in-progress work — the part that matters
+# (linear-workmux / workmux), most in-progress work — the part that matters
 # most at stand-up — lives outside it and would silently vanish from the report.
 # Each dirty tree is annotated with the newest mtime among its changed files so
 # stale trees (months-old scratch dirs) can be told apart from today's work.

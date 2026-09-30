@@ -5,7 +5,7 @@ agent: opencode
 
 # One tmux SESSION per job rather than a window in whatever session happens to
 # be focused. Keeps automated jobs from cluttering an interactive session, and
-# matches how `wt` / `linear-session` already name things.
+# matches how `wt` already names things.
 mode: session
 
 # Branch names are `{TASK-ID}/{stub}` (e.g. CUS-1038/show-the-assistant-...),

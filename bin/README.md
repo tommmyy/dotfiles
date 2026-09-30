@@ -9,15 +9,9 @@ Personal scripts, stowed into `~/.local/bin`.
 Turns Linear issues into [workmux](https://github.com/raine/workmux) jobs, and
 tells you which of those jobs are waiting on you.
 
-It is **not** a replacement for `linear-session`. The two coexist:
-
-| | creates | worktree | tmux |
-| --- | --- | --- | --- |
-| `linear-session` | `wt` worktree + session, optionally runs opencode | repo's own worktree dir | `<repo>@<branch>` |
-| `linear-workmux` | workmux job | `<repo>__worktrees/` | `wm-`-prefixed session |
-
-Both show up in `workmux status` and the sidebar, because every opencode TUI in
-tmux runs through `wm-opencode`, which registers its pane with workmux —
+Each job is a worktree in `<repo>__worktrees/` with its own `wm-`-prefixed tmux
+session. Every opencode TUI in tmux runs through `wm-opencode`, which registers
+its pane with workmux, so it shows up in `workmux status` and the sidebar
 whether or not workmux created the worktree.
 
 ## The three pieces
@@ -55,7 +49,7 @@ Only the paths disambiguate them:
 
 | Created by | Directory | tmux session | Remove with |
 | --- | --- | --- | --- |
-| `linear-session` → `wt` | `sdp.feature-*` | `<repo>@<branch>` | `wt remove` |
+| `wt switch` | `sdp.*` | none of its own | `wt remove` |
 | `linear-workmux` → workmux | `sdp__worktrees/*` | glyph/`wm-` prefixed | `workmux remove` |
 
 **Whoever created a worktree removes it.** Removing a workmux worktree with
@@ -100,8 +94,8 @@ restart wiped `~/.local/state/workmux/agents/`) is invisible to the sidebar.
 Restart it from a tmux shell, or register it by hand with
 `TMUX_PANE=%<id> workmux register-agent` (status stays `-` that way).
 
-Linear is queried by shelling out to `opencode run` with the Linear MCP (the
-same trick `linear-session` uses), so no separate API token is needed.
+Linear is queried by shelling out to `opencode run` with the Linear MCP, so no
+separate API token is needed.
 
 ## A day
 
@@ -152,8 +146,8 @@ linear-workmux reap
 ```
 
 Removes worktree + branch + session for every branch already merged into
-`origin/develop`. Only touches `<repo>__worktrees/`, so `wt` worktrees from
-`linear-session` are never harmed — they appear in `status` but are not reaped.
+`origin/develop`. Only touches `<repo>__worktrees/`, so worktrees made with
+`wt` directly are never harmed — they appear in `status` but are not reaped.
 
 ## Commands
 
@@ -173,10 +167,8 @@ linear-workmux reap                remove jobs whose branch is merged
 
 ## Project presets
 
-Presets are read from **`linear-session`'s** config
-(`~/.config/linear-session/config.json`) so the two tools cannot disagree about
-where a project lives. A `~/.config/linear-workmux/config.json` of the same
-shape takes precedence if you ever need them to differ.
+Presets are read from `~/.config/linear-workmux/config.json` (stow package
+`linear-workmux`).
 
 ```json
 {

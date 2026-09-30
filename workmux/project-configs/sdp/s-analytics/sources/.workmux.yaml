@@ -1,7 +1,7 @@
 # workmux nested config for the `sdp` subproject (s-analytics/sources).
 #
 # Nested configs REPLACE the root one, and make the tmux window open here inside
-# the new worktree — the equivalent of linear-session's `baseFolder`.
+# the new worktree — this is what a preset's `baseFolder` in linear-workmux relies on.
 #
 # Setup is delegated to worktrunk's hooks rather than reimplemented. They are the
 # tested path (`~/.config/worktrunk/config.toml`) and do things a `files.symlink`

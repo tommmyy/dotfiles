@@ -2,7 +2,7 @@
 #   <primary worktree>/.wtconfig   ->   subproject="sdp"   or   subproject="sdp console"
 # That file is already gitignored in the sdp repo (.gitignore:105).
 # The WT_SUBPROJECT env var takes PRECEDENCE over .wtconfig, as an ad-hoc, one-off
-# override (this is what `linear-session --project console` relies on).
+# override (this is what `linear-workmux -P console` relies on).
 #
 # Guard contract for every hook below:
 #   - subproject not selected / dir absent -> exit 0 (skip quietly, do not abort)

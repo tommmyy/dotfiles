@@ -9,6 +9,8 @@ description: >
   wants yesterday's or a specific day's work recapped for a team meeting. Reads git
   commits + working tree, maps each commit to its tenant/project via touched paths, and
   emits a short telegraph-style Czech bullet list ready to paste into chat.
+metadata:
+  opencode/autoinvoke: false
 ---
 
 # Daily Standup (SU) Summary
@@ -19,7 +21,7 @@ the user asks.
 
 ## Why the shape matters
 
-Stand-up listeners track work by *product/tenant*, not by ticket ID or branch. A list ordered
+Stand-up listeners track work by _product/tenant_, not by ticket ID or branch. A list ordered
 by commit time forces everyone to re-sort in their head, and the same tenant appearing three
 times reads as three separate topics. So the bullet key is always the project; issue IDs ride
 along inside the bullet as provenance.
@@ -46,7 +48,7 @@ unpushed branches. Derive the project from paths, not from the commit subject �
 lie (a `pft` commit can also touch `pftsk`, and a ratchet commit names no tenant at all).
 
 **Uncommitted work is stand-up content, and it is not only in the current directory.**
-With one worktree per task (worktrunk / `personal-spawn-feature-env`), a whole day can go
+With one worktree per task (`linear-workmux` / workmux), a whole day can go
 into a feature worktree without a single commit — `git status` in the repo you happen to
 be standing in would show none of it. The script therefore walks `git worktree list` and
 reports every dirty tree with its branch, derived projects, and **last touched** mtime:
@@ -85,7 +87,7 @@ fall back to `git log --all --since=... --author="$(git config user.email)"` plu
 
 ### 3. Write it in Czech
 
-Translate the engineering change into what it *does for the shop*, not what the diff did.
+Translate the engineering change into what it _does for the shop_, not what the diff did.
 "re-enable behind a split" → "znovu zapnuté … za splitem". Keep each bullet to one sentence,
 drop articles and filler, keep the issue ID.
 
@@ -130,5 +132,5 @@ Output:
 Vše na 4 větvích, pushnuto. Blokace: žádné.
 ```
 
-Note what the example does *not* contain: commit hashes, branch names, "feat/fix" types,
+Note what the example does _not_ contain: commit hashes, branch names, "feat/fix" types,
 file counts. Those are audit trail, not stand-up.

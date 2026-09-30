@@ -4,8 +4,6 @@
 // are waiting on you.
 //
 // Worktrees live in `<project>__worktrees/`, one `wm-<name>` tmux session each.
-// The older `linear-session` (`wt` + tmux directly, `<repo>@<branch>` sessions)
-// still exists and can coexist, but this is the tool in use.
 //
 // Linear is queried by shelling out to `opencode run` with the Linear MCP, so
 // this needs no API token of its own.
