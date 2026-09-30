@@ -7,6 +7,8 @@ description: >
   Also trigger when the user mentions "onboarding email", "sonda", "nasazeni sondy", "script deployment email",
   or asks to email a customer about their Perselio integration. Works with Linear issues to pull customer
   and site data automatically.
+metadata:
+  opencode/autoinvoke: false
 ---
 
 # Onboarding Email Generator for Perselio.com

@@ -9,6 +9,8 @@ description: >
   "merge my retro notes into Linear", "add retro from file to issue".
   Also trigger when the user references a local retro markdown file
   together with a Linear issue identifier (e.g. CUS-283).
+metadata:
+  opencode/autoinvoke: false
 ---
 
 # Retro Feedback
@@ -61,12 +63,12 @@ if not provided. Do not guess or search for the file.
 Read the specified file (and line range if given). Parse the content by
 category headings. The headings may vary in style — look for keywords:
 
-| Keyword pattern       | Maps to table column |
-| --------------------- | -------------------- |
-| like / likes          | Likes                |
-| dislike / dislikes    | Dislikes             |
-| improvement(s)        | Improvements         |
-| praise(s)             | Praises              |
+| Keyword pattern    | Maps to table column |
+| ------------------ | -------------------- |
+| like / likes       | Likes                |
+| dislike / dislikes | Dislikes             |
+| improvement(s)     | Improvements         |
+| praise(s)          | Praises              |
 
 Collect all bullet points under each heading. Strip leading `- ` markers.
 
@@ -101,6 +103,7 @@ within a cell. For example:
 ```
 
 CRITICAL rules for table cell formatting:
+
 - **NEVER use literal newlines** inside a table row. A newline breaks the
   markdown row boundary and will corrupt the entire table.
 - **Use `- ` dash prefix before each item, combined with `<br>` separators.**
@@ -117,6 +120,7 @@ CRITICAL rules for table cell formatting:
   format used in previous retros.
 
 Important considerations:
+
 - The column names in the table may not match the headings in the local file
   exactly. Use the keyword mapping above to find the right column.
 - If a column already has content in the user's row, append rather than

@@ -1,6 +1,8 @@
 ---
 name: personal-unslop
 description: Cut AI tells from any writing. Must always apply.
+metadata:
+  opencode/autoinvoke: false
 ---
 
 # Unslop

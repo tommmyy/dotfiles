@@ -8,6 +8,8 @@ description: >
   existing library, or fix "out of sync on PS4 but fine in VLC" audio. Handles MKV/
   AVI/TS/MP4 sources, HEVC/10-bit anime rips that "won't play on PS4", DTS/DD+ audio,
   SRT/ASS subs, whole-series batch conversions, and non-ASCII / bracketed filenames.
+metadata:
+  opencode/autoinvoke: false
 ---
 
 # Video → PS4
@@ -68,7 +70,7 @@ See `commands.md` for exact ffmpeg invocations and the batch-driver pattern.
   blow the 120 s timeout on big folders. `grep -c 'DONE' journal.jsonl` is instant.
 - **macOS Apple Silicon:** `h264_videotoolbox` is fast HW encode. Use
   `-c:v h264_videotoolbox -profile:v high -pix_fmt yuv420p -allow_sw 1 -tag:v avc1
-  -b:v 8–12M -maxrate -bufsize`. Converts 10-bit → 8-bit automatically. (10-bit
+-b:v 8–12M -maxrate -bufsize`. Converts 10-bit → 8-bit automatically. (10-bit
   `yuv420p10le` / `High 10` is the #1 reason DVD-anime rips "don't play on PS4" —
   re-encode to 8-bit; audio is often already AAC/AC-3 so `-c:a copy` it.)
 - **`start_time` can survive a videotoolbox RE-ENCODE, not just a copy-remux.** Even a
@@ -78,7 +80,7 @@ See `commands.md` for exact ffmpeg invocations and the batch-driver pattern.
   apply the bake-silence fix if nonzero. (Re-extracting audio to a raw elementary stream
   is what actually zeroes it; the `adelay` may round to 0 for tiny offsets and that's OK.)
 - **CSV probe adds a trailing comma → false FAIL in batch verify.** `ffprobe … -of
-  csv=p=0 -show_entries stream=codec_name` prints `ac3,` (trailing `,`), so a bash
+csv=p=0 -show_entries stream=codec_name` prints `ac3,` (trailing `,`), so a bash
   `[ "$x" = ac3 ]` check fails on a perfectly good file. Strip it: `| tr -d ',\n'`
   (or `.strip().strip(",")` in Python) before comparing. Don't delete/skip on this.
 - **macOS `uchg` (user-immutable) flag blocks `rm` even in a writable dir.** Old library
@@ -86,9 +88,8 @@ See `commands.md` for exact ffmpeg invocations and the batch-driver pattern.
   `ls -lO` shows `uchg` and the parent dir is writable. Clear it first:
   `chflags nouchg "$SRC"` then `rm`. Put `chflags nouchg` in the batch driver right
   before every source delete so verified sources actually get removed.
-- **Nasty filenames** (`[(`w´)]`, brackets, backticks, non-ASCII) break bash `*.mkv`
-  glob expansion and quoting. For batches over such folders, drive with a **Python**
-  script iterating `os.listdir()` and passing exact paths to ffmpeg/ffprobe — far more
-  robust than shell globbing. Still rename OUTPUTS to ASCII `Title_NN_PS4.mp4`.
+- **Nasty filenames** (`[(`w´)]`, brackets, backticks, non-ASCII) break bash `\*.mkv`glob expansion and quoting. For batches over such folders, drive with a **Python**
+script iterating`os.listdir()`and passing exact paths to ffmpeg/ffprobe — far more
+robust than shell globbing. Still rename OUTPUTS to ASCII`Title_NN_PS4.mp4`.
 - Delete sources with `rm` only after verify — it does NOT go to Trash, so the journal
   is the only recovery record. Keep it.
