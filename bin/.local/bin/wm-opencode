@@ -32,6 +32,11 @@ const { dirname, join } = require("path")
 
 const dir = process.cwd()
 
+// A session created over the API runs on the top-level `model` from
+// opencode.jsonc, not the `build` agent's override — even with `agent: "build"`.
+// Subagents keep their own pinned models.
+const JOB_MODEL = { providerID: "anthropic", id: "claude-opus-5-5" }
+
 // workmux writes the prompt to <worktree root>/.workmux, but a job spawned from
 // a monorepo subproject (s-analytics/sources, perselio-console) opens its pane
 // in that subdirectory, so look upwards until the worktree root.
@@ -226,7 +231,11 @@ else {
 				"api",
 				"session.create",
 				"-d",
-				JSON.stringify({ title: prompt.title, location: { directory: dir } }),
+				JSON.stringify({
+					title: prompt.title,
+					model: JOB_MODEL,
+					location: { directory: dir },
+				}),
 			],
 			{ encoding: "utf8", maxBuffer: 32 * 1024 * 1024 },
 		)
