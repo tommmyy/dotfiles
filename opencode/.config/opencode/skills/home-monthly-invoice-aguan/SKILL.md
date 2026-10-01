@@ -80,9 +80,13 @@ Read the MD rate out of its first item name for the arithmetic in step 1.
   rewritten every time.
 - `Items`: exactly two lines, both `PriceType: 1` (bez DPH), `VatRate: 21`,
   `VatRateType: 1`, `VatCodeId: 3`, `IsTaxMovement: true`, `ItemType: 0`,
-  `Amount: 1`:
+  `Amount: 1`, `DiscountPercentage: 0`:
   1. `"<MD> MDs v sazbě <rate>/MD"` at the computed base.
   2. `"vícepráce"` at the amount the user gave.
+
+  `DiscountPercentage` is required by `POST /IssuedInvoices`, but the preview
+  (`invoice_copy_draft`) accepts items without it. Leave it out and the draft
+  looks fine, then the save fails with HTTP 400.
 
 **Drop the copied `Rounding` line.** It carries the previous month's
 adjustment, and iDoklad recomputes its own on save. `Items` replaces the whole
@@ -115,6 +119,8 @@ invoice exists, since it is what puts the month's DUZP on record.
 - Accepting a MD figure that implies a ragged hour count (149,04 h) instead of
   confirming the clean one (149 h).
 - Copying the previous month's `Rounding` line into the new invoice.
+- Omitting `DiscountPercentage: 0` from the items. The preview passes, the
+  save is rejected.
 - Leaving `ItemsTextSuffix` on the previous month's period. It is not visible
   in the totals and survives the copy untouched, so it is the field most likely
   to ship wrong — it reached a saved invoice this way once already.

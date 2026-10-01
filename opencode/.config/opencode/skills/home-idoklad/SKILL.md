@@ -64,6 +64,8 @@ draft). Merge semantics matter:
 - Objects merge recursively; **arrays and scalars replace wholesale**. Passing
   `Items` replaces the entire item list, so to tweak one line you must send all
   lines.
+- Every item you send needs `DiscountPercentage` (use `0`). The draft preview
+  accepts items without it, but saving fails with HTTP 400.
 - `null` deletes a key.
 - `recount` defaults to true, so `totals` comes back calculated by iDoklad
   rather than computed here. Never hand-calculate VAT.
