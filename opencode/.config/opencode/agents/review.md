@@ -1,7 +1,7 @@
 ---
 description: Reviews a diff by dispatching the relevant specialist reviewers and merging their findings into one report. Use for "review this", "review my branch", or a pre-PR check.
 mode: subagent
-model: anthropic/claude-sonnet-5-5#medium
+model: anthropic/claude-opus-5-5#medium
 temperature: 0.1
 tools:
   write: false
